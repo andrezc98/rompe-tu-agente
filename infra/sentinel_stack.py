@@ -103,6 +103,10 @@ class BootstrapStack(cdk.Stack):
                 resources=[self.format_arn(service="bedrock-mantle", resource="project", resource_name="*")],
             )
         )
+        # Permission-only action for bearer-token calls on the Mantle service itself (docs: api-keys-permissions).
+        ci_role.add_to_policy(
+            iam.PolicyStatement(sid="MantleBearer", actions=["bedrock-mantle:CallWithBearerToken"], resources=["*"])
+        )
         # The chaos runner restarts dev after the q3 cases stop it (evals/chaos.py ensure_dev_running); the agent
         # role deliberately cannot start anything, so the operator principal does.
         ci_role.add_to_policy(iam.PolicyStatement(sid="DescribeForRestore", actions=["ec2:DescribeInstances"], resources=["*"]))
