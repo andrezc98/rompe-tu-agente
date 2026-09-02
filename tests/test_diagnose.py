@@ -25,6 +25,24 @@ def test_bucket_iam_word_boundary_does_not_match_diamante():
     assert diagnose.bucket("agent loop", "code", "el cliente compro un diamante") == "ejecucion"
 
 
+def test_bucket_http_403_in_tool_text_is_tool():
+    # A 403 from a tool's upstream API is a tool problem, not an IAM/permissions failure.
+    assert diagnose.bucket(
+        "span-7",
+        "TOOL_DESCRIPTION_FIX",
+        "The upstream API returned 403 Forbidden when the tool called the metrics endpoint.",
+    ) == "tool"
+
+
+def test_bucket_unauthorized_operation_is_permisos():
+    # Real AWS IAM text beats the TOOL_DESCRIPTION_FIX fix_type precedence.
+    assert diagnose.bucket(
+        "span-3",
+        "TOOL_DESCRIPTION_FIX",
+        "EC2 returned UnauthorizedOperation: You are not authorized to perform ec2:StopInstances",
+    ) == "permisos"
+
+
 def _root_cause(location, fix_type, causality, root_cause_explanation, fix_recommendation):
     # Mirrors strands_evals.types.detector.RCAItem (verified in
     # .venv/lib/python3.13/site-packages/strands_evals/types/detector.py).
