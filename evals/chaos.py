@@ -1,6 +1,7 @@
 """Chaos testing: five faults, five questions, one failure mode each (spec section 4.1)."""
 
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 
@@ -85,13 +86,17 @@ def build_experiment(cases: list[ChaosCase], judge) -> ChaosExperiment:
     )
 
 
-def run(prompt_version: str, repeats: int, out: Path, judge=None):
+def run(prompt_version: str, repeats: int, out: Path, judge=None, workers: int = 4):
     judge = judge or telemetry.judge_model()
     cases = build_cases(repeats)
     experiment = build_experiment(cases, judge)
     task = telemetry.make_task(prompt_version, plugins_factory=lambda: [ChaosPlugin()],
                                sessions_dir=telemetry.SESSIONS_DIR / f"chaos-{prompt_version}")
-    report = experiment.run_evaluations(task)
+    # run_evaluations() is sequential (max_workers=1, ~1 min per case with four judge calls each);
+    # the async form takes workers. Sync tasks run via asyncio.to_thread, the ChaosExperiment wrapper
+    # sets its ContextVar inside that thread, and make_task() filters the shared span buffer by
+    # session_id, so parallel cases do not leak effects or spans into each other (installed 1.2.0).
+    report = asyncio.run(experiment.run_evaluations_async(task, max_workers=workers))
     out.parent.mkdir(parents=True, exist_ok=True)
     report.to_file(str(out))
     return report
@@ -103,6 +108,7 @@ def main() -> int:
     parser.add_argument("--repeats", type=int, default=1)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--fail-on", type=float, default=None)
+    parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
     try:
         config.require_sandbox()
@@ -111,7 +117,7 @@ def main() -> int:
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
-    report = run(args.prompt, args.repeats, args.out)
+    report = run(args.prompt, args.repeats, args.out, workers=args.workers)
     # One row per (case, evaluator): four evaluators means rows == 4 x runs. Print both so the
     # number on stage ("54 corridas") is never read off the row count.
     runs = len(runs_by_name({"cases": report.cases}))
