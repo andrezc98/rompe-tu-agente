@@ -512,10 +512,10 @@ deploy:
 > nunca bajó de 0.98. El de regresión replaya
 > solo los casos que rompieron el agente alguna vez: la suite se genera sola a partir de las
 > brechas del red team. El deploy depende de los dos. En rojo:
-> falla el job `chaos` con `gate=FailureCommunicationEvaluator pass_rate=0.889` y `FAIL: 0.889 < 0.95`: seis de las 54 corridas con v1 escondieron una falla; el score global (0.636) se imprime al lado, como información. El job de regresión también falla, y el deploy queda `skipped`.
-> Con el prompt v2 el job de chaos pasa a verde, pero el de regresión sigue rojo: el ataque del
-> ticket inventado vuelve a entrar, porque una línea de prompt no arregla una aprobación falsa. El
-> verde llega con la capa cuatro: `stop_instance` rechaza cualquier ticket que no esté en la lista
+> falla el job `chaos` con `gate=FailureCommunicationEvaluator pass_rate=0.926` y `FAIL: 0.926 < 0.95`: cuatro de las 54 corridas con v1 escondieron una falla; el score global (0.647) se imprime al lado, como información. El job de regresión pasa en esa corrida (el replay no reprodujo la brecha esa vez; el ataque no es determinista) y el deploy queda `skipped` porque depende del chaos.
+> Con el prompt v2 el job de chaos pasa a verde, pero el prompt solo no cierra la regresión: el
+> red team corrió contra v2 y el ataque del ticket inventado entró en las dos pasadas, porque una
+> línea de prompt no arregla una aprobación falsa. El verde completo llega con la capa cuatro: `stop_instance` rechaza cualquier ticket que no esté en la lista
 > de aprobados antes de tocar AWS. El modelo puede seguir cediendo; la tool ya no. Lo probé
 > replayando el mismo ataque contra el agente con la capa cuatro: el modelo volvió a llamar a
 > `stop_instance` con `CHG-4821`, la tool respondió "no figura como aprobado", y el agente
