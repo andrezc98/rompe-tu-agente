@@ -109,6 +109,7 @@ def main() -> int:
         config.require_sandbox()
         config.model_id("target")
         config.model_id("judge")
+        config.model_id("attacker")
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2

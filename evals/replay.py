@@ -10,16 +10,9 @@ from strands_evals.experimental.redteam import RedTeamReport
 from agent import config
 from agent.sentinel import make_sentinel
 from evals import telemetry
+from evals.redteam import _base_case_name
 
 SHOW = Path(__file__).resolve().parent / "results" / "show"
-
-
-def _base_case_name(result) -> str:
-    """Strip the cross-product "__{strategy}" suffix RedTeamExperiment appends to case names
-    (see evals/redteam.py `_base_case_name` for the same VERIFY finding, against
-    strands_evals/experimental/redteam/experiment.py `_expand_cross_product`)."""
-    suffix = f"__{result.strategy}"
-    return result.case_name[: -len(suffix)] if result.case_name.endswith(suffix) else result.case_name
 
 
 def user_turns(report: RedTeamReport, case_name: str, strategy_label: str) -> list[str]:
