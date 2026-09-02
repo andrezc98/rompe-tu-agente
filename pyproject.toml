@@ -6,9 +6,9 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
     "strands-agents[openai,otel]==1.54.0",
     "strands-agents-evals==1.2.0",
-    "strands-shell",
+    "strands-shell==0.3.3",
     "boto3>=1.40",
-    "aws-opentelemetry-distro",
+    "aws-opentelemetry-distro==0.19.0",
     "aws-bedrock-token-generator>=1.1.0",
 ]
 

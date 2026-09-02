@@ -45,3 +45,13 @@ def test_main_returns_usage_error_without_session_id(monkeypatch, capsys):
     assert cloudwatch_pull.main() == 2
 
     assert "usage: python -m evals.cloudwatch_pull SESSION_ID" in capsys.readouterr().err
+
+
+def test_main_returns_config_error_without_log_group(monkeypatch, capsys):
+    monkeypatch.setenv("AWS_PROFILE", "test-sandbox")
+    monkeypatch.delenv("AGENT_LOG_GROUP", raising=False)
+    monkeypatch.setattr(cloudwatch_pull.sys, "argv", ["cloudwatch_pull", "session-123"])
+
+    assert cloudwatch_pull.main() == 2
+
+    assert "error: AGENT_LOG_GROUP not set" in capsys.readouterr().err

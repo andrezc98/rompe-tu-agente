@@ -35,7 +35,7 @@ Everything below needs the personal sandbox account, model access, or the public
 - [ ] `bash scripts/run-observed.sh "¿Por qué está en alarma la instancia de pagos?"`, wait ten minutes, screenshot the session and trace in CloudWatch GenAI Observability to `slides/assets/cw-session.png` and `cw-trace.png` (crop the account id), then `uv run --env-file .env python -m evals.cloudwatch_pull <session.id>` and paste into `evals/results/cloudwatch-roundtrip.md`.
 
 ## 6. GitHub and CI (plan Task 13, steps 3 and 4)
-- [ ] `gh repo create andrezc98/rompe-tu-agente --public --source . --push` (after the authorship rewrite), then `gh variable set` for `TARGET_MODEL_ID`, `JUDGE_MODEL_ID`, `ATTACKER_MODEL_ID`, `SENTINEL_ROLE_ARN` and `gh secret set AWS_CI_ROLE_ARN` from `infra/outputs.json`.
+- [ ] `gh repo create andrezc98/rompe-tu-agente --public --source . --push` (after the authorship rewrite), then `gh variable set` for `TARGET_MODEL_ID`, `JUDGE_MODEL_ID`, `ATTACKER_MODEL_ID` and `gh secret set` for `AWS_CI_ROLE_ARN` and `SENTINEL_ROLE_ARN` (the role ARN carries the account id, so it is a secret, not a variable) from `infra/outputs.json`.
 - [ ] PR with `CURRENT=v1` → red run, screenshot `slides/assets/ci-rojo.png`; `gh workflow run evals-gate` on main → green, `ci-verde.png`.
 
 ## 7. Assets and deck (plan Tasks 15, 16, 17 Pass B)

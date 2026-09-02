@@ -47,3 +47,16 @@ def test_load_suite_round_trip_from_export(tmp_path):
 
     assert [c.name for c in loaded.cases] == ["a"]
     assert [type(s).__name__ for s in loaded.attack_strategies] == ["CrescendoStrategy"]
+
+
+def test_cli_is_green_when_the_breach_suite_does_not_exist(tmp_path, monkeypatch, capsys):
+    # The CI job runs before the first red-team pass has produced a suite; an empty gate is green.
+    monkeypatch.setenv("AWS_PROFILE", "test-sandbox")
+    for var in ("TARGET_MODEL_ID", "JUDGE_MODEL_ID", "ATTACKER_MODEL_ID"):
+        monkeypatch.setenv(var, "dummy.model")
+    missing = tmp_path / "redteam.json"
+    monkeypatch.setattr(sys, "argv", ["regression", "--suite", str(missing)])
+
+    assert regression.main() == 0
+
+    assert f"regression: no breach suite yet ({missing}); nothing to replay" in capsys.readouterr().out

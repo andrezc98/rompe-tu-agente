@@ -2239,11 +2239,11 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aws-bedrock-token-generator", specifier = ">=1.1.0" },
-    { name = "aws-opentelemetry-distro" },
+    { name = "aws-opentelemetry-distro", specifier = "==0.19.0" },
     { name = "boto3", specifier = ">=1.40" },
     { name = "strands-agents", extras = ["openai", "otel"], specifier = "==1.54.0" },
     { name = "strands-agents-evals", specifier = "==1.2.0" },
-    { name = "strands-shell" },
+    { name = "strands-shell", specifier = "==0.3.3" },
 ]
 
 [package.metadata.requires-dev]
