@@ -2392,17 +2392,20 @@ def main() -> int:
         print("usage: python -m evals.cloudwatch_pull SESSION_ID", file=sys.stderr)
         return 2
     config.require_sandbox()
-    provider = CloudWatchProvider(log_group=os.environ.get("AGENT_LOG_GROUP", "aws/spans"), region=config.REGION)
-    data = provider.get_evaluation_data(session_id=sys.argv[1])
-    print(f"output: {data['output'][:300]}")
-    print(f"spans: {len(data['trajectory'].spans)}")
+    # Installed 1.2.0: CloudWatchProvider(region=, log_group=, agent_name=, lookback_days=30, ...) queries OTEL log
+    # records in the given log group filtered by attributes.session.id, then enriches parent ids from aws/spans.
+    provider = CloudWatchProvider(region=config.REGION, log_group=os.environ["AGENT_LOG_GROUP"])
+    data = provider.get_evaluation_data(session_id=sys.argv[1])  # returns TaskOutput: VERIFY key/attr names
+    output, trajectory = data["output"], data["trajectory"]
+    print(f"output: {str(output)[:300]}")
+    print(f"spans: {len(trajectory.spans)}")
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
 ```
-**VERIFY**: `CloudWatchProvider` constructor keywords and which log group it expects (the agent log group vs `aws/spans`); the providers README in the installed package documents it.
+**VERIFY** (controller, 2026-09-02): constructor is `CloudWatchProvider(region=None, log_group=None, agent_name=None, lookback_days=30, query_timeout_seconds=60.0, mapper=None, end_time=None)`; it reads OTEL log records from `log_group` (ours: the ADOT `x-aws-log-group` header must point at `aws-cdarg-sentinel-logs-demo`) filtered by `attributes.session.id`, so `agent/cli.py`'s `trace_attributes` session id is what you pass back. Still verify the `TaskOutput` return shape (`data["output"]`, `data["trajectory"]`) in `strands_evals/types/evaluation.py`.
 
 - [ ] **Step 3: Syntax check, commit**
 
