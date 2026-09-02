@@ -26,7 +26,10 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
   bootstrap de CDK usa el qualifier `cdarg2026` y el stack `aws-cdarg-sentinel-toolkit-demo`
   (`cdk.json`), así no toca un `CDKToolkit` preexistente. Si la cuenta ya tiene un proveedor OIDC
   para `token.actions.githubusercontent.com`, el deploy del bootstrap falla con
-  `EntityAlreadyExists`: pasar `-c oidc_provider_arn=<arn>` para importarlo.
+  `EntityAlreadyExists`: pasar `-c oidc_provider_arn=<arn>` para importarlo. El `github_repo` de
+  `cdk.json` es el prefijo del claim `sub` que GitHub emite para el repo (desde 2026 incluye ids
+  inmutables: `owner@<id>/repo@<id>`); se obtiene con
+  `gh api repos/<owner>/<repo>/actions/oidc/customization/sub --jq .sub_claim_prefix`.
 - Instancias: `m9g.medium` (Graviton5) con Bottlerocket ARM64 en `infra/sentinel_stack.py`; si
   la región no ofrece `m9g`, el fallback documentado ahí es `m8g.medium`. El tipo que la región
   del setup efectivamente acepte se confirma ese día, no antes.
