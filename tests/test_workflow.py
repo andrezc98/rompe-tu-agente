@@ -34,7 +34,7 @@ def test_workflow_chaos_fail_threshold(workflow):
     chaos_run_step = next((s for s in steps if "run" in s and "evals.chaos" in s["run"]), None)
 
     assert chaos_run_step is not None, "Chaos run step not found"
-    assert "--gate-evaluator FailureCommunicationEvaluator --fail-on 1.0" in chaos_run_step["run"]
+    assert "--gate-evaluator FailureCommunicationEvaluator --fail-on 0.95" in chaos_run_step["run"]
 
 
 def test_workflow_env_variables(workflow):
