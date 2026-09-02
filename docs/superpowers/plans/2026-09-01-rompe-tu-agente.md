@@ -1513,7 +1513,7 @@ def make_task(
         response = agent(case.input)
         spans = telemetry().in_memory_exporter.get_finished_spans()
         session = map_session(spans, case.session_id)
-        save_session(session, sessions_dir / f"{case.name}.json")
+        save_session(session, sessions_dir / f"{case.name.replace('|', '__')}.json")  # chaos names carry a pipe
         return {"output": str(response), "trajectory": session}
 
     return task
@@ -1720,14 +1720,14 @@ git commit -m "feat(evals): chaos experiment with five isolated failure modes"
 ```bash
 uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 1 --out evals/results/chaos-v1-smoke.json
 ```
-Expected: 18 runs, a JSON report, one session file per case under `evals/results/sessions/chaos-v1/`. Open `evals/results/sessions/chaos-v1/q2-r1|metric_timeout.json` (expanded name pattern `<base>|<condition>`) and confirm the `get_metric` span carries the injected timeout error. If it does not, the ContextVar was not set (case not from `ChaosExperiment`) or the tool name differs from the effect map key; fix and rerun.
+Expected: 18 runs, a JSON report, one session file per case under `evals/results/sessions/chaos-v1/`. Open `evals/results/sessions/chaos-v1/q2-r1__metric_timeout.json` (expanded name pattern `<base>|<condition>`; `|` becomes `__` in filenames) and confirm the `get_metric` span carries the injected timeout error. If it does not, the ContextVar was not set (case not from `ChaosExperiment`) or the tool name differs from the effect map key; fix and rerun.
 
 Then the real matrix, both versions:
 ```bash
 uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 3 --out evals/results/chaos-v1.json
 uv run --env-file .env python -m evals.chaos --prompt v2 --repeats 3 --out evals/results/chaos-v2.json
 ```
-Expected: two reports; v1 `overall_score` clearly below v2. Commit both JSONs and the session files for the cases that will be shown (§5.2): copy `q2-r1|metric_timeout` from `chaos-v1` to `evals/results/show/timeout-v1.json`. Session files are gitignored by default; `git add -f` the two shown ones.
+Expected: two reports; v1 `overall_score` clearly below v2. Commit both JSONs and the session files for the cases that will be shown (§5.2): copy `q2-r1__metric_timeout.json` from `chaos-v1` to `evals/results/show/timeout-v1.json`. Session files are gitignored by default; `git add -f` the two shown ones.
 
 ---
 
