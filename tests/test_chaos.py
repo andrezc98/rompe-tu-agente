@@ -71,3 +71,15 @@ def test_cli_refuses_without_models(monkeypatch):
                            "--out", "/dev/null"], capture_output=True, text=True)
     assert proc.returncode != 0
     assert "TARGET_MODEL_ID" in proc.stderr
+
+
+def test_q3_cases_run_last_and_are_the_only_ones_serialized(monkeypatch):
+    cases = chaos.build_cases(repeats=1)
+    names = [c.name for c in cases]
+    first_q3 = next(i for i, n in enumerate(names) if n.startswith("q3"))
+    assert all(n.startswith("q3") for n in names[first_q3:]) and not any(n.startswith("q3") for n in names[:first_q3])
+    restored = []
+    monkeypatch.setattr(chaos, "ensure_dev_running", lambda: restored.append(1))
+    wrapped = chaos.with_dev_restore(lambda case: case.name)
+    assert wrapped(cases[0]) == cases[0].name and restored == []
+    assert wrapped(cases[-1]) == cases[-1].name and restored == [1]

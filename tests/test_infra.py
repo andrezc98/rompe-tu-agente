@@ -188,3 +188,14 @@ def test_app_refuses_without_sandbox_profile():
     )
     assert result.returncode != 0
     assert "sandbox" in result.stderr
+
+
+def test_ci_role_can_only_start_dev_instances():
+    t = _bootstrap()
+    t.has_resource_properties("AWS::IAM::Policy", Match.object_like({
+        "PolicyDocument": {"Statement": Match.array_with([Match.object_like({
+            "Sid": "RestoreDevOnly",
+            "Action": "ec2:StartInstances",
+            "Condition": {"StringEquals": {"ec2:ResourceTag/env": "dev"}},
+        })])},
+    }))

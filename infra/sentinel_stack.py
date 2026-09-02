@@ -93,6 +93,17 @@ class BootstrapStack(cdk.Stack):
         ci_role.add_to_policy(
             iam.PolicyStatement(sid="AssumeSentinel", actions=["sts:AssumeRole"], resources=[_role_arn(self, "role-agent")])
         )
+        # The chaos runner restarts dev after the q3 cases stop it (evals/chaos.py ensure_dev_running); the agent
+        # role deliberately cannot start anything, so the operator principal does.
+        ci_role.add_to_policy(iam.PolicyStatement(sid="DescribeForRestore", actions=["ec2:DescribeInstances"], resources=["*"]))
+        ci_role.add_to_policy(
+            iam.PolicyStatement(
+                sid="RestoreDevOnly",
+                actions=["ec2:StartInstances"],
+                resources=["*"],
+                conditions={"StringEquals": {"ec2:ResourceTag/env": "dev"}},
+            )
+        )
         ci_role.add_to_policy(
             iam.PolicyStatement(
                 sid="Telemetry",
