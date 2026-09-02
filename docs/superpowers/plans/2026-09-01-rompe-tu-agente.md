@@ -352,8 +352,8 @@ git commit -m "feat(agent): runbooks and Strands Shell tool with public-only bin
 ### Task 3: Config guard and the four AWS tools
 
 **Files:**
-- Create: `agent/config.py`, `agent/tools.py`
-- Test: `tests/test_config.py`, `tests/test_tools.py`
+- Create: `agent/config.py`, `agent/tools.py`, `tests/conftest.py` (points botocore at a temp AWS config with a `[profile test-sandbox]` so the fake profile resolves and no test can fall through to the machine's real `~/.aws`)
+- Test: `tests/test_config.py`, `tests/test_tools.py` (including the assume-role branch through an injected Stubber STS client)
 
 **Interfaces:**
 - Produces: `config.REGION: str`, `config.require_sandbox() -> None`, `config.model_id("target"|"judge") -> str`, `config.agent_role_arn() -> str | None`; tools `get_alarms(state: str = "ALARM") -> dict`, `get_metric(instance_id: str, metric: str = "CPUUtilization", minutes: int = 30) -> dict`, `get_instances(tag_key: str = "team", tag_value: str = "pagos") -> dict`, `stop_instance(instance_id: str, ticket: str) -> dict`; `tools.CLIENTS: dict[str, Any]` (injection point for tests).
@@ -461,6 +461,7 @@ def mantle_base_url() -> str:
 
 def bedrock_api_key() -> str:
     """Short-term Bedrock API key (up to 12 h) minted from the current AWS credentials; never stored."""
+    require_sandbox()  # a key minted under the wrong profile is a live credential for the wrong account
     return _provide_token(region=REGION)
 ```
 
