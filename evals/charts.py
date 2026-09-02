@@ -37,6 +37,12 @@ INK = "#0b0b0b"
 GRIDLINE = "#e1e0d9"
 SURFACE = "#fcfcfb"
 
+# Plan's explicit floor: "readable from the back of the room: 24 pt minimum" -- every on-chart
+# text element (ticks, labels, annotations, table cells, legend) uses this or larger. Centralized
+# so tests/test_charts.py::test_all_text_at_least_24pt has one constant to check.
+BASE_FONT = 24
+TITLE_FONT = BASE_FONT + 4
+
 # Spec §4.2 (docs/superpowers/specs/2026-09-01-rompe-tu-agente-design.md): category, what the
 # attacker wants, and the layers that can stop it. Row order matches evals.redteam.RISKS.
 LAYER_TABLE = [
@@ -78,14 +84,16 @@ def pass_rate_by_effect(report: dict) -> dict[str, float]:
 def chart_chaos(v1: dict, v2: dict, out: Path) -> None:
     r1, r2 = pass_rate_by_effect(v1), pass_rate_by_effect(v2)
     x = range(len(EFFECTS))
-    fig, ax = plt.subplots(figsize=(14, 6), dpi=150)
+    # Width measured empirically (fig.canvas renderer bboxes): 6 two-line category labels at
+    # 24pt need >=20in to stop overlapping; 22in leaves a safe margin.
+    fig, ax = plt.subplots(figsize=(22, 8), dpi=150)
     ax.bar([i - 0.2 for i in x], [r1.get(e, 0) for e in EFFECTS], 0.4, label="prompt v1", color=V1_COLOR)
     ax.bar([i + 0.2 for i in x], [r2.get(e, 0) for e in EFFECTS], 0.4, label="prompt v2", color=V2_COLOR)
-    ax.set_xticks(list(x), [LABELS[e] for e in EFFECTS], fontsize=16)
+    ax.set_xticks(list(x), [LABELS[e] for e in EFFECTS], fontsize=BASE_FONT)
     ax.set_ylim(0, 1.05)
-    ax.set_ylabel("corridas aprobadas", fontsize=16)
-    ax.tick_params(axis="y", labelsize=16)
-    ax.legend(fontsize=16, frameon=False)
+    ax.set_ylabel("corridas aprobadas", fontsize=BASE_FONT)
+    ax.tick_params(axis="y", labelsize=BASE_FONT)
+    ax.legend(fontsize=BASE_FONT, frameon=False)
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
     fig.tight_layout()
@@ -135,23 +143,27 @@ def chart_redteam_from(results_pass1, results_pass2, out: Path) -> None:
             row_text.append(f"{avg:.2f}\n{layer}")
         cell_text.append(row_text)
 
-    fig, ax = plt.subplots(figsize=(max(10.0, 2.4 * len(strategies) + 4), 7), dpi=150)
+    # Cells need room for two 24pt lines (score + layer name) plus padding: ~3.4in per strategy
+    # column, ~2.6in per category row. The 15.5in floor (not the brief's 13.0) is measured
+    # (fig.canvas renderer bboxes) to be the minimum that also fits the two-line title below at
+    # TITLE_FONT for 1-3 strategy columns; it stops driving the width once column count needs more.
+    fig, ax = plt.subplots(figsize=(max(15.5, 3.4 * len(strategies) + 4), 2.6 * len(RISKS) + 3), dpi=150)
     cmap = matplotlib.colormaps["Reds"].with_extremes(bad=GRIDLINE)
     masked = np.ma.masked_invalid(scores)
     ax.imshow(masked, cmap=cmap, vmin=0, vmax=1, aspect="auto")
 
-    ax.set_xticks(range(len(strategies)), strategies, fontsize=16)
-    ax.set_yticks(range(len(RISKS)), [CATEGORY_LABEL[c] for c in RISKS], fontsize=16)
+    ax.set_xticks(range(len(strategies)), strategies, fontsize=BASE_FONT)
+    ax.set_yticks(range(len(RISKS)), [CATEGORY_LABEL[c] for c in RISKS], fontsize=BASE_FONT)
     ax.set_title(
-        "peor score por categoría x estrategia (promedio de 2 pasadas)\n"
-        f"capa anotada = la que frenó el ataque; ninguna = score >= {BREACH_THRESHOLD:.1f}",
-        fontsize=16,
+        "peor score por categoría x estrategia (2 pasadas)\n"
+        f"capa que lo detuvo (ninguna = score >= {BREACH_THRESHOLD:.1f})",
+        fontsize=TITLE_FONT,
     )
     for i in range(len(RISKS)):
         for j in range(len(strategies)):
             value = scores[i, j]
             text_color = "white" if not np.isnan(value) and value >= 0.5 else INK
-            ax.text(j, i, cell_text[i][j], ha="center", va="center", fontsize=16, color=text_color)
+            ax.text(j, i, cell_text[i][j], ha="center", va="center", fontsize=BASE_FONT, color=text_color)
     fig.tight_layout()
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out)
@@ -166,18 +178,20 @@ def chart_redteam(pass1_path: Path, pass2_path: Path, out: Path) -> None:
 
 def chart_layers(out: Path) -> None:
     """The spec §4.2 category/attacker-goal/defense-layer table as an image."""
-    fig, ax = plt.subplots(figsize=(16, 3.4), dpi=150)
+    # Column widths sized for the longest cell in each column at 24pt (~0.2in/char): column 1's
+    # "leer el archivo de escalamiento interno" (40 chars) is the long pole.
+    fig, ax = plt.subplots(figsize=(22, 5.2), dpi=150)
     ax.axis("off")
     table = ax.table(
         cellText=LAYER_TABLE,
         colLabels=["categoría", "qué quiere el atacante", "capas que pueden detenerlo"],
-        colWidths=[0.22, 0.44, 0.34],
+        colWidths=[0.25, 0.44, 0.31],
         cellLoc="left",
         loc="center",
     )
     table.auto_set_font_size(False)
-    table.set_fontsize(16)
-    table.scale(1, 2.6)
+    table.set_fontsize(BASE_FONT)
+    table.scale(1, 3.6)
     for (row, _col), cell in table.get_celld().items():
         cell.set_edgecolor(GRIDLINE)
         cell.set_facecolor(GRIDLINE if row == 0 else SURFACE)
