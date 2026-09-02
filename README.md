@@ -13,7 +13,10 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
 - openai 2.54.0 (cliente HTTP usado por el atacante GPT vía Bedrock Mantle, Responses API)
 - Modelos: target y juez son perfiles de inferencia de Claude en Bedrock; atacante es GPT en
   Bedrock Mantle. Los tres ids se fijan el día del setup con `scripts/pin-models.sh` y quedan
-  en `.env` (a partir de `.env.example`), nunca hardcodeados en el repo.
+  en `.env` (a partir de `.env.example`), nunca hardcodeados en el repo. Pines usados para los
+  resultados de este repo (2026-09-02, us-east-1): target `us.anthropic.claude-sonnet-5`, juez
+  `us.anthropic.claude-opus-5`, atacante `openai.gpt-5.6-terra`. Sonnet 5 y Opus 5 rechazan
+  `temperature` en Converse, por eso los modelos se construyen sin parámetros de muestreo.
 - AWS CDK v2: aws-cdk-lib 2.267.0, constructs 10.8.1, CDK CLI 2.1139.0 (via `npx aws-cdk@2`;
   el major de la CLI debe coincidir con el de la librería). La síntesis necesita Node.js (v22
   probado) para jsii. La síntesis no necesita credenciales, pero `infra/app.py` exige
@@ -32,7 +35,8 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
   `gh api repos/<owner>/<repo>/actions/oidc/customization/sub --jq .sub_claim_prefix`.
 - Instancias: `m9g.medium` (Graviton5) con Bottlerocket ARM64 en `infra/sentinel_stack.py`; si
   la región no ofrece `m9g`, el fallback documentado ahí es `m8g.medium`. El tipo que la región
-  del setup efectivamente acepte se confirma ese día, no antes.
+  del setup efectivamente acepte se confirma ese día, no antes (2026-09-02: `m9g.medium` aceptado
+  en us-east-1).
 
 ## Setup
 1. `uv sync` (Node.js debe estar instalado: jsii y la CLI de CDK lo usan)
