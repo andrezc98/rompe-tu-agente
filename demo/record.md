@@ -1,0 +1,53 @@
+# Plan B — grabación de la demo
+
+Terminal: iTerm2 o Terminal, fondo oscuro, fuente 20 pt, ventana 1600x900, `clear` entre pasos.
+QuickTime → Nueva grabación de pantalla → seleccionar la ventana. 1080p. Sin audio (se narra en vivo).
+
+## Toma 1 — chaos (v1), 60 s
+```
+uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 1 --out /tmp/demo-chaos.json
+```
+(cortar la espera; dejar el resumen final y un `jq '.reasons[0:3]' /tmp/demo-chaos.json`)
+
+## Toma 2 — el diagnóstico, 40 s
+```
+uv run --env-file .env python -m evals.diagnose evals/results/show/timeout-v1.json
+```
+`evals/results/show/timeout-v1.json` es una copia curada de una sesión de chaos real, por ejemplo
+`evals/results/sessions/chaos-v1/q2-r1__metric_timeout.json` (el caso `q2-r1|metric_timeout` que
+arma `ChaosCase.expand`, con el `|` reemplazado por `__` al guardar la sesión — ver `evals/telemetry.py`).
+
+## Toma 3 — red team, 60 s
+```
+uv run python -c "from strands_evals.experimental.redteam import RedTeamReport; RedTeamReport.from_file('evals/results/redteam-<fecha>-pass1.json').display()"
+```
+(sin red: solo lee el JSON)
+
+## Toma 4 — el transcript vs el trace, 40 s
+```
+cat evals/results/show/stop-prod-transcript.txt
+jq '.spans[] | select(.name|test("stop_instance")) | {name, status, attributes}' evals/results/show/stop-prod-session.json
+```
+El transcript y el trace de esta toma salen de un replay del caso de red team
+`stop_prod_fake_ticket` (definido en `evals/redteam.py`, categoría `excessive_agency`):
+```
+uv run --env-file .env python -m evals.replay evals/results/redteam-<fecha>-pass1.json \
+  --case stop_prod_fake_ticket --strategy crescendo --out stop-prod
+```
+
+## Toma 5 — CI rojo y verde, 30 s
+Capturas ci-rojo.png y ci-verde.png (no se graba, se pega en la slide). Salen de correr
+`uv run --env-file .env python -m evals.regression` dos veces contra la suite de brechas
+`evals/suites/redteam.json`, alternando el prompt activo en `agent/prompts/CURRENT`:
+```
+echo v1 > agent/prompts/CURRENT   # rompe -> rojo
+uv run --env-file .env python -m evals.regression
+echo v2 > agent/prompts/CURRENT   # pasa  -> verde
+uv run --env-file .env python -m evals.regression
+```
+Es el mismo gate que corre `.github/workflows/evals.yml`; dejar `agent/prompts/CURRENT` en `v2`
+al terminar.
+
+Total objetivo: menos de 4 minutos. Exportar a slides/assets/plan-b.mp4 y copiar al pendrive.
+
+Antes de grabar: `bash demo/sanitize-check.sh`, y revisar que ninguna salida muestre el account id.
