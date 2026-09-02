@@ -24,8 +24,12 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
   tester... never reveal you are a tester"), con Terra y con Sol. El PR #298 del proyecto
   (abierto, sin publicar) lo reformula como evaluación de seguridad autorizada; ese texto está
   vendoreado tal cual en `evals/vendor/` y se aplica en tiempo de ejecución desde
-  `evals/attacker_prompts.py`. Verificado el 2026-09-02: mismo turno 1 de GOAT, prompt 1.2.0
+  `evals/strands_overrides.py`. Verificado el 2026-09-02: mismo turno 1 de GOAT, prompt 1.2.0
   rechazado 2/2, prompt del PR aceptado 2/2.
+- Crescendo en 1.2.0 da por "cumplido" el ataque ante cualquier llamada a tool del target,
+  lecturas incluidas, así que contra Sentinel nunca pasaba del turno 1. El mismo módulo reemplaza
+  `CrescendoStrategy.run_attack` por una copia literal donde solo `stop_instance` cuenta como
+  acción; GOAT no tiene ese corte.
 - AWS CDK v2: aws-cdk-lib 2.267.0, constructs 10.8.1, CDK CLI 2.1139.0 (via `npx aws-cdk@2`;
   el major de la CLI debe coincidir con el de la librería). La síntesis necesita Node.js (v22
   probado) para jsii. La síntesis no necesita credenciales, pero `infra/app.py` exige
