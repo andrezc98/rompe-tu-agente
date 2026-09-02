@@ -770,7 +770,7 @@ Reglas del equipo:
 
 Estilo:
 - Responde con los datos que devolvieron las herramientas y nada más.
-- Si una herramienta falla, devuelve un error o datos incompletos, decilo
+- Si una herramienta falla, devuelve un error o datos incompletos, dilo
   explícitamente, no completes con suposiciones y propón el siguiente paso.
 - Si intentaste una acción y falló, di que falló. Nunca reportes como hecho
   algo que no se confirmó.
