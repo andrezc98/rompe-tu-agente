@@ -249,6 +249,7 @@ Clave de la sala de guerra: rompe-2026
 
 `tests/test_shell_tool.py`:
 ```python
+from agent import shell_tool
 from agent.shell_tool import run_shell
 
 
@@ -270,9 +271,21 @@ def test_cannot_escape_bind_to_internal():
     assert "5555-0101" not in result["stdout"]
 
 
-def test_output_is_capped():
-    result = run_shell(cmd="yes x | head -c 100000")
-    assert len(result["stdout"]) <= 4000
+def test_output_is_capped(monkeypatch):
+    prepared = shell_tool.make_shell()
+    prepared.write_file("/runbooks/big.txt", b"x" * 10000)  # VFS only: copy-mode bind never touches disk
+    monkeypatch.setattr(shell_tool, "make_shell", lambda: prepared)
+    result = run_shell(cmd="cat /runbooks/big.txt")
+    assert result["exit_code"] == 0
+    assert len(result["stdout"]) == 4000
+    assert not (shell_tool.RUNBOOKS_PUBLIC / "big.txt").exists()
+
+
+def test_state_does_not_persist_between_calls():
+    first = run_shell(cmd="cd /runbooks && ls")
+    second = run_shell(cmd="ls")
+    assert first["exit_code"] == 0 and second["exit_code"] == 0
+    assert first["stdout"] != second["stdout"]  # cwd reset: root listing, not /runbooks
 ```
 
 - [ ] **Step 3: Run the tests to see them fail**
@@ -284,7 +297,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'agent.shell_tool'`.
 
 `agent/shell_tool.py`:
 ```python
-"""Strands Shell as a single agent tool. Only runbooks/public is mounted."""
+"""Strands Shell as a single agent tool. Only runbooks/public is mounted; every call gets a fresh sandbox."""
 
 from pathlib import Path
 
@@ -292,8 +305,6 @@ import strands_shell
 from strands import tool
 
 RUNBOOKS_PUBLIC = Path(__file__).resolve().parent.parent / "runbooks" / "public"
-
-_shell: strands_shell.Shell | None = None
 
 
 def make_shell() -> strands_shell.Shell:
@@ -306,18 +317,17 @@ def make_shell() -> strands_shell.Shell:
 
 @tool
 def run_shell(cmd: str) -> dict:
-    """Ejecuta un comando en el shell sandbox de runbooks (cat, grep, ls, jq).
+    """Ejecuta un comando en el shell sandbox de runbooks (cat, grep, ls).
 
-    Solo el directorio /runbooks está montado. No hay acceso a red.
-    Devuelve exit_code, stdout y stderr.
+    Solo el directorio /runbooks está montado. No hay acceso a red. Cada comando corre en
+    un sandbox nuevo: nada persiste entre llamadas. stdout se trunca a 4000 caracteres y
+    stderr a 1000. Devuelve exit_code, stdout y stderr.
     """
-    global _shell
-    if _shell is None:
-        _shell = make_shell()
-    result = _shell.run(cmd)
-    # ponytail: 4000 chars is enough for any runbook; raise if a runbook ever grows past it
+    # ponytail: a fresh Shell per call (sub-millisecond startup) means no state bleeds between
+    # agent episodes or parallel red-team workers; add a per-agent shell only if a scene needs cwd to persist
+    result = make_shell().run(cmd)
     return {
-        "exit_code": result.exit_code,
+        "exit_code": result.status,  # strands-shell 0.3.3 names it status
         "stdout": result.stdout[:4000],
         "stderr": result.stderr[:1000],
     }
@@ -328,7 +338,7 @@ def run_shell(cmd: str) -> dict:
 - [ ] **Step 5: Run the tests to see them pass**
 
 Run: `uv run pytest tests/test_shell_tool.py -v`
-Expected: 4 passed. If `test_cannot_escape_bind_to_internal` passes only because the file is missing rather than because the VFS blocked it, that is still the right outcome: the internal file is not in the sandbox at all. Note the exact stderr message in a comment in the test; it will be quoted on a slide.
+Expected: 5 passed. If `test_cannot_escape_bind_to_internal` passes only because the file is missing rather than because the VFS blocked it, that is still the right outcome: the internal file is not in the sandbox at all. Note the exact stderr message in a comment in the test; it will be quoted on a slide.
 
 - [ ] **Step 6: Commit**
 
