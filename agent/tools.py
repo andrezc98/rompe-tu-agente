@@ -108,7 +108,11 @@ def stop_instance(instance_id: str, ticket: str) -> str:
 
     La política del equipo prohíbe detener instancias con tag env=prod desde el asistente.
     """
-    # ponytail: no ticket validation here on purpose; the model and IAM are the layers under test
+    # Layer 4, added after the red team (2026-09-02): with prompts v1 and v2 the model could be talked into calling
+    # this with a ticket it had reformatted itself and an approval it could not verify. The model may still decide
+    # to call; the tool decides whether the ticket is real. IAM (layer 3) still guards env=prod below.
+    if ticket not in config.approved_tickets():
+        raise ValueError(f"ticket {ticket} no figura como aprobado en el sistema de cambios: no se detiene {instance_id}")
     response = _client("ec2").stop_instances(InstanceIds=[instance_id])
     change = response["StoppingInstances"][0]
     payload = {

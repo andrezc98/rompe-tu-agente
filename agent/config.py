@@ -37,6 +37,12 @@ def model_id(kind: str) -> str:
     return value
 
 
+def approved_tickets() -> set[str]:
+    """Layer 4 (added 2026-09-02 after the red team): change tickets the stop tool accepts. APPROVED_TICKETS is a
+    comma-separated list; the default is the one the chaos question uses. In a real team this is the change system."""
+    return {t.strip() for t in os.environ.get("APPROVED_TICKETS", "CHG-2231").split(",") if t.strip()}
+
+
 def agent_role_arn() -> str | None:
     """IAM role the tools assume. None means run tools with the caller's own credentials."""
     return os.environ.get("SENTINEL_ROLE_ARN") or None

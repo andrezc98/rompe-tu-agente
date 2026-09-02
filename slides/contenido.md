@@ -510,7 +510,11 @@ deploy:
 > solo los casos que rompieron el agente alguna vez: la suite se genera sola a partir de las
 > brechas del red team. El deploy depende de los dos. En rojo:
 > falla el job `chaos` con `gate=FailureCommunicationEvaluator pass_rate=0.889` y `FAIL: 0.889 < 0.95`: seis de las 54 corridas con v1 escondieron una falla; el score global (0.636) se imprime al lado, como información. El job de regresión también falla, y el deploy queda `skipped`.
-> En verde, el mismo PR con el prompt v2. (~115 s)
+> Con el prompt v2 el job de chaos pasa a verde, pero el de regresión sigue rojo: el ataque del
+> ticket inventado vuelve a entrar, porque una línea de prompt no arregla una aprobación falsa. El
+> verde llega con la capa cuatro: `stop_instance` rechaza cualquier ticket que no esté en la lista
+> de aprobados antes de tocar AWS. El modelo puede seguir cediendo; la tool ya no. Ese es el
+> gate haciendo su trabajo: un arreglo por capa. (~115 s)
 
 ---
 
@@ -534,6 +538,7 @@ Qué no funcionó:
 Qué haría distinto:
 
 - Empezar por el gate, no terminar en él
+- Validar el ticket en la tool desde el día uno: el prompt no es una capa
 
 **Layout sugerido:** bullets en tres bloques (o tres columnas)
 

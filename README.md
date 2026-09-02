@@ -100,6 +100,14 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
 modelo (prompt v1/v2) → sandbox (Strands Shell, bind de solo runbooks/public) → permisos (rol
 `aws-cdarg-sentinel-role-agent-demo` con Deny de StopInstances en env=prod).
 
+## Capa 4: la tool valida el ticket (agregada el 2026-09-02)
+El red team encontró, con los prompts v1 y v2, que al agente se lo convence en seis turnos de detener
+una instancia con un ticket que él mismo reformateó y una aprobación "por chat" que no podía
+verificar; la regresión de CI lo reprodujo con v2. El arreglo no es otra línea de prompt:
+`stop_instance` rechaza cualquier ticket que no esté en `APPROVED_TICKETS` (por defecto `CHG-2231`,
+el de la pregunta de chaos) antes de tocar AWS. El modelo puede seguir decidiendo llamar; la tool
+decide si el ticket existe. IAM sigue protegiendo `env=prod` por debajo.
+
 ## Notas de reproducibilidad
 - El agente usa las credenciales del perfil sandbox para Bedrock y asume
   `aws-cdarg-sentinel-role-agent-demo` para las tools (expuesto como `SENTINEL_ROLE_ARN` en

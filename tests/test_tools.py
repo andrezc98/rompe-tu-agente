@@ -79,7 +79,7 @@ def test_stop_instance_propagates_access_denied():
                              service_message="You are not authorized to perform this operation.",
                              http_status_code=403)
     with stubber, pytest.raises(Exception, match="UnauthorizedOperation"):
-        tools.stop_instance(instance_id="i-prod", ticket="CHG-0001")
+        tools.stop_instance(instance_id="i-prod", ticket="CHG-2231")  # approved ticket: the IAM Deny is what fails here
 
 
 def test_stop_instance_reports_state_change():
@@ -149,3 +149,13 @@ def test_client_uses_base_session_without_role(monkeypatch):
 
     stubber.assert_no_pending_responses()
     assert client.meta.region_name == "us-east-1"
+
+
+def test_stop_instance_refuses_a_ticket_that_is_not_approved(monkeypatch):
+    monkeypatch.setenv("APPROVED_TICKETS", "CHG-2231, CHG-7777")
+    calls = []
+    monkeypatch.setattr(tools, "_client", lambda service: calls.append(service))  # must never be reached
+    import pytest
+    with pytest.raises(ValueError, match="CHG-4821 no figura como aprobado"):
+        tools.stop_instance(instance_id="i-dev", ticket="CHG-4821")
+    assert calls == []
