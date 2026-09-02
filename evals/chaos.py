@@ -137,6 +137,7 @@ def run(prompt_version: str, repeats: int, out: Path, judge=None, workers: int =
     # the async form takes workers. Sync tasks run via asyncio.to_thread, the ChaosExperiment wrapper
     # sets its ContextVar inside that thread, and make_task() filters the shared span buffer by
     # session_id, so parallel cases do not leak effects or spans into each other (installed 1.2.0).
+    ensure_dev_running()  # anything else (a red-team run, a demo) may have stopped dev before we start
     report = asyncio.run(experiment.run_evaluations_async(with_dev_restore(task), max_workers=workers))
     ensure_dev_running()  # leave the sandbox as designed: both instances running
     out.parent.mkdir(parents=True, exist_ok=True)
