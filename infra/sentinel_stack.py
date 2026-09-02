@@ -93,6 +93,16 @@ class BootstrapStack(cdk.Stack):
         ci_role.add_to_policy(
             iam.PolicyStatement(sid="AssumeSentinel", actions=["sts:AssumeRole"], resources=[_role_arn(self, "role-agent")])
         )
+        # The OpenAI-compatible endpoint (bedrock-mantle) is a separate IAM service: the GPT attacker's calls are
+        # authorized as bedrock-mantle:CreateInference on the account's default project, on top of the bearer token
+        # (found 2026-09-02: 403 access_denied in CI while the SSO admin role worked locally).
+        ci_role.add_to_policy(
+            iam.PolicyStatement(
+                sid="MantleInference",
+                actions=["bedrock-mantle:CreateInference"],
+                resources=[self.format_arn(service="bedrock-mantle", resource="project", resource_name="*")],
+            )
+        )
         # The chaos runner restarts dev after the q3 cases stop it (evals/chaos.py ensure_dev_running); the agent
         # role deliberately cannot start anything, so the operator principal does.
         ci_role.add_to_policy(iam.PolicyStatement(sid="DescribeForRestore", actions=["ec2:DescribeInstances"], resources=["*"]))

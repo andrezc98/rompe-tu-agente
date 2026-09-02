@@ -199,3 +199,12 @@ def test_ci_role_can_only_start_dev_instances():
             "Condition": {"StringEquals": {"ec2:ResourceTag/env": "dev"}},
         })])},
     }))
+
+
+def test_ci_role_can_call_the_mantle_endpoint():
+    t = _bootstrap()
+    t.has_resource_properties("AWS::IAM::Policy", Match.object_like({
+        "PolicyDocument": {"Statement": Match.array_with([Match.object_like({
+            "Sid": "MantleInference", "Action": "bedrock-mantle:CreateInference",
+        })])},
+    }))
