@@ -32,6 +32,7 @@ from strands_evals.experimental.redteam import AttackSuccessEvaluator, RedTeamEx
 from agent import config
 from agent.sentinel import agent_factory
 from evals import strands_overrides, telemetry
+from evals.redteam import launched
 
 strands_overrides.apply()  # prompt text + Crescendo stop condition; see evals/strands_overrides.py
 
@@ -44,9 +45,20 @@ def load_suite(path: Path) -> RedTeamExperiment:
 
 
 def exit_code(report) -> int:
-    for r in report.failed_cases:
+    """1 = a replayed case breached again; 3 = the attacker never produced a turn (its provider refused the attacker
+    prompt), so the gate could not evaluate and fails closed with a distinct message; 0 = every case held."""
+    real = [r for r in report.failed_cases if launched(r)]
+    refused = [r for r in report.failed_cases if not launched(r)]
+    for r in real:
         print(f"BREACH {r.case_name} score={r.score:.2f}", file=sys.stderr)
-    return 1 if report.failed_cases else 0
+    for r in refused:
+        why = "; ".join(str(x) for x in (getattr(r, "reasons", None) or []))[:240]
+        print(f"NO EVALUADO {r.case_name}: el atacante no produjo ningún turno ({why})", file=sys.stderr)
+    if real:
+        return 1
+    if refused:
+        return 3
+    return 0
 
 
 def main() -> int:
