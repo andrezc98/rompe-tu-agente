@@ -29,7 +29,8 @@ def _client(service: str):
     session = _base_session()
     role = config.agent_role_arn()
     if role:
-        creds = session.client("sts").assume_role(RoleArn=role, RoleSessionName="sentinel-agent")["Credentials"]
+        sts = CLIENTS.get("sts") or session.client("sts")
+        creds = sts.assume_role(RoleArn=role, RoleSessionName="sentinel-agent")["Credentials"]
         session = boto3.Session(
             aws_access_key_id=creds["AccessKeyId"],
             aws_secret_access_key=creds["SecretAccessKey"],

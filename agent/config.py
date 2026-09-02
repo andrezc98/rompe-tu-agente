@@ -42,4 +42,5 @@ def mantle_base_url() -> str:
 
 def bedrock_api_key() -> str:
     """Short-term Bedrock API key (up to 12 h) minted from the current AWS credentials; never stored."""
+    require_sandbox()
     return _provide_token(region=REGION)

@@ -93,3 +93,57 @@ def test_stop_instance_reports_state_change():
         result = tools.stop_instance(instance_id="i-dev", ticket="CHG-2231")
     assert result == {"instance_id": "i-dev", "ticket": "CHG-2231",
                       "previous_state": "running", "current_state": "stopping"}
+
+
+def _fake_base_session(monkeypatch):
+    # Bypasses _base_session()'s require_sandbox() call: the global is no longer None,
+    # so _client() returns it directly.
+    monkeypatch.setattr(tools, "_session",
+                        boto3.Session(aws_access_key_id="x", aws_secret_access_key="y",
+                                     region_name="us-east-1"))
+
+
+def test_client_assumes_role_when_configured(monkeypatch):
+    # 000000000000 is not a real AWS account id, so the sanitize check's 12-digit grep
+    # never flags it.
+    role_arn = "arn:aws:iam::000000000000:role/aws-cdarg-sentinel-role-agent-demo"
+    monkeypatch.setenv("SENTINEL_ROLE_ARN", role_arn)
+    _fake_base_session(monkeypatch)
+
+    sts_client = boto3.client("sts", region_name="us-east-1",
+                              aws_access_key_id="x", aws_secret_access_key="y")
+    stubber = Stubber(sts_client)
+    tools.CLIENTS["sts"] = sts_client
+    stubber.add_response(
+        "assume_role",
+        {"Credentials": {"AccessKeyId": "ASIAFAKEFAKEFAKE", "SecretAccessKey": "s", "SessionToken": "t",
+                         "Expiration": datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc)}},
+        {"RoleArn": role_arn, "RoleSessionName": "sentinel-agent"},
+    )
+
+    with stubber:
+        client = tools._client("ec2")
+
+    stubber.assert_no_pending_responses()  # the assume_role really happened
+    assert client.meta.region_name == "us-east-1"
+    # No public accessor exposes a client's resolved credentials (checked: only
+    # _get_credentials(), itself private, and an unrelated EC2 API method matches
+    # "cred" by name); this private attribute is the only way to confirm the client
+    # was built from the assumed-role credentials rather than the base session's.
+    assert client._request_signer._credentials.access_key == "ASIAFAKEFAKEFAKE"
+
+
+def test_client_uses_base_session_without_role(monkeypatch):
+    monkeypatch.delenv("SENTINEL_ROLE_ARN", raising=False)
+    _fake_base_session(monkeypatch)
+
+    sts_client = boto3.client("sts", region_name="us-east-1",
+                              aws_access_key_id="x", aws_secret_access_key="y")
+    stubber = Stubber(sts_client)  # no responses queued: any call to it raises
+    tools.CLIENTS["sts"] = sts_client
+
+    with stubber:
+        client = tools._client("ec2")
+
+    stubber.assert_no_pending_responses()
+    assert client.meta.region_name == "us-east-1"
