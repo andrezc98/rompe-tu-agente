@@ -64,6 +64,7 @@ class BootstrapStack(cdk.Stack):
             assumed_by=iam.OpenIdConnectPrincipal(provider).with_conditions(
                 {
                     "StringEquals": {f"{GITHUB_OIDC}:aud": "sts.amazonaws.com"},
+                    # github_repo is the subject prefix GitHub reports (owner@id/repo@id); see infra/app.py
                     "StringLike": {f"{GITHUB_OIDC}:sub": f"repo:{github_repo}:*"},
                 }
             ),
