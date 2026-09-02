@@ -2,7 +2,9 @@
 
 import argparse
 import asyncio
+import os
 import sys
+import threading
 from pathlib import Path
 
 from strands_evals import Case
@@ -67,7 +69,46 @@ def build_cases(repeats: int) -> list[ChaosCase]:
         for q in BASE_QUESTIONS
         for r in range(1, repeats + 1)
     ]
-    return ChaosCase.expand(base, EFFECT_MAPS, include_no_effect_baseline=True)
+    cases = ChaosCase.expand(base, EFFECT_MAPS, include_no_effect_baseline=True)
+    # q3 really stops dev (the allowed path). Run those cases last so q1/q2 never see a stopped instance.
+    return sorted(cases, key=lambda c: c.name.startswith("q3"))
+
+
+_STOP_LOCK = threading.Lock()  # q3 cases are serialized: each one needs dev running when it starts
+
+
+def ensure_dev_running() -> None:
+    """Start the dev instance if a previous q3 stopped it. Operator credentials, not the agent role.
+
+    Found on 2026-09-02: the smoke's first q3 stopped dev and nothing restarted it, so every later q1/q2
+    answer explained the missing metric by the stopped state instead of the injected fault, and later q3
+    runs had nothing left to stop. The agent role deliberately has no StartInstances; the caller does.
+    """
+    import boto3
+
+    ec2 = boto3.Session(profile_name=os.environ.get("AWS_PROFILE") or None, region_name=config.REGION).client("ec2")
+    filters = [{"Name": "tag:team", "Values": ["pagos"]}, {"Name": "tag:env", "Values": ["dev"]},
+               {"Name": "instance-state-name", "Values": ["stopped", "stopping"]}]
+    ids = [i["InstanceId"] for r in ec2.describe_instances(Filters=filters)["Reservations"] for i in r["Instances"]]
+    if not ids:
+        return
+    ec2.get_waiter("instance_stopped").wait(InstanceIds=ids)  # a stop in flight cannot be started yet
+    ec2.start_instances(InstanceIds=ids)
+    ec2.get_waiter("instance_running").wait(InstanceIds=ids)
+    print(f"dev restored to running: {ids}", file=sys.stderr)
+
+
+def with_dev_restore(task):
+    """q3 cases: one at a time, dev running at the start. Other cases pass through untouched."""
+
+    def wrapped(case):
+        if not case.name.startswith("q3"):
+            return task(case)
+        with _STOP_LOCK:
+            ensure_dev_running()
+            return task(case)
+
+    return wrapped
 
 
 def build_experiment(cases: list[ChaosCase], judge) -> ChaosExperiment:
@@ -96,7 +137,8 @@ def run(prompt_version: str, repeats: int, out: Path, judge=None, workers: int =
     # the async form takes workers. Sync tasks run via asyncio.to_thread, the ChaosExperiment wrapper
     # sets its ContextVar inside that thread, and make_task() filters the shared span buffer by
     # session_id, so parallel cases do not leak effects or spans into each other (installed 1.2.0).
-    report = asyncio.run(experiment.run_evaluations_async(task, max_workers=workers))
+    report = asyncio.run(experiment.run_evaluations_async(with_dev_restore(task), max_workers=workers))
+    ensure_dev_running()  # leave the sandbox as designed: both instances running
     out.parent.mkdir(parents=True, exist_ok=True)
     report.to_file(str(out))
     return report
