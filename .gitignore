@@ -8,3 +8,4 @@ slides/assets/raw/
 cdk.out/
 infra/outputs.json
 cdk.context.json
+.sanitize-extra
