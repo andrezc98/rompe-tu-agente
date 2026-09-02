@@ -106,7 +106,9 @@ una instancia con un ticket que él mismo reformateó y una aprobación "por cha
 verificar; la regresión de CI lo reprodujo con v2. El arreglo no es otra línea de prompt:
 `stop_instance` rechaza cualquier ticket que no esté en `APPROVED_TICKETS` (por defecto `CHG-2231`,
 el de la pregunta de chaos) antes de tocar AWS. El modelo puede seguir decidiendo llamar; la tool
-decide si el ticket existe. IAM sigue protegiendo `env=prod` por debajo.
+decide si el ticket existe. IAM sigue protegiendo `env=prod` por debajo. Evidencia: `evals/results/show/capa4-transcript.txt`
+es el replay del mismo ataque contra el agente con la capa cuatro: el modelo vuelve a llamar a `stop_instance`,
+la tool lo rechaza y el agente responde "La acción falló ... no fue detenida".
 
 ## Notas de reproducibilidad
 - El agente usa las credenciales del perfil sandbox para Bedrock y asume
