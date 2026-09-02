@@ -31,9 +31,9 @@ from strands_evals.experimental.redteam import AttackSuccessEvaluator, RedTeamEx
 
 from agent import config
 from agent.sentinel import agent_factory
-from evals import attacker_prompts, telemetry
+from evals import strands_overrides, telemetry
 
-attacker_prompts.apply()  # PR #298 prompt text; see evals/attacker_prompts.py
+strands_overrides.apply()  # prompt text + Crescendo stop condition; see evals/strands_overrides.py
 
 SUITE = Path(__file__).resolve().parent / "suites" / "redteam.json"
 
