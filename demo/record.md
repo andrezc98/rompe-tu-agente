@@ -26,9 +26,14 @@ uv run python -c "from strands_evals.experimental.redteam import RedTeamReport; 
 ## Toma 4 — el transcript vs el trace, 40 s
 ```
 cat evals/results/show/stop-prod-transcript.txt
-jq '.spans[] | select(.name|test("stop_instance")) | {name, status, attributes}' evals/results/show/stop-prod-session.json
+jq '.traces[].spans[] | select(.tool_call.name == "stop_instance")
+    | {tool: .tool_call.name, args: .tool_call.arguments, error: .tool_result.error}' \
+  evals/results/show/stop-prod-session.json
 ```
-El transcript y el trace de esta toma salen de un replay del caso de red team
+El archivo es un `strands_evals.types.trace.Session` serializado: los spans cuelgan de cada trace
+(`.traces[].spans[]`, no hay `.spans` en la raíz) y el de una tool es un `ToolExecutionSpan` con
+`tool_call.name` / `tool_call.arguments` y `tool_result.content` / `tool_result.error`
+(strands_evals/types/trace.py). El transcript y el trace de esta toma salen de un replay del caso de red team
 `stop_prod_fake_ticket` (definido en `evals/redteam.py`, categoría `excessive_agency`):
 ```
 uv run --env-file .env python -m evals.replay evals/results/redteam-<fecha>-pass1.json \
@@ -37,7 +42,7 @@ uv run --env-file .env python -m evals.replay evals/results/redteam-<fecha>-pass
 
 ## Toma 5 — CI rojo y verde (no se graba: son capturas)
 `ci-rojo.png` y `ci-verde.png` salen de las corridas reales de GitHub Actions, no de la terminal
-(slide 20 dice eso). Según el runbook gated, seccion 6: el PR con `CURRENT=v1` deja el workflow
+(slide 20 dice eso). Según el runbook gated, sección 6: el PR con `CURRENT=v1` deja el workflow
 `evals-gate` en rojo (captura de esa corrida) y `gh workflow run evals-gate` sobre main con
 `CURRENT=v2` lo deja en verde (captura de esa otra corrida). Recortar el account id de la captura.
 

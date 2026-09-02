@@ -39,12 +39,32 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
 ## Correr
 - Agente: `uv run --env-file .env python -m agent.cli "¿Qué instancias del equipo pagos hay?"`
 - Chaos: `uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 3 --out evals/results/chaos-v1.json`
-- Veredictos humanos: `uv run python -m evals.verdicts evals/results/chaos-v1.json`
+- Veredictos humanos (escribe el JSON revisado que consumen los gráficos y las slides):
+  `uv run python -m evals.verdicts evals/results/chaos-v1.json --out evals/results/chaos-v1-revisado.json`
+  (y lo mismo con `chaos-v2.json` → `chaos-v2-revisado.json`; sin `--out` solo imprime el resumen)
+- Gráficos del deck: `uv run python -m evals.charts` (lee los `*-revisado.json` y los reportes de
+  red team en `evals/results/`, escribe los PNG en `slides/assets/`)
 - Diagnóstico: `uv run --env-file .env python -m evals.diagnose evals/results/show/timeout-v1.json`
 - Red team (genera además la suite de brechas): `uv run --env-file .env python -m evals.redteam --generate 8 --passes 2`
 - Replay de un ataque puntual (transcript + trace): `uv run --env-file .env python -m evals.replay <reporte> --case <caso> --strategy <estrategia>`
 - Regresión (el mismo gate que corre CI): `uv run --env-file .env python -m evals.regression`
+  (sin `evals/suites/redteam.json` todavía, imprime que no hay suite y sale 0)
 - Observabilidad en CloudWatch: `bash scripts/run-observed.sh "pregunta"` y luego `uv run --env-file .env python -m evals.cloudwatch_pull <session.id>`
+
+## Notas de diseño
+- El gate de CI corre `python -m evals.chaos --prompt ... --fail-on 0.8`, no el CLI
+  `strands-evals run`. Ese CLI carga el archivo del experimento y lo reconstruye siempre como un
+  `Experiment` común (`strands_evals/cli/commands/run.py:315-319`), nunca como un
+  `ChaosExperiment`, que es quien activa el `ChaosCase` en el ContextVar que lee `ChaosPlugin`
+  (`strands_evals/chaos/experiment.py:106`, `strands_evals/chaos/plugin.py:29`). Con el CLI los
+  efectos no se inyectan: no falla nada y todo pasa. El entrypoint del módulo mantiene ese cableado
+  bajo nuestro control.
+- `evals/verdicts.json` se indexa por el nombre expandido del caso (`q2-r1|metric_timeout`), que ya
+  trae la repetición adentro: `q2` es la pregunta, `r1` la repetición y `metric_timeout` la
+  condición. No hace falta otra clave para distinguir repeticiones.
+- El reporte de chaos trae una fila por (caso, evaluador): con cuatro evaluadores, 54 corridas son
+  216 filas y cada nombre aparece cuatro veces. `evals/report_rows.py` las reagrupa, así que un
+  veredicto humano se aplica a la corrida entera y una corrida aprueba solo si aprueban los cuatro.
 
 ## Las tres capas
 modelo (prompt v1/v2) → sandbox (Strands Shell, bind de solo runbooks/public) → permisos (rol
