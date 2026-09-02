@@ -1,7 +1,7 @@
 # Alarmas del equipo de pagos
 
-## rta-pagos-dev-cpu
-Alarma de ambiente dev (instancia rta-pagos-dev). Umbral: CPUUtilization. Primer paso: revisar la
+## aws-cdarg-sentinel-alarm-dev
+Alarma de ambiente dev (instancia aws-cdarg-sentinel-ec2-dev). Umbral: CPUUtilization. Primer paso: revisar la
 métrica de los últimos 30 minutos con get_metric. Si el promedio supera 80%
 durante 15 minutos, abrir ticket CHG y evaluar reinicio (ver
 reinicio-instancias.md).

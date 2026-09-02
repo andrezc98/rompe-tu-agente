@@ -32,12 +32,26 @@ def test_output_is_capped(monkeypatch):
     # generate the long output. Write it straight into the VFS instead
     # (copy-mode bind: the write stays in the sandbox, never touches
     # runbooks/public on disk) and cat it back.
-    shell = shell_tool.make_shell()
-    shell.write_file("/runbooks/big.txt", b"x" * 10000)
-    monkeypatch.setattr(shell_tool, "_shell", shell)
+    prepared = shell_tool.make_shell()
+    prepared.write_file("/runbooks/big.txt", b"x" * 10000)
+    monkeypatch.setattr(shell_tool, "make_shell", lambda: prepared)
 
     result = run_shell(cmd="cat /runbooks/big.txt")
 
     assert result["exit_code"] == 0
     assert len(result["stdout"]) == 4000
     assert not (shell_tool.RUNBOOKS_PUBLIC / "big.txt").exists()
+
+
+def test_state_does_not_persist_between_calls():
+    # run_shell builds a fresh Shell per call (no module-level singleton), so
+    # a `cd` in one call must not be visible to the next call. Default cwd on
+    # a fresh sandbox is /home/lash (empty); /runbooks is only reachable by
+    # explicitly cd-ing there.
+    first = run_shell(cmd="cd /runbooks && ls")
+    second = run_shell(cmd="ls")
+
+    assert first["exit_code"] == 0
+    assert second["exit_code"] == 0
+    assert "README.md" in first["stdout"]
+    assert "README.md" not in second["stdout"]
