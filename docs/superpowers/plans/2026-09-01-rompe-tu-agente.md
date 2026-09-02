@@ -935,11 +935,12 @@ uv add --dev aws-cdk-lib constructs
 uv run python -c "import aws_cdk, importlib.metadata as m; print(m.version('aws-cdk-lib'))"
 npx --yes aws-cdk@2 --version
 ```
-Expected: the resolved `aws-cdk-lib` version (record it in README "Versions tested") and a `2.x.y` CDK CLI. The CLI must be the same major as the library. jsii needs Node.js at synth time (it is on this machine); note that in README.
+Expected: the resolved `aws-cdk-lib` version (record it in README "Versions tested") and a `2.x.y` CDK CLI. The CLI must be the same major as the library, and recent enough for the library's cloud-assembly schema: npx caches an old `aws-cdk@2`; if synth complains about the schema version, pin `npx --yes aws-cdk@2.<latest>` and record that version. jsii needs Node.js at synth time (it is on this machine); note that in README.
 
 Edit `.gitignore`: remove the OpenTofu lines Task 1 added (`infra/.terraform/`, `infra/*.tfstate`, `infra/*.tfstate.backup`, `infra/terraform.tfvars`, `infra/.terraform.lock.hcl`; the infra tool changed to CDK after Task 1) and append:
 ```
 cdk.out/
+cdk.context.json
 infra/outputs.json
 ```
 
@@ -1068,7 +1069,7 @@ class SentinelStack(cdk.Stack):
             self,
             "Vpc",
             vpc_name=name("vpc", "demo"),
-            max_azs=1,
+            availability_zones=["us-east-1a"],  # pinned: max_azs triggers an AZ lookup against the ambient account at synth
             nat_gateways=0,
             subnet_configuration=[
                 ec2.SubnetConfiguration(name="public", subnet_type=ec2.SubnetType.PUBLIC, cidr_mask=24)
@@ -1207,7 +1208,10 @@ import os
 
 import aws_cdk as cdk
 
+from agent import config
 from infra.sentinel_stack import SentinelStack, name
+
+config.require_sandbox()  # the CDK CLI resolves CDK_DEFAULT_ACCOUNT from ambient credentials; never the client account
 
 app = cdk.App()
 SentinelStack(
