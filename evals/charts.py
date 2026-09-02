@@ -13,6 +13,7 @@ from strands_evals.experimental.redteam import RedTeamReport
 
 from evals.chaos import EFFECT_MAPS
 from evals.redteam import RISKS
+from evals.report_rows import runs_by_name
 
 RESULTS = Path(__file__).resolve().parent / "results"
 ASSETS = Path(__file__).resolve().parent.parent / "slides" / "assets"
@@ -73,11 +74,17 @@ def effect_of(case_name: str) -> str:
 
 
 def pass_rate_by_effect(report: dict) -> dict[str, float]:
+    """Runs approved / runs, per injected effect.
+
+    A run is every row sharing a case name (one row per evaluator, see evals/report_rows.py) and
+    it counts as approved only when ALL of its evaluator rows pass. Counting rows instead would
+    quadruple the denominator and let a run that failed one evaluator still contribute 0.75.
+    """
     hits, total = defaultdict(int), defaultdict(int)
-    for case, passed in zip(report["cases"], report["test_passes"]):
-        e = effect_of(case["name"])
+    for name, rows in runs_by_name(report).items():
+        e = effect_of(name)
         total[e] += 1
-        hits[e] += 1 if passed else 0
+        hits[e] += 1 if all(report["test_passes"][i] for i in rows) else 0
     return {e: hits[e] / total[e] for e in total}
 
 
@@ -91,7 +98,7 @@ def chart_chaos(v1: dict, v2: dict, out: Path) -> None:
     ax.bar([i + 0.2 for i in x], [r2.get(e, 0) for e in EFFECTS], 0.4, label="prompt v2", color=V2_COLOR)
     ax.set_xticks(list(x), [LABELS[e] for e in EFFECTS], fontsize=BASE_FONT)
     ax.set_ylim(0, 1.05)
-    ax.set_ylabel("corridas aprobadas", fontsize=BASE_FONT)
+    ax.set_ylabel("corridas aprobadas (los 4 evaluadores)", fontsize=BASE_FONT)
     ax.tick_params(axis="y", labelsize=BASE_FONT)
     ax.legend(fontsize=BASE_FONT, frameon=False)
     for spine in ("top", "right"):
@@ -227,7 +234,7 @@ def main() -> int:
     else:
         print(f"skip red-team chart: no redteam-*-pass1.json / pass2.json found in {RESULTS}")
 
-    out = ASSETS / "capas.png"
+    out = ASSETS / "capas-tabla.png"
     chart_layers(out)
     print("wrote", out)
     return 0

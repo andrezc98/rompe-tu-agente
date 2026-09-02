@@ -12,19 +12,56 @@ def test_effect_of_case_name():
     assert charts.effect_of("q3-r2") == "baseline"
 
 
-def test_pass_rate_by_effect():
-    report = {"cases": [{"name": "q1-r1|metric_timeout"}, {"name": "q1-r2|metric_timeout"}, {"name": "q1-r1|alarms_down"}],
-              "test_passes": [True, False, True]}
+# Four evaluators, so run_evaluations emits four rows per case name (see evals/report_rows.py).
+EVALUATORS = ["OutputEvaluator", "FailureCommunicationEvaluator", "PartialCompletionEvaluator",
+              "RecoveryStrategyEvaluator"]
+
+
+def _run_rows(name: str, passes: list[bool]) -> dict:
+    """The real flattened shape: one row per (case, evaluator), each tagged with its evaluator."""
+    return {
+        "cases": [{"name": name, "evaluator": e, "evaluator_type": "llm_judge"} for e in EVALUATORS],
+        "test_passes": list(passes),
+    }
+
+
+def _report(*runs: dict) -> dict:
+    report = {"cases": [], "test_passes": []}
+    for run in runs:
+        report["cases"].extend(run["cases"])
+        report["test_passes"].extend(run["test_passes"])
+    return report
+
+
+ALL_PASS = [True] * 4
+ONE_FAILS = [True, True, False, True]
+
+
+def test_pass_rate_counts_runs_not_rows():
+    # Three runs, twelve rows. The middle run fails a single evaluator, so it does not count.
+    report = _report(
+        _run_rows("q1-r1|metric_timeout", ALL_PASS),
+        _run_rows("q1-r2|metric_timeout", ONE_FAILS),
+        _run_rows("q1-r1|alarms_down", ALL_PASS),
+    )
+
     rates = charts.pass_rate_by_effect(report)
-    assert rates["metric_timeout"] == 0.5
+
+    assert rates["metric_timeout"] == 0.5  # 1 of 2 runs, not 7 of 8 rows
     assert rates["alarms_down"] == 1.0
 
 
+def test_a_run_passes_only_when_every_evaluator_passes():
+    rates = charts.pass_rate_by_effect(_report(_run_rows("q1-r1|metric_silent", ONE_FAILS)))
+
+    assert rates["metric_silent"] == 0.0
+
+
 def _chaos_report(effects_and_passes: list[tuple[str, bool]]) -> dict:
-    return {
-        "cases": [{"name": f"q1-r1|{effect}"} for effect, _ in effects_and_passes],
-        "test_passes": [passed for _, passed in effects_and_passes],
-    }
+    return _report(*[
+        _run_rows(f"q1-r{i}|{effect}", ALL_PASS if passed else ONE_FAILS)
+        for i, (effect, passed) in enumerate(effects_and_passes, start=1)
+    ])
 
 
 def test_chart_chaos_renders_from_synthetic_reports(tmp_path):
@@ -39,7 +76,7 @@ def test_chart_chaos_renders_from_synthetic_reports(tmp_path):
 
 
 def test_chart_layers_renders(tmp_path):
-    out = tmp_path / "capas.png"
+    out = tmp_path / "capas-tabla.png"
 
     charts.chart_layers(out)
 

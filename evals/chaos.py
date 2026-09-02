@@ -24,6 +24,7 @@ from strands_evals.evaluators.chaos import (
 
 from agent import config
 from evals import telemetry
+from evals.report_rows import runs_by_name
 
 # Questions name instances by their Name tag; the agent resolves ids with get_instances. Never put ids in prompts.
 BASE_QUESTIONS = [
@@ -111,7 +112,11 @@ def main() -> int:
         print(f"error: {e}", file=sys.stderr)
         return 2
     report = run(args.prompt, args.repeats, args.out)
-    print(f"prompt={args.prompt} repeats={args.repeats} overall_score={report.overall_score:.3f} cases={len(report.cases)}")
+    # One row per (case, evaluator): four evaluators means rows == 4 x runs. Print both so the
+    # number on stage ("54 corridas") is never read off the row count.
+    runs = len(runs_by_name({"cases": report.cases}))
+    print(f"prompt={args.prompt} repeats={args.repeats} overall_score={report.overall_score:.3f} "
+          f"runs={runs} rows={len(report.cases)}")
     if args.fail_on is not None and report.overall_score < args.fail_on:
         print(f"FAIL: {report.overall_score:.3f} < {args.fail_on}", file=sys.stderr)
         return 1
