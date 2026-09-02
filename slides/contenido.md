@@ -253,7 +253,7 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 
 **Body:**
 
-- Imagen: `chaos-v1-vs-v2.png` recortada a las barras de v1
+- Imagen: `chaos-v1-vs-v2.png` completa (las barras van de a pares, no se puede recortar a v1; en esta slide se habla solo de las azules)
 - Al pie: «Auto-evaluado por LLM, revisado a mano: 8 de 54 veredictos ajustados»
 - Pie de fuente: `n=3 · 54 corridas · chaos-v1-revisado.json · 2026-09-02`
 
@@ -630,7 +630,7 @@ Si lo compras hecho (no probado en esta charla):
 
 - LinkedIn: andreszc
 - GitHub: andrezc98
-- Repo: [URL del repo]
+- Repo: github.com/andrezc98/rompe-tu-agente
 - [QR de feedback aquí]
 
 **Layout sugerido:** bullets (plantilla de cierre del template oficial, con el espacio del QR)
