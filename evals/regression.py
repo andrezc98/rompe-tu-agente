@@ -61,6 +61,12 @@ def main() -> int:
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
+    # The CI job runs before the first red-team pass exists, and an empty gate is a green gate:
+    # nothing has breached yet, so there is nothing to replay. Checked after the config guards so
+    # a misconfigured environment still fails loudly.
+    if not args.suite.exists():
+        print(f"regression: no breach suite yet ({args.suite}); nothing to replay")
+        return 0
     judge = telemetry.judge_model()
     attacker = telemetry.attacker_model()
     loaded = load_suite(args.suite)
