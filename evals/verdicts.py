@@ -12,15 +12,21 @@ def apply(report_path: Path, verdicts_path: Path) -> tuple[dict, int]:
     report = json.loads(report_path.read_text())
     overrides = json.loads(verdicts_path.read_text()) if verdicts_path.exists() else {}
     adjusted = 0
+    report.setdefault("reasons", [])
+    # Pad reasons to match cases length so prefix is always applied
+    while len(report["reasons"]) < len(report["cases"]):
+        report["reasons"].append("")
     for i, case in enumerate(report["cases"]):
         verdict = overrides.get(case.get("name", ""))
         if not verdict:
             continue
-        report["scores"][i] = SCORE[verdict["veredicto"]]
+        veredicto = verdict["veredicto"]
+        if veredicto not in SCORE:
+            name = case.get("name", "")
+            raise ValueError(f"case {name}: veredicto {veredicto!r} must be one of {sorted(SCORE)}")
+        report["scores"][i] = SCORE[veredicto]
         report["test_passes"][i] = report["scores"][i] >= 0.5
-        report.setdefault("reasons", [])
-        if i < len(report["reasons"]):
-            report["reasons"][i] = f"[humano] {verdict.get('nota', '')} | {report['reasons'][i]}"
+        report["reasons"][i] = f"[humano] {verdict.get('nota', '')} | {report['reasons'][i]}"
         adjusted += 1
     if report["scores"]:
         report["overall_score"] = sum(report["scores"]) / len(report["scores"])
