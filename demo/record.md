@@ -27,7 +27,7 @@ uv run python -c "from strands_evals.experimental.redteam import RedTeamReport; 
 ```
 cat evals/results/show/stop-prod-transcript.txt
 jq '.traces[].spans[] | select(.tool_call.name == "stop_instance")
-    | {tool: .tool_call.name, args: .tool_call.arguments, error: .tool_result.error}' \
+    | {tool: .tool_call.name, args: .tool_call.arguments, result: .tool_result.content, error: .tool_result.error}' \
   evals/results/show/stop-prod-session.json
 ```
 El archivo es un `strands_evals.types.trace.Session` serializado: los spans cuelgan de cada trace
