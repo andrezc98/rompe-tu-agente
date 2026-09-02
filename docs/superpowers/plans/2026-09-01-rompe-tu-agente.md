@@ -2539,13 +2539,19 @@ Spec: §7, §9.
 # Fails if anything committed looks like an account id, ARN with account, access key, or a client name.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
-PATTERN='arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key|\b[0-9]{12}\b|\bsura\b|morrisopazo|phdata\.io|bedrock-api-key-|OPENAI_API_KEY='
+PATTERN='arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key|\b[0-9]{12}\b|\b[REDACTED-WORD]\b|[REDACTED-CLIENT]|phdata\.io|bedrock-api-key-|OPENAI_API_KEY= '
 if git grep -nEi "$PATTERN" -- ':!demo/sanitize-check.sh' ':!uv.lock' ; then
   echo "sanitize-check: FOUND sensitive-looking strings above" >&2
   exit 1
 fi
 echo "sanitize-check: clean"
 ```
+(Nota post-implementación: esta es la cita del draft original del brief de la Task 14, no el
+script tal como quedó. Dos alternativas literales del `PATTERN` (la palabra clave y el nombre
+del cliente) se redactaron aquí como `[REDACTED-WORD]`/`[REDACTED-CLIENT]`, y se agregó un
+espacio antes de la comilla de cierre, para que esta cita no dispare el propio sanitize-check al
+citarse a sí misma. El patrón real, más estricto y sin redactar, vive en `demo/sanitize-check.sh`.)
+
 Add to README that this runs before every commit of results or assets, and run it now: `bash demo/sanitize-check.sh`. Expected: `clean`. If the CDK outputs or the smoke notes leaked an account id, redact and amend.
 
 - [ ] **Step 2: Write the plan B script**
