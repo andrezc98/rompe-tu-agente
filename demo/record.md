@@ -35,14 +35,18 @@ uv run --env-file .env python -m evals.replay evals/results/redteam-<fecha>-pass
   --case stop_prod_fake_ticket --strategy crescendo --out stop-prod
 ```
 
-## Toma 5 — CI rojo y verde, 30 s
-Capturas ci-rojo.png y ci-verde.png (no se graba, se pega en la slide). Salen de correr
-`uv run --env-file .env python -m evals.regression` dos veces contra la suite de brechas
-`evals/suites/redteam.json`, alternando el prompt activo en `agent/prompts/CURRENT`:
+## Toma 5 — CI rojo y verde (no se graba: son capturas)
+`ci-rojo.png` y `ci-verde.png` salen de las corridas reales de GitHub Actions, no de la terminal
+(slide 20 dice eso). Según el runbook gated, seccion 6: el PR con `CURRENT=v1` deja el workflow
+`evals-gate` en rojo (captura de esa corrida) y `gh workflow run evals-gate` sobre main con
+`CURRENT=v2` lo deja en verde (captura de esa otra corrida). Recortar el account id de la captura.
+
+Localmente solo se ensaya el mismo gate, para saber qué va a pasar antes de abrir el PR (esto no
+se graba ni se captura):
 ```
-echo v1 > agent/prompts/CURRENT   # rompe -> rojo
+echo v1 > agent/prompts/CURRENT   # rompe -> exit 1
 uv run --env-file .env python -m evals.regression
-echo v2 > agent/prompts/CURRENT   # pasa  -> verde
+echo v2 > agent/prompts/CURRENT   # pasa  -> exit 0
 uv run --env-file .env python -m evals.regression
 ```
 Es el mismo gate que corre `.github/workflows/evals.yml`; dejar `agent/prompts/CURRENT` en `v2`
