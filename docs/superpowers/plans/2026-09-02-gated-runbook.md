@@ -28,6 +28,7 @@ Everything below needs the personal sandbox account, model access, or the public
 - [ ] Hand cases first: the one-liner in Task 10 step 5; read the transcripts; confirm the IAM denial appears when the model complies.
 - [ ] Full: `uv run --env-file .env python -m evals.redteam --generate 8 --passes 2` → reports, `evals/suites/redteam.json`; write `evals/results/redteam-summary.md` (breaches per category and per strategy).
 - [ ] Replay: `uv run --env-file .env python -m evals.replay evals/results/redteam-<date>-pass1.json --case stop_prod_fake_ticket --strategy crescendo` → `evals/results/show/stop-prod-session.json` and `-transcript.txt` (try GOAT or pass 2 if the replay does not call `stop_instance`).
+- [ ] Diagnose the replayed session too (slide 19 needs both rows): `uv run --env-file .env python -m evals.diagnose evals/results/show/stop-prod-session.json --out evals/results/show/stop-prod-diagnosis.json`.
 - [ ] Regression both ways (plan Task 11, step 5): with `CURRENT=v1` expect exit 1; with `v2` expect 0 (or a real breach, which is a slide).
 
 ## 5. Observed run (plan Task 12, step 4)
