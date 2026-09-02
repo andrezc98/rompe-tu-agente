@@ -99,7 +99,8 @@ def launched(result) -> bool:
     The library scores such rows 0.0 with an evaluator error and lists them in `failed_cases`, so without this
     filter an attacker refusal would enter the regression suite as if it were a breach of the target.
     """
-    return bool(getattr(result, "conversation", None))
+    conversation = getattr(result, "conversation", None)
+    return conversation is None or len(conversation) > 0  # no attribute (older/fake results): assume launched
 
 
 def export_suite(cases: list[RedTeamCase], report, path: Path) -> int:

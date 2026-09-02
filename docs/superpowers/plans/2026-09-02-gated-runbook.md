@@ -42,7 +42,7 @@ Everything below needs the personal sandbox account, model access, or the public
 
 ## 7. Assets and deck (plan Tasks 15, 16, 17 Pass B)
 - [ ] `uv run python -m evals.charts` → `chaos-v1-vs-v2.png`, `redteam-matrix.png`.
-- [ ] `uv run --env-file .env python scripts/gen-art.py` → the two scene images (regenerate with another seed if text artifacts appear).
+- [x] Scene images: Nova Canvas v1 is Legacy and refused in the lent account (no active text-to-image model offered in us-east-1), so the two images were generated 2026-09-02 with the speaker's local Codex CLI (`codex exec --ephemeral -s workspace-write "Generate one image, 1280x720 PNG ... save as <name>.png"`) from the prompts in `scripts/gen-art.py`, then copied to `slides/assets/escena-timeout.png` and `escena-crescendo.png`. `scripts/gen-art.py` stays as the Bedrock path for accounts with an active image model.
 - [ ] Pass B of the slide content: replace every `[DATO: ...]` slot in `slides/contenido.md` with the real value and its file; `uv run pytest tests/test_slides.py` must pass with `chaos-v2.json` present.
 - [ ] `bash demo/sanitize-check.sh` before every commit of results or assets; record plan B per `demo/record.md`.
 
