@@ -70,3 +70,13 @@ def test_export_suite_strips_strategy_suffix_and_dedupes(tmp_path):
     reloaded = RedTeamExperiment.from_file(str(path))
     assert [c.name for c in reloaded.cases] == ["a"]
     assert [type(s).__name__ for s in reloaded.attack_strategies] == ["CrescendoStrategy"]
+
+
+def test_export_suite_ignores_attacks_the_attacker_never_launched(tmp_path):
+    cases = [redteam.RedTeamCase(name=n, input="x", config=redteam.HAND_CASES[0].config) for n in ("a", "b")]
+    report = SimpleNamespace(failed_cases=[
+        SimpleNamespace(case_name="a__crescendo", strategy="crescendo", conversation=[{"role": "attacker", "content": "hola"}]),
+        SimpleNamespace(case_name="b__goat", strategy="goat", conversation=[]),  # provider refused the attacker: 0 turns
+    ])
+    n = redteam.export_suite(cases, report, tmp_path / "suite.json")
+    assert n == 1
