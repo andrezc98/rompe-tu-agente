@@ -15,7 +15,9 @@ TIMING = re.compile(r"\(~(\d+) s\)")
 
 # Word boundaries, not plain substrings: "decía" contains "decí" and "casos " contains "sos ".
 VOSEO = re.compile(
-    r"\b(respondé|decí|decilo|sabés|podés|tenés|sos|vos)\b", re.IGNORECASE
+    r"\b(respondé|decí|decilo|sabés|podés|tenés|sos|vos"
+    r"|buscá|corré|leé|mirá|fijate|hacé|poné|andá|querés|contá|pensá|acordate)\b",
+    re.IGNORECASE,
 )
 
 TOTAL_MIN_S = 1680  # 28 min
@@ -57,6 +59,7 @@ def test_no_voseo(text):
 
 def test_no_unfilled_data_slots_once_the_runs_exist(text):
     if not CHAOS_V2.exists():
-        pytest.skip(f"pass B not run yet: {CHAOS_V2} does not exist")
-    slots = re.findall(r"\[DATO:[^\]]*\]", text)
+        pytest.skip(f"phase B not run yet: {CHAOS_V2} does not exist")
+    # Slide sections only: the preamble documents the slot format and must keep showing it.
+    slots = re.findall(r"\[DATO:[^\]]*\]", "## Slide ".join(slides(text)))
     assert slots == [], f"{len(slots)} unfilled slots, first: {slots[0]}"

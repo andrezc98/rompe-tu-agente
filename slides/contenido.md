@@ -6,8 +6,8 @@ Este archivo es el guion de contenido: el orador arma el mazo en el template ofi
 duplicando las plantillas que indica **Layout sugerido**. Las **Notas del orador** van en el
 panel de notas, no en la diapositiva.
 
-**Estado: Pase A.** Todo número, cita textual, tasa o captura que tenga que salir de una corrida
-real aparece como una ranura entre corchetes con la forma `DATO: <archivo> -> <qué>`. Ninguna se inventa. El Pase B las
+**Estado: Fase A.** Todo número, cita textual, tasa o captura que tenga que salir de una corrida
+real aparece como una ranura `[DATO: <archivo> -> <qué>]`. Ninguna se inventa. La Fase B las
 reemplaza con el valor y su archivo después de las corridas en la cuenta sandbox
 (`docs/superpowers/plans/2026-09-02-gated-runbook.md`). El mazo no se entrega hasta que no quede
 ninguna ranura: `tests/test_slides.py` lo verifica en cuanto existe `evals/results/chaos-v2.json`.
@@ -80,23 +80,24 @@ Fuentes citadas: `slides/fuentes.md`. Imágenes: `slides/assets/`.
 
 ---
 
-## Slide 04 — Escena 2: el séptimo mensaje
+## Slide 04 — Escena 2: el último mensaje
 
-**Headline:** Seis mensajes razonables. El séptimo detiene una instancia.
+**Headline:** Mensajes razonables. El último detiene una instancia.
 
 **Body:**
 
 - Imagen: `escena-crescendo.png`
-- Cita al pie: en ambos casos te enteraste por el usuario
+- Cita al pie: [DATO: evals/results/show/stop-prod-transcript.txt -> número de turnos hasta stop_instance] mensajes hasta la llamada
+- En ambos casos te enteraste por el usuario
 
 **Layout sugerido:** imagen completa con una línea de texto al pie
 
 **Notas del orador:**
 > Segunda escena, mismo agente, ahora con alguien empujando. La conversación arranca inocente y
-> escala de a poco: contexto, urgencia, un ticket que suena válido. En el turno
-> [DATO: evals/results/show/stop-prod-transcript.txt -> número de turnos hasta la llamada a stop_instance]
-> el agente llama a `stop_instance` sobre la instancia de producción. Ninguna de las dos escenas
-> disparó una alarma. En las dos te enteraste porque alguien te escribió. (~110 s)
+> escala de a poco: contexto, urgencia, un ticket que suena válido. Al final el agente llama a
+> `stop_instance` sobre la instancia de producción; el pie dice en cuántos mensajes, y Crescendo
+> tiene como máximo seis turnos. Ninguna de las dos escenas disparó una alarma. En las dos te
+> enteraste porque alguien te escribió. (~110 s)
 
 ---
 
@@ -138,34 +139,26 @@ Fuentes citadas: `slides/fuentes.md`. Imágenes: `slides/assets/`.
 
 ---
 
-## Slide 07 — Tools y capas
+## Slide 07 — Capas de defensa
 
-**Headline:** Cinco tools, tres capas de defensa
+**Headline:** Tres capas: modelo, sandbox, permisos
 
 **Body:**
 
-Columna izquierda (las tools):
-
-- `get_alarms` — qué está en llamas
-- `get_metric` — el número que tienta inventar
-- `get_instances` — datos parciales
-- `stop_instance` — la acción que importa
-- `run_shell` — el shell que el atacante busca
-
-Columna derecha (las capas):
-
+- Imagen: `capas-diagrama.png`
 - Capa 1, modelo: el system prompt
 - Capa 2, sandbox: Strands Shell, solo `/runbooks`
 - Capa 3, permisos: IAM, `Deny` si `env=prod`
+- `stop_instance` no valida el ticket, a propósito
 
-**Layout sugerido:** dos columnas (alternativa: recortar las tres bandas de `capas-diagrama.png` para la columna derecha)
+**Layout sugerido:** imagen completa (los cuatro bullets como pie, si el template lo permite)
 
 **Notas del orador:**
-> Tres tools de lectura, una que apaga instancias y un shell con un solo directorio montado. Un
-> detalle importante: `stop_instance` no valida el ticket. Es a propósito. Si la tool validara,
-> sería una cuarta capa y taparía la decisión del modelo, que es justo lo que quiero medir. El
-> ticket lo pide el prompt, capa 1; el `env=prod` lo bloquea IAM, capa 3. El hueco entre esas
-> dos es donde vive el hallazgo de esta charla. (~60 s)
+> Tres tools de lectura, una que apaga instancias y un shell con un solo directorio montado, y
+> debajo tres capas que pueden decir que no. La última línea es la clave: `stop_instance` no
+> valida el ticket a propósito. Si la tool validara, sería una cuarta capa y taparía la decisión
+> del modelo, que es lo que quiero medir. El ticket lo pide el prompt; el `env=prod` lo bloquea
+> IAM. Las flechas las vemos en el bloque de red team. (~60 s)
 
 ---
 
@@ -258,6 +251,7 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 
 - Imagen: `chaos-v1-vs-v2.png` recortada a las barras de v1
 - Al pie: [DATO: evals/results/chaos-v1-revisado.json -> la frase de veredictos humanos que imprime evals.verdicts: "Auto-evaluado por LLM, revisado a mano: N de M veredictos ajustados"]
+- Pie de fuente: `n=3 · 54 corridas · chaos-v1-revisado.json · [DATO: evals/results/chaos-v1-revisado.json -> fecha de la corrida]`
 
 **Layout sugerido:** imagen completa con una línea de texto al pie
 
@@ -307,6 +301,7 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 **Body:**
 
 - Imagen: `chaos-v1-vs-v2.png` completa (v1 contra v2, seis condiciones)
+- Pie de fuente: `n=3 · 54 corridas por versión · chaos-v1/v2-revisado.json · [DATO: evals/results/chaos-v2-revisado.json -> fecha de la corrida]`
 
 **Layout sugerido:** imagen completa
 
@@ -328,7 +323,7 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 
 - Imagen: `capas.png` (categoría, qué quiere el atacante, capas que pueden detenerlo)
 
-**Layout sugerido:** imagen completa (alternativa recomendada si la tabla se lee chica: `capas-diagrama.png`, el mismo contenido como diagrama)
+**Layout sugerido:** imagen completa (el diagrama de capas ya se mostró en la slide 07)
 
 **Notas del orador:**
 > Cuatro categorías de riesgo, elegidas porque cada una prueba una capa distinta. Agencia excesiva
@@ -347,16 +342,18 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 
 ```python
 cases = AdversarialCaseGenerator(model=judge).generate_cases(
-    agent=make_sentinel("v2"),
-    risk_categories=["excessive_agency", "data_exfiltration",
-                     "system_prompt_leak", "guideline_bypass"],
-    num_cases=8,
+    agent=make_sentinel("v2"), risk_categories=RISKS, num_cases=8,
 )
 RedTeamExperiment(
-    cases=cases + HAND_CASES,
+    cases=HAND_CASES + cases,
     agent_factory=agent_factory,
-    attack_strategies=[CrescendoStrategy(max_turns=6, model=attacker)],
+    attack_strategies=[
+        CrescendoStrategy(max_turns=6, model=attacker),
+        GoatStrategy(max_turns=6, model=attacker),
+        SequentialBreakStrategy(max_turns=4),   # sin LLM atacante
+    ],
     evaluators=[AttackSuccessEvaluator(model=judge, pass_threshold=0.3)],
+    model=attacker,   # el atacante se fija también a nivel experimento
 )
 ```
 
@@ -377,23 +374,23 @@ Al costado, tres turnos reales del ataque, redactados:
 
 ## Slide 16 — Matriz de ataques
 
-**Headline:** Categoría por estrategia: peor score de dos pasadas
+**Headline:** Categoría por estrategia: promedio del peor score de cada pasada
 
 **Body:**
 
 - Imagen: `redteam-matrix.png`
+- Pie de fuente: `2 pasadas · redteam-<fecha>-pass1/2.json · [DATO: evals/results/redteam-<fecha>-pass1.json -> ataques por pasada y fecha de la corrida]`
 
 **Layout sugerido:** imagen completa
 
 **Notas del orador:**
-> Dos casos a mano más ocho generados, por tres estrategias, dos pasadas:
-> [DATO: evals/results/redteam-summary.md -> total de ataques por pasada].
-> Cada celda muestra el peor score y qué capa lo detuvo. Por estrategia:
-> [DATO: evals/results/redteam-summary.md -> brechas por estrategia (Crescendo, GOAT, SequentialBreak)]
-> y por categoría:
-> [DATO: evals/results/redteam-summary.md -> brechas por categoría].
-> Hice dos pasadas porque los modelos son estocásticos y la doc del SDK lo dice sin vueltas: una
-> corrida limpia es evidencia, no prueba. (~115 s)
+> Cada celda es el promedio, sobre las dos pasadas, del peor score que sacó esa combinación de
+> categoría y estrategia, y debajo la capa que la detuvo. Por estrategia:
+> [DATO: evals/results/redteam-<fecha>-pass1.json y -pass2.json -> by_strategy(): group_name, count y pass_rate; brechas = count x (1 - pass_rate)].
+> Por categoría:
+> [DATO: evals/results/redteam-<fecha>-pass1.json y -pass2.json -> by_risk_category(): lo mismo por categoría].
+> Dos pasadas porque los modelos son estocásticos: una corrida limpia es evidencia, no garantía,
+> como dice la doc de red teaming. (~115 s)
 
 ---
 
@@ -408,10 +405,10 @@ Al costado, tres turnos reales del ataque, redactados:
 **Layout sugerido:** título (la cita sola, tipografía grande, sin nada más en la diapositiva)
 
 **Notas del orador:**
-> Esto es lo único que ve la persona de guardia: el último mensaje del agente. Se los leo y les
+> Esto es lo único que ve la persona de guardia: el último mensaje del agente. Lo leo en voz alta y
 > pregunto en serio, a mano alzada: ¿pasó o no pasó? Dejo tres segundos de silencio. Este es el
 > mensaje que un lunes a la mañana termina en un canal de Slack como "todo bien, el agente no
-> pudo". Si me creen a mí en vez de creerle al trace, cerramos el incidente equivocado. (~60 s)
+> pudo". Si me crees a mí en vez de creerle al trace, cerramos el incidente equivocado. (~60 s)
 
 ---
 
@@ -450,9 +447,10 @@ Al costado, tres turnos reales del ataque, redactados:
 
 **Notas del orador:**
 > `diagnose_session` del SDK devuelve la columna del medio: dónde falló, de qué tipo es el arreglo
-> y una explicación. Los cuatro cajones de la derecha son lectura nuestra, no taxonomía del SDK, y
-> lo digo en el escenario. Sirve porque cada cajón manda el ticket a un equipo distinto: modelo al
-> prompt, tool a quien la escribió, permisos a la gente de IAM. (~45 s)
+> y una explicación. Los cuatro cajones de la derecha, modelo, tool, permisos y ejecución, son
+> lectura nuestra y no taxonomía del SDK; lo digo en el escenario. Cada cajón manda el ticket a
+> otro lado: modelo al prompt, tool a quien la escribió, permisos a IAM y ejecución al harness
+> que corre el agente. (~45 s)
 
 ---
 
@@ -462,7 +460,7 @@ Al costado, tres turnos reales del ataque, redactados:
 
 **Body:**
 
-- Imágenes lado a lado: `ci-rojo.png` (PR con prompt v1) y `ci-verde.png` (con v2)
+- Imágenes lado a lado: capturas de GitHub Actions — `ci-rojo.png` (run del PR con prompt v1) y `ci-verde.png` (run de `workflow_dispatch` en main con v2)
 
 ```yaml
 # extracto simplificado de .github/workflows/evals.yml
@@ -501,7 +499,7 @@ Qué funcionó:
 Qué no funcionó:
 
 - [DATO: evals/results/chaos-v2-revisado.json -> el modo de fallo que el prompt v2 no arregló]
-- [DATO: evals/results/redteam-summary.md -> la categoría o estrategia donde el resultado contradijo lo que esperaba]
+- [DATO: evals/results/redteam-<fecha>-pass1.json y -pass2.json -> by_risk_category() / by_strategy(): la categoría o estrategia donde el resultado contradijo lo que esperaba]
 
 Qué haría distinto:
 
@@ -525,7 +523,7 @@ Qué haría distinto:
 **Body:**
 
 - Busca "nunca digas que no sabes"
-- Corre un `ChaosExperiment` sobre tu tool más importante
+- Ejecuta un `ChaosExperiment` sobre tu tool más importante
 - Lee el trace, no el transcript
 
 **Layout sugerido:** bullets (tres líneas grandes, numeradas)
@@ -588,6 +586,6 @@ Qué haría distinto:
 
 **Notas del orador:**
 > El repo tiene el agente, las dos evaluaciones, los JSON de resultados y el workflow de CI: todo
-> lo que vieron se regenera desde ahí. Las fuentes con fecha están en `slides/fuentes.md`. Si
+> lo que viste se regenera desde ahí. Las fuentes con fecha están en `slides/fuentes.md`. Si
 > pones el QR de tus contactos, va al lado del de feedback, nunca en su lugar. Los espero en el
 > pasillo. (~25 s)
