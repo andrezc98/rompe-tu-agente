@@ -19,12 +19,12 @@ jobs:
     env:
       AWS_REGION: us-east-1
     steps:
-      - uses: actions/checkout@v7
-      - uses: aws-actions/configure-aws-credentials@v6
+      - uses: actions/checkout@v7.0.1
+      - uses: aws-actions/configure-aws-credentials@v6.2.4
         with:
           role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.0.1
       - run: uv sync --frozen
       - if: inputs.action == 'deploy'
         run: npx --yes aws-cdk@2.1139.0 deploy SentinelDemo --require-approval never

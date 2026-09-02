@@ -5,7 +5,7 @@ Everything below needs the personal sandbox account, model access, or the public
 ## 0. Before anything
 - [ ] `git log --format=%ae | sort -u` on branch `build` must show only the personal address. If a client-company address appears, rewrite authorship first (branch never pushed): `git rebase --root -x 'git commit --amend --no-edit --reset-author'` from the repo root with `user.email` set (it is set repo-locally already), then re-check.
 - [ ] `aws sso login --profile <sandbox profile>` and `export AWS_PROFILE=<sandbox profile> AWS_REGION=us-east-1`. The profile name must contain `sandbox` (`require_sandbox()` and every script refuse anything else). If the account is lent by someone else, its name never goes into this repo, a commit message, or a screenshot; the sanitizer's ignored word list covers it.
-- [ ] Bedrock console: enable model access for the Claude profiles you will pin and for `openai.gpt-5.5` (Mantle). Marketplace subscriptions must be accepted, not just listed.
+- [ ] Bedrock console: enable model access for the Claude profiles you will pin and for the GPT attacker on Mantle (`openai.gpt-5.6-terra`; 2026-09-02: `openai.gpt-5.5` was not offered in the lent account, Terra is its documented successor at lower cost). Marketplace subscriptions must be accepted, not just listed.
 
 ## 1. Infrastructure (plan Task 5, step 8; split 2026-09-02: bootstrap from the laptop, demo from GitHub)
 - [ ] `npx --yes aws-cdk@2.1139.0 bootstrap --qualifier cdarg2026` (once per account/region; `cdk.json` names the toolkit stack `aws-cdarg-sentinel-toolkit-demo`, so an existing `CDKToolkit` is untouched).
@@ -15,7 +15,7 @@ Everything below needs the personal sandbox account, model access, or the public
 - [ ] `bash infra/enable-transaction-search.sh` (once per account; ten minutes until spans are searchable).
 
 ## 2. Models and smoke (plan Task 5, steps 8 and 9)
-- [ ] `bash scripts/pin-models.sh`; write `TARGET_MODEL_ID` (Sonnet tier), `JUDGE_MODEL_ID` (Opus tier), `ATTACKER_MODEL_ID` (expected `openai.gpt-5.5`), `SENTINEL_ROLE_ARN`, instance ids and `AGENT_LOG_GROUP=aws-cdarg-sentinel-logs-demo` into `.env` (copy `.env.example`).
+- [ ] `bash scripts/pin-models.sh`; write `TARGET_MODEL_ID` (Sonnet tier), `JUDGE_MODEL_ID` (Opus tier), `ATTACKER_MODEL_ID` (expected `openai.gpt-5.6-terra`), `SENTINEL_ROLE_ARN`, instance ids and `AGENT_LOG_GROUP=aws-cdarg-sentinel-logs-demo` into `.env` (copy `.env.example`).
 - [ ] `uv run --env-file .env python scripts/smoke.py` → three lines ending in `'ok'`.
 - [ ] `uv run --env-file .env python -m agent.cli "¿Qué instancias del equipo pagos hay y en qué estado están?"` and the prod-stop refusal question; save both to `evals/results/smoke-sentinel.md`.
 

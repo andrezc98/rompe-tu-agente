@@ -8,7 +8,7 @@ echo "== Claude inference profiles (TARGET_MODEL_ID = Sonnet tier, JUDGE_MODEL_I
 aws bedrock list-inference-profiles --region "$REGION" \
   --query 'inferenceProfileSummaries[?contains(inferenceProfileId, `anthropic`)].[inferenceProfileId,status]' \
   --output table
-echo "== OpenAI models on Bedrock Mantle (ATTACKER_MODEL_ID; expected openai.gpt-5.5)"
+echo "== OpenAI models on Bedrock Mantle (ATTACKER_MODEL_ID; expected openai.gpt-5.6-terra; gpt-5.5 is not offered in every account)"
 aws bedrock list-foundation-models --region "$REGION" \
   --query 'modelSummaries[?starts_with(modelId, `openai`)].[modelId,modelLifecycle.status]' --output table
 echo
