@@ -1,0 +1,32 @@
+name: infra
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: deploy or destroy SentinelDemo (the bootstrap stack is deployed from the laptop)
+        type: choice
+        options: [deploy, destroy]
+        default: deploy
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  cdk:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: astral-sh/setup-uv@v10
+      - run: uv sync --frozen
+      - if: inputs.action == 'deploy'
+        run: npx --yes aws-cdk@2.1139.0 deploy SentinelDemo --require-approval never
+      - if: inputs.action == 'destroy'
+        run: npx --yes aws-cdk@2.1139.0 destroy SentinelDemo --force

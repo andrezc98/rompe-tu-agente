@@ -1,6 +1,8 @@
 {
   "app": "uv run python -m infra.app",
+  "toolkitStackName": "aws-cdarg-sentinel-toolkit-demo",
   "context": {
-    "github_repo": "andrezc98/rompe-tu-agente"
+    "github_repo": "andrezc98/rompe-tu-agente",
+    "@aws-cdk/core:bootstrapQualifier": "cdarg2026"
   }
 }

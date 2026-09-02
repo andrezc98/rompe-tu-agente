@@ -7,9 +7,11 @@ Everything below needs the personal sandbox account, model access, or the public
 - [ ] `aws sso login --profile awsbyandres-sandbox` and `export AWS_PROFILE=awsbyandres-sandbox AWS_REGION=us-east-1`.
 - [ ] Bedrock console: enable model access for the Claude profiles you will pin and for `openai.gpt-5.5` (Mantle). Marketplace subscriptions must be accepted, not just listed.
 
-## 1. Infrastructure (plan Task 5, step 8)
-- [ ] `npx --yes aws-cdk@2.1139.0 bootstrap` (once per account/region).
-- [ ] `npx --yes aws-cdk@2.1139.0 deploy SentinelDemo --require-approval never --outputs-file infra/outputs.json`. If `m9g.medium` is refused, set `INSTANCE_TYPE = "m8g.medium"` in `infra/sentinel_stack.py`, re-run the tests, redeploy. If the account already has a GitHub OIDC provider, import it (README note).
+## 1. Infrastructure (plan Task 5, step 8; split 2026-09-02: bootstrap from the laptop, demo from GitHub)
+- [ ] `npx --yes aws-cdk@2.1139.0 bootstrap --qualifier cdarg2026` (once per account/region; `cdk.json` names the toolkit stack `aws-cdarg-sentinel-toolkit-demo`, so an existing `CDKToolkit` is untouched).
+- [ ] `npx --yes aws-cdk@2.1139.0 deploy SentinelBootstrap --require-approval never --outputs-file infra/outputs.json`. If the account already has a GitHub OIDC provider, add `-c oidc_provider_arn=<arn>`.
+- [ ] `gh repo create andrezc98/rompe-tu-agente --public --source . --push`, then `gh secret set AWS_CI_ROLE_ARN` (`CiRoleArn` from `infra/outputs.json`) and `gh secret set SENTINEL_ROLE_ARN` (`arn:aws:iam::<account>:role/aws-cdarg-sentinel-role-agent-demo`; carries the account id, so a secret, not a variable). `gh variable set` for `TARGET_MODEL_ID`, `JUDGE_MODEL_ID`, `ATTACKER_MODEL_ID` comes after §2 pins them.
+- [ ] `gh workflow run infra -f action=deploy` and `gh run watch`. If `m9g.medium` is refused, set `INSTANCE_TYPE = "m8g.medium"` in `infra/sentinel_stack.py`, re-run the tests, push, dispatch again. Instance ids: `aws cloudformation describe-stacks --stack-name aws-cdarg-sentinel-stack-demo --query 'Stacks[0].Outputs'`.
 - [ ] `bash infra/enable-transaction-search.sh` (once per account; ten minutes until spans are searchable).
 
 ## 2. Models and smoke (plan Task 5, steps 8 and 9)
@@ -34,8 +36,8 @@ Everything below needs the personal sandbox account, model access, or the public
 ## 5. Observed run (plan Task 12, step 4)
 - [ ] `bash scripts/run-observed.sh "¿Por qué está en alarma la instancia de pagos?"`, wait ten minutes, screenshot the session and trace in CloudWatch GenAI Observability to `slides/assets/cw-session.png` and `cw-trace.png` (crop the account id), then `uv run --env-file .env python -m evals.cloudwatch_pull <session.id>` and paste into `evals/results/cloudwatch-roundtrip.md`.
 
-## 6. GitHub and CI (plan Task 13, steps 3 and 4)
-- [ ] `gh repo create andrezc98/rompe-tu-agente --public --source . --push` (after the authorship rewrite), then `gh variable set` for `TARGET_MODEL_ID`, `JUDGE_MODEL_ID`, `ATTACKER_MODEL_ID` and `gh secret set` for `AWS_CI_ROLE_ARN` and `SENTINEL_ROLE_ARN` (the role ARN carries the account id, so it is a secret, not a variable) from `infra/outputs.json`.
+## 6. CI runs (plan Task 13, steps 3 and 4; repo and secrets already exist from §1)
+- [ ] `gh variable set` for `TARGET_MODEL_ID`, `JUDGE_MODEL_ID`, `ATTACKER_MODEL_ID` from `.env`.
 - [ ] PR with `CURRENT=v1` → red run, screenshot `slides/assets/ci-rojo.png`; `gh workflow run evals-gate` on main → green, `ci-verde.png`.
 
 ## 7. Assets and deck (plan Tasks 15, 16, 17 Pass B)

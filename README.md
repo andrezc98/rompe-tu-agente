@@ -19,20 +19,30 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
   probado) para jsii. La síntesis no necesita credenciales, pero `infra/app.py` exige
   `AWS_PROFILE` con el perfil sandbox (o `GITHUB_ACTIONS=true`) y se niega a correr con otras
   credenciales; exportar el perfil ANTES de tocar `cdk`, porque la CLI resuelve la cuenta por
-  defecto con las credenciales del entorno. Si la cuenta ya tiene un proveedor OIDC para
-  `token.actions.githubusercontent.com`, el deploy falla con `EntityAlreadyExists`: en ese caso
-  hay que importarlo con `OpenIdConnectProvider.from_open_id_connect_provider_arn`.
+  defecto con las credenciales del entorno. Dos stacks: `SentinelBootstrap` (proveedor OIDC de
+  GitHub + rol de CI, se despliega una vez desde la laptop) y `SentinelDemo` (VPC, instancias,
+  alarma, log group, rol del agente, se despliega y destruye desde GitHub Actions con el workflow
+  `infra`). Se referencian solo por ARN determinístico, sin exports de CloudFormation. El
+  bootstrap de CDK usa el qualifier `cdarg2026` y el stack `aws-cdarg-sentinel-toolkit-demo`
+  (`cdk.json`), así no toca un `CDKToolkit` preexistente. Si la cuenta ya tiene un proveedor OIDC
+  para `token.actions.githubusercontent.com`, el deploy del bootstrap falla con
+  `EntityAlreadyExists`: pasar `-c oidc_provider_arn=<arn>` para importarlo.
 - Instancias: `m9g.medium` (Graviton5) con Bottlerocket ARM64 en `infra/sentinel_stack.py`; si
   la región no ofrece `m9g`, el fallback documentado ahí es `m8g.medium`. El tipo que la región
   del setup efectivamente acepte se confirma ese día, no antes.
 
 ## Setup
 1. `uv sync` (Node.js debe estar instalado: jsii y la CLI de CDK lo usan)
-2. Infra (cuenta sandbox propia): `npx aws-cdk@2.1139.0 bootstrap` una vez, luego
-   `npx aws-cdk@2.1139.0 deploy SentinelDemo --outputs-file infra/outputs.json`
+2. Infra (cuenta sandbox propia), desde la laptop y una sola vez:
+   `npx aws-cdk@2.1139.0 bootstrap --qualifier cdarg2026` y
+   `npx aws-cdk@2.1139.0 deploy SentinelBootstrap --outputs-file infra/outputs.json`.
+   Luego `gh secret set AWS_CI_ROLE_ARN` con `CiRoleArn` de ese archivo y
+   `gh workflow run infra -f action=deploy` (GitHub Actions despliega `SentinelDemo`;
+   `-f action=destroy` la destruye). Las salidas de la stack demo:
+   `aws cloudformation describe-stacks --stack-name aws-cdarg-sentinel-stack-demo --query 'Stacks[0].Outputs'`
 3. `bash infra/enable-transaction-search.sh` (una vez por cuenta)
 4. `bash scripts/pin-models.sh` y completar `.env` a partir de `.env.example` con los ids de
-   modelo que liste el script y los valores de `infra/outputs.json` (`SentinelRoleArn` →
+   modelo que liste el script y las salidas de la stack demo (`SentinelRoleArn` →
    `SENTINEL_ROLE_ARN`, `DevInstanceId`/`ProdInstanceId` → `DEV_INSTANCE_ID`/`PROD_INSTANCE_ID`)
 5. `uv run --env-file .env python scripts/smoke.py` (una llamada por modelo: target, juez, atacante)
 
