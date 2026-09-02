@@ -4,7 +4,7 @@ Everything below needs the personal sandbox account, model access, or the public
 
 ## 0. Before anything
 - [ ] `git log --format=%ae | sort -u` on branch `build` must show only the personal address. If a client-company address appears, rewrite authorship first (branch never pushed): `git rebase --root -x 'git commit --amend --no-edit --reset-author'` from the repo root with `user.email` set (it is set repo-locally already), then re-check.
-- [ ] `aws sso login --profile awsbyandres-sandbox` and `export AWS_PROFILE=awsbyandres-sandbox AWS_REGION=us-east-1`.
+- [ ] `aws sso login --profile <sandbox profile>` and `export AWS_PROFILE=<sandbox profile> AWS_REGION=us-east-1`. The profile name must contain `sandbox` (`require_sandbox()` and every script refuse anything else). If the account is lent by someone else, its name never goes into this repo, a commit message, or a screenshot; the sanitizer's ignored word list covers it.
 - [ ] Bedrock console: enable model access for the Claude profiles you will pin and for `openai.gpt-5.5` (Mantle). Marketplace subscriptions must be accepted, not just listed.
 
 ## 1. Infrastructure (plan Task 5, step 8; split 2026-09-02: bootstrap from the laptop, demo from GitHub)
@@ -45,3 +45,23 @@ Everything below needs the personal sandbox account, model access, or the public
 - [ ] `uv run --env-file .env python scripts/gen-art.py` → the two scene images (regenerate with another seed if text artifacts appear).
 - [ ] Pass B of the slide content: replace every `[DATO: ...]` slot in `slides/contenido.md` with the real value and its file; `uv run pytest tests/test_slides.py` must pass with `chaos-v2.json` present.
 - [ ] `bash demo/sanitize-check.sh` before every commit of results or assets; record plan B per `demo/record.md`.
+
+## 8. Teardown (condition of the lent account: nothing of ours remains when we are done)
+Order matters: demo first (its role trusts the CI role), then bootstrap, then the CDK toolkit. Everything is in us-east-1.
+- [ ] `gh workflow run infra -f action=destroy` and `gh run watch` → `SentinelDemo` gone (VPC, both instances, alarm, log group, agent role).
+- [ ] From the laptop: `npx --yes aws-cdk@2.1139.0 destroy SentinelBootstrap --force` → CI role and OIDC provider gone. From here on GitHub cannot reach the account; that is the point.
+- [ ] CDK toolkit: `aws s3 rm s3://cdk-cdarg2026-assets-<account>-us-east-1 --recursive`, then `aws cloudformation delete-stack --stack-name aws-cdarg-sentinel-toolkit-demo` and `aws cloudformation wait stack-delete-complete --stack-name aws-cdarg-sentinel-toolkit-demo`, then `aws s3 rb s3://cdk-cdarg2026-assets-<account>-us-east-1`. The bootstrap template keeps the bucket on delete (`DeletionPolicy: Retain`, verified 2026-09-02 in aws/aws-cdk-cli `bootstrap-template.yaml`); the ECR repo and the `/cdk-bootstrap/cdarg2026/version` parameter go with the stack.
+- [ ] Transaction Search back off: `aws xray update-trace-segment-destination --destination XRay`, `aws logs delete-resource-policy --policy-name TransactionSearchXRay`, then `aws logs delete-log-group --log-group-name aws/spans` and `aws logs delete-log-group --log-group-name /aws/application-signals/data` (ResourceNotFound is fine).
+- [ ] Bedrock: nothing persistent was created. Model access and Marketplace subscriptions are account settings, short-term API keys expire on their own. Leave model access as found, or turn it off if the account had none before us.
+- [ ] Verify empty (every command must return nothing of ours):
+  - `aws resourcegroupstaggingapi get-resources --tag-filters Key=Project,Values=rompe-tu-agente --query 'ResourceTagMappingList[].ResourceARN'` → `[]`
+  - `aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE ROLLBACK_COMPLETE DELETE_FAILED --query 'StackSummaries[].StackName'` → no `aws-cdarg-sentinel-*`
+  - `aws ec2 describe-instances --filters Name=instance-state-name,Values=pending,running,stopping,stopped --query 'Reservations[].Instances[].InstanceId'` → `[]`
+  - `aws ec2 describe-vpcs --filters Name=is-default,Values=false --query 'Vpcs[].VpcId'` → `[]`
+  - `aws cloudwatch describe-alarms --query 'MetricAlarms[].AlarmName'` → `[]`
+  - `aws iam list-roles --query "Roles[?starts_with(RoleName, 'aws-cdarg-') || starts_with(RoleName, 'cdk-cdarg2026')].RoleName"` → `[]`
+  - `aws iam list-open-id-connect-providers` → no `token.actions.githubusercontent.com` (unless the account had one before us)
+  - `aws logs describe-log-groups --query 'logGroups[].logGroupName'` → nothing of ours
+  - `aws s3 ls` → no `cdk-cdarg2026-*`
+  - `aws xray get-trace-segment-destination` → `XRay`
+- [ ] Send the account owner a closing note: date, region, and the verification output above.
