@@ -1,0 +1,57 @@
+name: evals-gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  TARGET_MODEL_ID: ${{ vars.TARGET_MODEL_ID }}
+  JUDGE_MODEL_ID: ${{ vars.JUDGE_MODEL_ID }}
+  ATTACKER_MODEL_ID: ${{ vars.ATTACKER_MODEL_ID }}
+  SENTINEL_ROLE_ARN: ${{ vars.SENTINEL_ROLE_ARN }}
+
+jobs:
+  chaos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: astral-sh/setup-uv@v10
+      - run: uv sync --frozen
+      - run: uv run python -m evals.chaos --prompt "$(cat agent/prompts/CURRENT)" --repeats 1 --out ci-chaos.json --fail-on 0.8
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: chaos-report
+          path: ci-chaos.json
+
+  redteam-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: astral-sh/setup-uv@v10
+      - run: uv sync --frozen
+      - run: uv run python -m evals.regression --out ci-regression.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: regression-report
+          path: ci-regression.json
+
+  deploy:
+    needs: [chaos, redteam-regression]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "gate verde; aca iria el deploy real (agentcore deploy, helm, lo que sea)"
