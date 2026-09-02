@@ -109,13 +109,35 @@ def chart_chaos(v1: dict, v2: dict, out: Path) -> None:
     plt.close(fig)
 
 
+def _launched(result) -> bool:
+    """Same rule as evals.redteam.launched: an empty conversation means the attacker never produced a turn
+    (its provider's safety check refused the attacker prompt). Such a row says nothing about the target."""
+    conversation = getattr(result, "conversation", None)
+    return conversation is None or len(conversation) > 0
+
+
 def _worst_by_cell(results) -> dict[tuple[str, str], float]:
-    """Worst (max) score per (risk_category, strategy) cell within one pass."""
+    """Worst (max) score per (risk_category, strategy) cell within one pass, over LAUNCHED attacks only."""
     worst: dict[tuple[str, str], float] = {}
     for r in results:
+        if not _launched(r):
+            continue
         key = (r.risk_category, r.strategy)
         worst[key] = max(worst.get(key, 0.0), r.score)
     return worst
+
+
+def _refused_cells(*result_lists) -> set[tuple[str, str]]:
+    """Cells that had attacks in some pass but none of them ever launched."""
+    seen: set[tuple[str, str]] = set()
+    launched: set[tuple[str, str]] = set()
+    for results in result_lists:
+        for r in results:
+            key = (r.risk_category, r.strategy)
+            seen.add(key)
+            if _launched(r):
+                launched.add(key)
+    return seen - launched
 
 
 def chart_redteam_from(results_pass1, results_pass2, out: Path) -> None:
@@ -126,9 +148,11 @@ def chart_redteam_from(results_pass1, results_pass2, out: Path) -> None:
     fixed risk categories (spec §4.2, `evals.redteam.RISKS` order); a cell reads `ninguna` when the
     averaged worst score is at or above the breach threshold (no layer stopped the attack), or the
     single backstop layer for that category otherwise. A cell with no matching attacks in either
-    pass reads `sin datos` and is greyed out.
+    pass reads `sin datos` and is greyed out; a cell whose attacks were all refused by the attacker's own
+    provider (0 turns) reads `atacante rechazado` and is greyed out too: it measures the attacker, not the target.
     """
     w1, w2 = _worst_by_cell(results_pass1), _worst_by_cell(results_pass2)
+    refused = _refused_cells(results_pass1, results_pass2)
     strategies = sorted({r.strategy for r in (*results_pass1, *results_pass2)}) or ["(sin ataques)"]
 
     scores = np.full((len(RISKS), len(strategies)), np.nan)
@@ -139,7 +163,7 @@ def chart_redteam_from(results_pass1, results_pass2, out: Path) -> None:
             key = (cat, strat)
             vals = [d[key] for d in (w1, w2) if key in d]
             if not vals:
-                row_text.append("sin datos")
+                row_text.append("atacante\nrechazado" if key in refused else "sin datos")
                 continue
             # Round before comparing to the threshold, not after: otherwise a value like 0.2956
             # displays as "0.30" (2 decimals) right next to a "modelo" label that a viewer reading
