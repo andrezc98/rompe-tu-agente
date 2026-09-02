@@ -15,7 +15,7 @@ Everything below needs the personal sandbox account, model access, or the public
 - [ ] `bash infra/enable-transaction-search.sh` (once per account; ten minutes until spans are searchable).
 
 ## 2. Models and smoke (plan Task 5, steps 8 and 9)
-- [ ] `bash scripts/pin-models.sh`; write `TARGET_MODEL_ID` (Sonnet tier), `JUDGE_MODEL_ID` (Opus tier), `ATTACKER_MODEL_ID` (expected `openai.gpt-5.6-terra`), `SENTINEL_ROLE_ARN`, instance ids and `AGENT_LOG_GROUP=aws-cdarg-sentinel-logs-demo` into `.env` (copy `.env.example`).
+- [ ] `bash scripts/pin-models.sh`; write `TARGET_MODEL_ID` (Sonnet tier), `JUDGE_MODEL_ID` (Opus tier), `ATTACKER_MODEL_ID` (`openai.gpt-5.6-sol`, user ruling 2026-09-02), `REDTEAM_JUDGE_MODEL_ID` (`us.anthropic.claude-opus-4-8`; Opus 5 content-filters adversarial transcripts), `SENTINEL_ROLE_ARN`, instance ids and `AGENT_LOG_GROUP=aws-cdarg-sentinel-logs-demo` into `.env` (copy `.env.example`).
 - [ ] `uv run --env-file .env python scripts/smoke.py` → three lines ending in `'ok'`.
 - [ ] `uv run --env-file .env python -m agent.cli "¿Qué instancias del equipo pagos hay y en qué estado están?"` and the prod-stop refusal question; save both to `evals/results/smoke-sentinel.md`.
 
