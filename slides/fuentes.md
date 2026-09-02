@@ -22,7 +22,9 @@ diapositivas están en `slides/contenido.md`.
 
 ## AWS
 
-- Amazon Bedrock — model card de OpenAI GPT-5.5 (id, endpoint Mantle, Responses API) — https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-openai-gpt-55.html — consultado 2026-09-01 — slide 15 (el atacante no es tu modelo)
+- Amazon Bedrock — model card de OpenAI GPT-5.6 Sol (id, endpoint Mantle, Responses API) — https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-openai-gpt-56-sol.html — consultado 2026-09-02 — slide 15 (el atacante no es tu modelo)
+- strands-agents/evals PR #298 — "Reframe red team attacker prompts to survive aligned attacker models" (abierto, sin publicar; texto vendoreado en evals/vendor) — https://github.com/strands-agents/evals/pull/298 — consultado 2026-09-02 — slides 15 y 16
+- OpenAI — Safety checks: cybersecurity (el mensaje de rechazo del atacante) — https://platform.openai.com/docs/guides/safety-checks/cybersecurity — consultado 2026-09-02 — slides 15 y 21
 - Amazon Bedrock — API keys de corta duración — https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys-generate.html — consultado 2026-09-01 — slide 15 (credencial del atacante, sin claves en archivos)
 - aws-bedrock-token-generator para Python — https://github.com/aws/aws-bedrock-token-generator-python/blob/main/README.md — consultado 2026-09-01 — slide 15
 - AgentCore Observability para agentes fuera del runtime (ADOT, Transaction Search) — https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/observability-get-started.html — consultado 2026-09-01 — slide 18 (la sesión y el trace en CloudWatch)
