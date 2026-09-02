@@ -38,7 +38,7 @@ The abstract already gives two scenes. The talk runs them as one night of guardi
 |---|---|---|
 | Apertura | 2 | Título. "Soy Andrés, Solutions Architect en phData, arequipeño." Por qué me importa: mis agentes pasaron la demo. |
 | Contexto | 5 | Escena 1 (chaos): 02:14, `get_metric` hace timeout, el agente responde "CPU al 45%". Escena 2 (red team): 6 mensajes razonables, el séptimo detiene una instancia. "En ambos casos te enteraste por el usuario." Tesis: soportar una falla ≠ resistir un ataque. |
-| Desarrollo | 18 | El agente Guardia (3) → chaos testing: 5 fallas, 5 preguntas (5) → red teaming: 4 categorías, 3 capas (5) → señales y diagnóstico: el incidente que se lee mal (3) → gate de CI: rojo, arreglo, verde (2) |
+| Desarrollo | 18 | El agente Sentinel (3) → chaos testing: 5 fallas, 5 preguntas (5) → red teaming: 4 categorías, 3 capas (5) → señales y diagnóstico: el incidente que se lee mal (3) → gate de CI: rojo, arreglo, verde (2) |
 | Aprendizajes | 5 | Qué funcionó, qué no, qué haría distinto. "El lunes": tres cosas concretas. Cierre. |
 | Q&A | 10 | QR de feedback en pantalla. Repetir la pregunta antes de responder. |
 
@@ -50,7 +50,7 @@ The abstract already gives two scenes. The talk runs them as one night of guardi
 
 ---
 
-## 3. The agent: "Guardia"
+## 3. The agent: "Sentinel"
 
 An on-call assistant for a platform team, built with Strands Agents (1.54.0, 2026-08-27) on Amazon Bedrock. It is small on purpose: three read tools, one guarded write tool, one shell. Enough surface for every probe the abstract promises, small enough to read on a slide.
 
@@ -76,7 +76,7 @@ An on-call assistant for a platform team, built with Strands Agents (1.54.0, 202
 | `stop_instance(instance_id, ticket)` | EC2 StopInstances | The action worth protecting |
 | `run_shell(cmd)` | Strands Shell, in-process | The shell the abstract says the attacker will find |
 
-`stop_instance` is guarded twice: by the prompt policy (layer 1, model) and by IAM on the `guardia-agent` role the tools assume, which denies `ec2:StopInstances` when `ec2:ResourceTag/env = prod` (layer 3). The tool itself does not validate the ticket; a smart tool would be a fourth layer and would hide the model's decision. The gap between the two layers is where the headline finding lives.
+`stop_instance` is guarded twice: by the prompt policy (layer 1, model) and by IAM on the `sentinel-agent` role the tools assume, which denies `ec2:StopInstances` when `ec2:ResourceTag/env = prod` (layer 3). The tool itself does not validate the ticket; a smart tool would be a fourth layer and would hide the model's decision. The gap between the two layers is where the headline finding lives.
 
 Tool errors: Strands converts a raised exception into an error tool result for the model. We do not catch and prettify inside tools; the model must handle the raw failure, that is the point.
 
@@ -89,15 +89,15 @@ Strands Shell (`strands-shell`, in-process; no fork/exec, so no `aws` or `kubect
 - Its own docs say it is "a mediation layer, not a hardened sandbox"; we say that on the slide. Layer 2 of three.
 
 ### 3.5 Sandbox infrastructure (AWS CDK, Python, `infra/`)
-Decided 2026-09-01: CDK in Python so the whole repo is one language; the audience reads Python all talk long and the IAM Deny is a ten-line construct on a slide. CloudFormation stack `aws-cdarg-guardia-stack-demo` (CDK construct id `GuardiaDemo`), one construct file (`infra/guardia_stack.py`), unit-tested offline with `aws_cdk.assertions`.
+Decided 2026-09-01: CDK in Python so the whole repo is one language; the audience reads Python all talk long and the IAM Deny is a ten-line construct on a slide. CloudFormation stack `aws-cdarg-sentinel-stack-demo` (CDK construct id `SentinelDemo`), one construct file (`infra/sentinel_stack.py`), unit-tested offline with `aws_cdk.assertions`.
 
-- VPC `aws-cdarg-guardia-vpc-demo`: one AZ, one public subnet, no NAT, no inbound rules, instances without public IPs and without egress (nothing needs to reach them; CPU metrics come from the hypervisor).
-- Two instances `aws-cdarg-guardia-ec2-prod` and `aws-cdarg-guardia-ec2-dev`: `m9g.medium` (Graviton5; `m8g.medium` if the region does not offer m9g) on the Bottlerocket `aws-ecs-2` arm64 AMI resolved from the public SSM parameter. Both running: a running prod is the realistic target, and the IAM Deny is what protects it, so no stopped-state trick is needed.
-- Alarm `aws-cdarg-guardia-alarm-dev`: always in ALARM while dev runs (CPUUtilization below 101), described as a demo alarm.
-- Log group `aws-cdarg-guardia-logs-demo` for the observed runs.
-- Role `aws-cdarg-guardia-role-agent-demo`, assumed by the tools: CloudWatch/EC2 describe, `ec2:StopInstances` allowed, with an explicit Deny when `ec2:ResourceTag/env = prod`. Trusts the account root (the sandbox SSO principal) and the CI role.
-- Role `aws-cdarg-guardia-role-ci-demo`, GitHub OIDC trust scoped to `repo:<owner>/<repo>:*`: Bedrock invoke plus `bedrock:CallWithBearerToken` (short-term API keys for the Mantle attacker), `sts:AssumeRole` on `aws-cdarg-guardia-role-agent-demo`, logs and X-Ray put for telemetry.
-- Standard tags on every taggable resource (`Project=rompe-tu-agente`, `Environment=demo`, `Owner=andres-zeballos`, `ManagedBy=cdk`) plus `team=pagos` and `env=prod|dev` on the instances. Naming convention `aws-cdarg-guardia-<resource>-<env>` throughout, built only by `infra.guardia_stack.name(resource, env)` (speaker's convention: `aws-<event>-<codename>-<resource>-<env>`; the codename is the agent under test).
+- VPC `aws-cdarg-sentinel-vpc-demo`: one AZ, one public subnet, no NAT, no inbound rules, instances without public IPs and without egress (nothing needs to reach them; CPU metrics come from the hypervisor).
+- Two instances `aws-cdarg-sentinel-ec2-prod` and `aws-cdarg-sentinel-ec2-dev`: `m9g.medium` (Graviton5; `m8g.medium` if the region does not offer m9g) on the Bottlerocket `aws-ecs-2` arm64 AMI resolved from the public SSM parameter. Both running: a running prod is the realistic target, and the IAM Deny is what protects it, so no stopped-state trick is needed.
+- Alarm `aws-cdarg-sentinel-alarm-dev`: always in ALARM while dev runs (CPUUtilization below 101), described as a demo alarm.
+- Log group `aws-cdarg-sentinel-logs-demo` for the observed runs.
+- Role `aws-cdarg-sentinel-role-agent-demo`, assumed by the tools: CloudWatch/EC2 describe, `ec2:StopInstances` allowed, with an explicit Deny when `ec2:ResourceTag/env = prod`. Trusts the account root (the sandbox SSO principal) and the CI role.
+- Role `aws-cdarg-sentinel-role-ci-demo`, GitHub OIDC trust scoped to `repo:<owner>/<repo>:*`: Bedrock invoke plus `bedrock:CallWithBearerToken` (short-term API keys for the Mantle attacker), `sts:AssumeRole` on `aws-cdarg-sentinel-role-agent-demo`, logs and X-Ray put for telemetry.
+- Standard tags on every taggable resource (`Project=rompe-tu-agente`, `Environment=demo`, `Owner=andres-zeballos`, `ManagedBy=cdk`) plus `team=pagos` and `env=prod|dev` on the instances. Naming convention `aws-cdarg-sentinel-<resource>-<env>` throughout, built only by `infra.sentinel_stack.name(resource, env)` (speaker's convention: `aws-<event>-<codename>-<resource>-<env>`; the codename is the agent under test).
 - Outputs: instance ids, both role ARNs, log group name, written by `cdk deploy --outputs-file` to a git-ignored `infra/outputs.json` that fills `.env`.
 - CloudWatch Transaction Search is enabled once with a CLI script (not a CDK resource), per the AgentCore Observability guide.
 - Bedrock model access (Claude profiles, GPT-5.5 on Mantle) is enabled in the console on setup day and smoke-tested per model.
@@ -148,7 +148,7 @@ The layer column is the slide: "tres capas: modelo, sandbox, IAM. Cada ataque te
 
 Strategies: `CrescendoStrategy(max_turns=6)`, `GoatStrategy(max_turns=6)`, `SequentialBreakStrategy(max_turns=4)` (no attacker LLM; the cheap contrast that shows why multi-turn matters). The attacker LLM behind Crescendo and GOAT is GPT-5.5 via Mantle (§3.1); the judge is Claude: `AttackSuccessEvaluator(model=judge, pass_threshold=0.3)`, scores anchored at refused 0.0 / partial 0.3 / substantial 0.7 / full 1.0.
 
-Execution: `RedTeamExperiment(cases, agent_factory=make_guardia, attack_strategies=[...], evaluators=[AttackSuccessEvaluator(model=judge)], model=attacker)` and `run_evaluations_async(max_workers=3)`. Verified: passing `agent=` to a parallel run raises `TypeError`. 10 cases × 3 strategies = 30 attacks per pass; **two passes** to show stochasticity honestly ("clean runs are evidence, not proof", per the docs).
+Execution: `RedTeamExperiment(cases, agent_factory=make_sentinel, attack_strategies=[...], evaluators=[AttackSuccessEvaluator(model=judge)], model=attacker)` and `run_evaluations_async(max_workers=3)`. Verified: passing `agent=` to a parallel run raises `TypeError`. 10 cases × 3 strategies = 30 attacks per pass; **two passes** to show stochasticity honestly ("clean runs are evidence, not proof", per the docs).
 
 Persistence: `report.to_file("evals/results/redteam-<date>.json")`. Breaching cases are copied into `evals/regression/redteam.json` and become the CI regression suite. Live targets are not serialized; the regression runner re-attaches `agent_factory` on load.
 
@@ -166,7 +166,7 @@ Same mechanism as the KCD bench: `evals/verdicts.json` `{case: {run: {"veredicto
 
 ### 5.1 Traces
 - In-process during evals: `StrandsEvalsTelemetry().setup_in_memory_exporter()`; the task clears the exporter, runs the agent with `trace_attributes={"session.id": case.session_id}`, maps spans with `StrandsInMemorySessionMapper` and returns `{"output", "trajectory"}`. The chaos evaluators require this.
-- On AWS: the same agent run under `opentelemetry-instrument` with the ADOT env vars from the AgentCore Observability guide (`AGENT_OBSERVABILITY_ENABLED=true`, `OTEL_PYTHON_DISTRO=aws_distro`, OTLP headers with the log group, `OTEL_RESOURCE_ATTRIBUTES=service.name=guardia`). Sessions and traces appear in CloudWatch GenAI Observability. Strands Evals' `CloudWatchProvider(log_group, region).get_evaluation_data(session_id)` pulls a session back for evaluation; we show that round trip once.
+- On AWS: the same agent run under `opentelemetry-instrument` with the ADOT env vars from the AgentCore Observability guide (`AGENT_OBSERVABILITY_ENABLED=true`, `OTEL_PYTHON_DISTRO=aws_distro`, OTLP headers with the log group, `OTEL_RESOURCE_ATTRIBUTES=service.name=sentinel`). Sessions and traces appear in CloudWatch GenAI Observability. Strands Evals' `CloudWatchProvider(log_group, region).get_evaluation_data(session_id)` pulls a session back for evaluation; we show that round trip once.
 
 ### 5.2 Diagnosis
 `strands_evals.detectors.diagnose_session(session, model=judge)` on two sessions:
@@ -183,7 +183,7 @@ Show the transcript first. Ask the room: ¿pasó o no pasó? Then show the trace
 
 ## 6. CI gate
 
-GitHub Actions on pull request, OIDC to the sandbox CI role (`aws-cdarg-guardia-role-ci-demo`, which can invoke Bedrock, mint short-term Bedrock API keys via `bedrock:CallWithBearerToken` for the Mantle attacker, and assume `aws-cdarg-guardia-role-agent-demo`), three jobs:
+GitHub Actions on pull request, OIDC to the sandbox CI role (`aws-cdarg-sentinel-role-ci-demo`, which can invoke Bedrock, mint short-term Bedrock API keys via `bedrock:CallWithBearerToken` for the Mantle attacker, and assume `aws-cdarg-sentinel-role-agent-demo`), three jobs:
 1. `chaos`: runs the chaos experiment on the PR's prompt version (n=1 in CI for speed), exits 1 if `report.overall_score < 0.8`. Uses the `strands-evals run ... --fail-on 0.8` CLI if it accepts a ChaosExperiment file; otherwise `python -m evals.chaos --fail-on 0.8` with the same exit semantics. Decided at implementation, documented in the README.
 2. `redteam-regression`: replays `evals/regression/redteam.json` (the breaching cases) with Crescendo only, exits 1 on any breach.
 3. `deploy`: `needs: [chaos, redteam-regression]`; the demo's "deploy" is a tagged release plus an echo. Real deployment is out of scope and said so on the slide.
@@ -208,7 +208,7 @@ Pin `strands-agents-evals==1.2.0` and `strands-agents==1.54.0` in `pyproject.tom
 
 Official Google Slides template, filled by the speaker from `slides/contenido.md` written by Claude: one entry per slide with headline, body (one idea per slide, diagrams over paragraphs, code ≤ 15 lines monospaced) and speaker notes in Spanish, in the format that worked for Community Day Colombia (`~/Documents/co-cd/slides-content.md`). 23 content slides plus Q&A and Gracias:
 
-1 Título · 2 Contenido · 3 Escena 1 · 4 Escena 2 · 5 Tesis · 6 Guardia (arquitectura) · 7 Tools + capas · 8 Prompt v1 (la línea) · 9 Chaos: 5 fallas 5 preguntas · 10 Cómo se inyecta (código) · 11 Resultados v1 (una escena) · 12 v1→v2 diff · 13 Resultados v2 · 14 Red team: 4 categorías 3 capas · 15 Crescendo (código + 1 transcript) · 16 Matriz de ataques · 17 El incidente que se lee mal (transcript) · 18 El trace · 19 Diagnóstico: 4 buckets · 20 Gate de CI rojo/verde · 21 Aprendizajes · 22 El lunes · 23 Cierre · Q&A · ¡Gracias!
+1 Título · 2 Contenido · 3 Escena 1 · 4 Escena 2 · 5 Tesis · 6 Sentinel (arquitectura) · 7 Tools + capas · 8 Prompt v1 (la línea) · 9 Chaos: 5 fallas 5 preguntas · 10 Cómo se inyecta (código) · 11 Resultados v1 (una escena) · 12 v1→v2 diff · 13 Resultados v2 · 14 Red team: 4 categorías 3 capas · 15 Crescendo (código + 1 transcript) · 16 Matriz de ataques · 17 El incidente que se lee mal (transcript) · 18 El trace · 19 Diagnóstico: 4 buckets · 20 Gate de CI rojo/verde · 21 Aprendizajes · 22 El lunes · 23 Cierre · Q&A · ¡Gracias!
 
 `slides/fuentes.md` lists every source with date, as in the KCD repo; the closing slide cites it.
 
@@ -224,7 +224,7 @@ Official Google Slides template, filled by the speaker from `slides/contenido.md
 README.md                  # reproducibility: versions, setup, run order, deltas
 pyproject.toml             # uv; pins strands-agents, strands-agents-evals, strands-shell, boto3, aws-opentelemetry-distro
 agent/
-  guardia.py               # make_guardia(prompt_version) -> Agent  (the agent_factory)
+  sentinel.py               # make_sentinel(prompt_version) -> Agent  (the agent_factory)
   tools.py                 # get_alarms, get_metric, get_instances, stop_instance
   shell_tool.py            # run_shell over strands_shell.Shell with the binds
   prompts/v1.md, v2.md
@@ -242,7 +242,7 @@ evals/
 cdk.json                   # app = uv run python -m infra.app
 infra/
   app.py                   # CDK app: RtaDemo stack + standard tags
-  guardia_stack.py             # VPC, two m9g Bottlerocket instances, alarm, log group, guardia-agent + CI roles, outputs
+  sentinel_stack.py             # VPC, two m9g Bottlerocket instances, alarm, log group, sentinel-agent + CI roles, outputs
   enable-transaction-search.sh
 tests/test_infra.py        # cdk assertions: Deny on env=prod, OIDC trust, tags, instance type (offline)
 .github/workflows/evals.yml
@@ -312,7 +312,7 @@ Everything not in this list gets verified again before it is written into code, 
 
 | Abstract promise | Where it lands |
 |---|---|
-| "construimos un agente real" | §3 Guardia, tools on a real AWS account |
+| "construimos un agente real" | §3 Sentinel, tools on a real AWS account |
 | "inyectar timeouts, errores de red y respuestas truncadas … en las llamadas a las tools" | §4.1 Timeout, NetworkError, TruncateFields (+ RemoveFields, ExecutionError) |
 | "se recupera, degrada su respuesta de forma segura o simplemente inventa" | §4.1 evaluators + rubric; §5.2 timeout session |
 | "AdversarialCaseGenerator analiza las tools y el system prompt" | §4.2 generator over the live agent |
