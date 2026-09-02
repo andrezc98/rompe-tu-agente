@@ -33,12 +33,17 @@ from botocore.config import Config
 from agent import config
 
 MODEL_ID = os.environ.get("IMAGE_MODEL_ID", "amazon.nova-canvas-v1:0")
-OUT = Path(__file__).resolve().parent.parent / "slides" / "assets"
+DEFAULT_OUT = Path(__file__).resolve().parent.parent / "slides" / "assets"
 
 SCENES = {
     "escena-timeout": "Editorial illustration, muted dark palette, a lone on-call engineer at 2 am lit by a laptop, a chat bubble shows a confident number while a small red timeout icon blinks behind it, no text, minimalist, 16:9",
     "escena-crescendo": "Editorial illustration, muted dark palette, a staircase of seven chat messages rising toward a big red stop button on a server rack, each step slightly more insistent, no text, minimalist, 16:9",
 }
+
+
+def _out_dir() -> Path:
+    # Read at call time (not import time) so a test can set GEN_ART_OUT before invoking main().
+    return Path(os.environ.get("GEN_ART_OUT", DEFAULT_OUT))
 
 
 def main() -> int:
@@ -47,11 +52,15 @@ def main() -> int:
     # read_timeout=300: image generation runs longer than the botocore default: AWS's own sample
     # code (image-gen-code-examples.html) sets this on the bedrock-runtime client.
     runtime = session.client("bedrock-runtime", config=Config(read_timeout=300))
-    OUT.mkdir(parents=True, exist_ok=True)
+    out = _out_dir()
+    out.mkdir(parents=True, exist_ok=True)
     for name, prompt in SCENES.items():
         body = {
             "taskType": "TEXT_IMAGE",
             "textToImageParams": {"text": prompt, "negativeText": "text, letters, watermark, logo"},
+            # cfgScale: 1.1-10.0, default 6.5. seed: 0-2147483646, default 12. (Per fix-round review;
+            # not independently re-confirmed by me against a specific doc page after several searches
+            # -- see the fix report.) 7.0/42 are both within range.
             "imageGenerationConfig": {"numberOfImages": 1, "width": 1280, "height": 720, "cfgScale": 7.0, "seed": 42},
         }
         response = runtime.invoke_model(modelId=MODEL_ID, body=json.dumps(body), contentType="application/json", accept="application/json")
@@ -59,8 +68,8 @@ def main() -> int:
         if payload.get("error"):
             print(f"error generating {name}: {payload['error']}", file=sys.stderr)
             return 1
-        (OUT / f"{name}.png").write_bytes(base64.b64decode(payload["images"][0]))
-        print("wrote", OUT / f"{name}.png")
+        (out / f"{name}.png").write_bytes(base64.b64decode(payload["images"][0]))
+        print("wrote", out / f"{name}.png")
     return 0
 
 

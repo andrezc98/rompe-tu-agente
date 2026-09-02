@@ -49,9 +49,9 @@ class _FakeSession:
 
 def test_main_writes_both_scene_images_under_out(tmp_path, monkeypatch):
     monkeypatch.setenv("AWS_PROFILE", "test-sandbox")
+    monkeypatch.setenv("GEN_ART_OUT", str(tmp_path))
     runtime = _FakeRuntime(TINY_PNG_B64)
     monkeypatch.setattr(gen_art.boto3, "Session", lambda *a, **kw: _FakeSession(runtime, *a, **kw))
-    monkeypatch.setattr(gen_art, "OUT", tmp_path)
 
     rc = gen_art.main()
 
@@ -72,13 +72,13 @@ def test_main_writes_both_scene_images_under_out(tmp_path, monkeypatch):
 
 def test_main_reports_rai_output_deflection_without_writing_a_file(tmp_path, monkeypatch):
     monkeypatch.setenv("AWS_PROFILE", "test-sandbox")
+    monkeypatch.setenv("GEN_ART_OUT", str(tmp_path))
 
     class _BlockedRuntime:
         def invoke_model(self, **kwargs):
             return {"body": _FakeBody({"images": [], "error": "All of the generated images have been blocked by our content filters."})}
 
     monkeypatch.setattr(gen_art.boto3, "Session", lambda *a, **kw: SimpleNamespace(client=lambda *a2, **kw2: _BlockedRuntime()))
-    monkeypatch.setattr(gen_art, "OUT", tmp_path)
 
     rc = gen_art.main()
 

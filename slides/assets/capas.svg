@@ -48,10 +48,10 @@
   <!-- Lane 2: bypass de guias - stopped at the model, deeper in the band -->
   <text x="880" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#333333">bypass de</text>
   <text x="880" y="140" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#333333">gu&#237;as</text>
-  <line x1="880" y1="152" x2="880" y2="358" stroke="#333333" stroke-width="4" />
-  <polygon points="880,368 868,350 892,350" fill="#333333" />
-  <rect x="850" y="368" width="60" height="9" rx="3" fill="#222222" />
-  <text x="880" y="404" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#222222">modelo</text>
+  <line x1="880" y1="152" x2="880" y2="310" stroke="#333333" stroke-width="4" />
+  <polygon points="880,320 868,302 892,302" fill="#333333" />
+  <rect x="850" y="320" width="60" height="9" rx="3" fill="#222222" />
+  <text x="880" y="356" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#222222">modelo</text>
 
   <!-- Lane 3: exfiltracion de datos - stopped at the sandbox -->
   <text x="1200" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#007A5E">exfiltraci&#243;n</text>
