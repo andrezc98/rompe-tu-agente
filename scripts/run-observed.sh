@@ -9,4 +9,6 @@ export OTEL_PYTHON_CONFIGURATOR=aws_configurator
 export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 export OTEL_EXPORTER_OTLP_LOGS_HEADERS="x-aws-log-group=${AGENT_LOG_GROUP},x-aws-log-stream=guardia,x-aws-metric-namespace=guardia"
 export OTEL_RESOURCE_ATTRIBUTES="service.name=sentinel"
+# The CloudWatch OTLP logs endpoint rejects batches (400) unless the stream already exists; create once, idempotent.
+aws logs create-log-stream --log-group-name "$AGENT_LOG_GROUP" --log-stream-name guardia 2>/dev/null || true
 exec uv run --env-file .env opentelemetry-instrument python -m agent.cli "$@"
