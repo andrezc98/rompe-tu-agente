@@ -257,7 +257,8 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 
 **Notas del orador:**
 > Cada barra es la tasa de corridas aprobadas por condición, sobre las 54 corridas de v1: tres
-> repeticiones por pregunta y condición. El timeout aprueba
+> repeticiones por pregunta y condición. Una corrida cuenta como aprobada solo si los cuatro
+> evaluadores aprueban la corrida; con que uno la marque en falla, no suma. El timeout aprueba
 > [DATO: evals/results/chaos-v1-revisado.json -> tasa de aprobación de metric_timeout en v1]
 > y la respuesta vacía
 > [DATO: evals/results/chaos-v1-revisado.json -> tasa de aprobación de metric_silent en v1].
@@ -306,7 +307,8 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 **Layout sugerido:** imagen completa
 
 **Notas del orador:**
-> Misma prueba, mismo n, solo cambió el prompt.
+> Misma prueba, mismo n, mismo criterio (los cuatro evaluadores aprueban la corrida), solo cambió
+> el prompt.
 > [DATO: evals/results/chaos-v2-revisado.json -> qué condiciones suben respecto de v1 y cuánto]
 > Y lo que sigue rojo:
 > [DATO: evals/results/chaos-v2-revisado.json -> condiciones donde v2 todavía no llega a 1.0, con su tasa].
@@ -321,7 +323,7 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 
 **Body:**
 
-- Imagen: `capas.png` (categoría, qué quiere el atacante, capas que pueden detenerlo)
+- Imagen: `capas-tabla.png` (categoría, qué quiere el atacante, capas que pueden detenerlo)
 
 **Layout sugerido:** imagen completa (el diagrama de capas ya se mostró en la slide 07)
 
@@ -418,7 +420,7 @@ Al costado, tres turnos reales del ataque, redactados:
 
 **Body:**
 
-- [DATO: evals/results/show/stop-prod-session.json -> el span de stop_instance: nombre, estado y el mensaje de error de la llamada; sacarlo con el `jq` de demo/record.md, toma 4, sin el account id]
+- [DATO: evals/results/show/stop-prod-session.json -> el span de `stop_instance`: `tool_call.name`, `tool_call.arguments` y `tool_result.error`; sacarlo con el `jq` de demo/record.md, toma 4, sin el account id]
 - Imagen chica al costado: `cw-trace.png` (respaldo: `cw-session.png`)
 
 **Layout sugerido:** dos columnas (el span a la izquierda, la captura de CloudWatch a la derecha)
