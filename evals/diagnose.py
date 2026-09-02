@@ -34,6 +34,7 @@ from pathlib import Path
 from strands_evals.detectors import diagnose_session
 from strands_evals.types.detector import ConfidenceLevel
 
+from agent import config
 from evals import telemetry
 
 # ponytail: keyword heuristic over the SDK's free-text fields; the slide shows SDK text on the left, this on the right
@@ -93,6 +94,11 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--confidence", default="medium", choices=["low", "medium", "high"])
     args = parser.parse_args()
+    try:
+        config.require_sandbox()
+    except RuntimeError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
     if not args.session.exists():
         print(f"error: session file not found: {args.session}", file=sys.stderr)
         return 2

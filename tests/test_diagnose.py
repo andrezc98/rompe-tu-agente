@@ -1,3 +1,7 @@
+import os
+import subprocess
+import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 from evals import diagnose
@@ -95,3 +99,13 @@ def test_render_shows_sdk_verbatim_next_to_our_reading():
     assert "SDK (verbatim)" in out
     assert "| tool" in out  # our reading, computed by bucket()
     assert "fix: Add a timeout retry" in out
+
+
+def test_cli_refuses_without_sandbox_profile():
+    env = {k: v for k, v in os.environ.items() if k not in ("AWS_PROFILE", "GITHUB_ACTIONS")}
+    proc = subprocess.run(
+        [sys.executable, "-m", "evals.diagnose", "evals/results/show/timeout-v1.json"],
+        env=env, cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True,
+    )
+    assert proc.returncode == 2
+    assert "sandbox" in proc.stderr

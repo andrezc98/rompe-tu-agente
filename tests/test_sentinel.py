@@ -28,3 +28,12 @@ def test_agent_factory_reads_current():
     assert sentinel.current_prompt_version() == "v2"
     agent = sentinel.agent_factory()
     assert "no completes con suposiciones" in agent.system_prompt
+
+
+def test_make_sentinel_refuses_without_sandbox_profile(monkeypatch):
+    # The target BedrockModel is built inside make_sentinel, on the ambient credential chain:
+    # without the sandbox profile (or CI OIDC) it must refuse before any client exists.
+    monkeypatch.delenv("AWS_PROFILE", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    with pytest.raises(RuntimeError, match="sandbox"):
+        sentinel.make_sentinel("v2")

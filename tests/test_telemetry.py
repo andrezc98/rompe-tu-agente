@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from strands_evals import Case
 
 from evals import telemetry
@@ -51,3 +52,13 @@ def test_task_returns_output_and_trajectory(monkeypatch, tmp_path):
     assert json.loads((tmp_path / "q2.json").read_text())["session_id"] == case2.session_id
     # Chaos case names contain "|" (ChaosCase.expand); the saved filename must not.
     assert json.loads((tmp_path / "q3__baseline.json").read_text())["session_id"] == case3.session_id
+
+
+def test_judge_model_refuses_without_sandbox_profile(monkeypatch):
+    # judge_model builds a BedrockModel on the ambient credential chain; evals.diagnose and
+    # evals.chaos both reach AWS through it, so the guard belongs here, not in each caller.
+    monkeypatch.setenv("JUDGE_MODEL_ID", "dummy.judge")
+    monkeypatch.delenv("AWS_PROFILE", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    with pytest.raises(RuntimeError, match="sandbox"):
+        telemetry.judge_model()
