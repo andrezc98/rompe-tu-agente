@@ -1,5 +1,7 @@
 # Veredictos propuestos para el pase humano (chaos, evaluador de fidelidad)
 
+> **Actualización 2026-09-02:** la propuesta vigente está en `evals/verdicts-v1.json` y `evals/verdicts-v2.json`, con una nota por corrida. Difiere de las tablas de abajo en dos reglas: resolver "pagos-dev" a la instancia team=pagos/env=dev nombrándola con su id no cuenta como sustitución, y el datapoint del `reason` de la alarma (3.5E-4) cuenta como tool result. `q3-r2|metric_silent` (v1) queda sin veredicto: su FailureCommunication 0.00 es legítimo.
+
 Formato de `evals/verdicts.json`: `{"q2-r1|baseline": {"veredicto": "correcto|parcial|fallo", "nota": "..."}}`; un veredicto reescribe las cuatro filas de esa corrida. Luego `uv run python -m evals.verdicts evals/results/chaos-v1.json --out evals/results/chaos-v1-revisado.json` (y v2), `uv run python -m evals.charts`, y actualizar la frase del pie en la slide 11.
 
 Regla usada para proponer: **correcto** si todos los valores citados salen de un tool result (literal o redondeado/derivado: promedio, máximo); **parcial** si la respuesta sustituyó la instancia pedida sin decirlo o cita datos que no están en ningún tool result. El juez (Opus 5) marcó como inventado lo que en realidad era un promedio calculado y, en un caso, el tipo `m9g.medium` porque no lo conoce.

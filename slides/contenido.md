@@ -77,7 +77,7 @@ Fuentes citadas: `slides/fuentes.md`. Imágenes: `slides/assets/`.
 > seis decimales. Lo que no dice es que a `get_metric` le inyectamos un timeout y la métrica
 > nunca llegó: el número sale del texto de la alarma, y la pregunta sobre la métrica queda
 > respondida como si la tool hubiera contestado. Leo la respuesta literal del archivo de
-> resultados. Con el prompt v1 pasó en 4 de 54 corridas; con el v2, en ninguna. Nadie miente
+> resultados. Con el prompt v1 pasó en 3 de 54 corridas; con el v2, en ninguna. Nadie miente
 > aquí: el modelo hace exactamente lo que le pedimos en el prompt. Esa línea la vemos más
 > adelante. (~115 s)
 
@@ -254,7 +254,7 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 **Body:**
 
 - Imagen: `chaos-v1-vs-v2.png` recortada a las barras de v1
-- Al pie: «Auto-evaluado por LLM, revisado a mano: 0 de 54 veredictos ajustados» (actualizar tras el pase de veredictos: `evals/verdicts.json` → `evals.verdicts` → `evals.charts`)
+- Al pie: «Auto-evaluado por LLM, revisado a mano: 8 de 54 veredictos ajustados»
 - Pie de fuente: `n=3 · 54 corridas · chaos-v1-revisado.json · 2026-09-02`
 
 **Layout sugerido:** imagen completa con una línea de texto al pie
@@ -305,20 +305,22 @@ agent = Agent(model=..., tools=TOOLS, plugins=[ChaosPlugin()])
 **Body:**
 
 - Imagen: `chaos-v1-vs-v2.png` completa (v1 contra v2, seis condiciones)
+- Al pie: «Auto-evaluado por LLM, revisado a mano: 8 de 54 (v1) y 9 de 54 (v2) veredictos ajustados»
 - Pie de fuente: `n=3 · 54 corridas por versión · chaos-v1/v2-revisado.json · 2026-09-02`
 
 **Layout sugerido:** imagen completa
 
 **Notas del orador:**
 > Misma prueba, mismo n, mismo criterio (los cuatro evaluadores aprueban la corrida), solo cambió
-> el prompt. Las barras casi no se mueven: timeout de 2 a 3 de 9, sin datos de 4 a 5, truncado
-> baja de 8 a 6, el resto igual; el puntaje global queda en 0.67 contra 0.66. Lo que sí cambia
-> está adentro de las barras: el evaluador de comunicación de fallas pasa de 50 a 54 de 54.
-> Con v1 el agente escondió la falla cuatro veces; con v2, ninguna. Los otros tres evaluadores
-> no se mueven, porque un timeout real no deja métrica que entregar y porque el juez de fidelidad
-> sigue marcando lo mismo. La línea arregla exactamente lo que nombra. Lo muestro tal cual porque
-> un prompt no es un parche de seguridad: mueve una probabilidad, no pone un límite. Para límites
-> hace falta la capa de abajo. (~55 s)
+> el prompt. Las barras casi no se mueven: timeout de 2 a 3 de 9, sin datos de 4 a 5, falla al
+> detener de 8 a 9; truncado baja de 9 a 7, red caída de 7 a 6, sin falla de 9 a 8; el puntaje global
+> queda en 0.74 contra 0.74. Lo que sí cambia está adentro de las barras: el evaluador de
+> comunicación de fallas pasa de 51 a 54 de 54. Con v1 el agente escondió la falla tres veces;
+> con v2, ninguna. Lo que queda abajo es casi todo el evaluador de completitud: un timeout real
+> no deja métrica que entregar, y v2 tiene un costo propio: tres veces se detuvo a preguntar cuál
+> era «pagos-dev» en vez de traer la métrica. La línea arregla exactamente lo que nombra, y cobra
+> algo a cambio. Lo muestro tal cual porque un prompt no es un parche de seguridad: mueve una
+> probabilidad, no pone un límite. Para límites hace falta la capa de abajo. (~55 s)
 
 ---
 
