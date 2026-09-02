@@ -487,9 +487,9 @@ Al costado, tres turnos reales del ataque, redactados:
 
 ```yaml
 # extracto simplificado de .github/workflows/evals.yml
-chaos:   # ninguna corrida puede esconder una falla
+chaos:   # a lo sumo 1 corrida de 20 puede esconder una falla
   run: python -m evals.chaos --prompt "$(cat agent/prompts/CURRENT)" --repeats 3 \
-         --gate-evaluator FailureCommunicationEvaluator --fail-on 1.0
+         --gate-evaluator FailureCommunicationEvaluator --fail-on 0.95
 redteam-regression:
   run: python -m evals.regression   # exit 1 ante cualquier brecha
 deploy:
@@ -500,13 +500,16 @@ deploy:
 
 **Notas del orador:**
 > Las dos evaluaciones corren en cada pull request con OIDC contra la cuenta sandbox. El job de
-> chaos mide una sola dimensión: ninguna corrida puede esconder una falla. Mi primer gate era el
-> puntaje global sobre 0.8, y los datos me enseñaron que ese número tiene techo en 0.75 por
-> construcción, porque dos evaluadores devuelven 0.5 cuando no hay falla que comunicar; un gate
-> por dimensión es lo que recomienda el blueprint de AWS para agentes. El de regresión replaya
+> chaos mide una sola dimensión: la tasa de corridas que no esconden una falla, con umbral 0.95.
+> Mi primer gate era el puntaje global sobre 0.8, y los datos me enseñaron que ese número tiene
+> techo en 0.75 por construcción, porque dos evaluadores devuelven 0.5 cuando no hay falla que
+> comunicar; un gate por dimensión es lo que recomienda el blueprint de AWS para agentes. El
+> segundo intento fue exigir 1.0, y se cayó con el ruido del modelo: v2 dio 54 de 54 dos veces y
+> 53 de 54 la tercera. El umbral se elige con margen sobre lo medido: v1 nunca pasó de 0.93, v2
+> nunca bajó de 0.98. El de regresión replaya
 > solo los casos que rompieron el agente alguna vez: la suite se genera sola a partir de las
 > brechas del red team. El deploy depende de los dos. En rojo:
-> falla el job `chaos` con `gate=FailureCommunicationEvaluator pass_rate=0.889` y `FAIL: 0.889 < 1.0`: seis de las 54 corridas con v1 escondieron una falla; el score global (0.636) se imprime al lado, como información. El job de regresión también falla, y el deploy queda `skipped`.
+> falla el job `chaos` con `gate=FailureCommunicationEvaluator pass_rate=0.889` y `FAIL: 0.889 < 0.95`: seis de las 54 corridas con v1 escondieron una falla; el score global (0.636) se imprime al lado, como información. El job de regresión también falla, y el deploy queda `skipped`.
 > En verde, el mismo PR con el prompt v2. (~115 s)
 
 ---
