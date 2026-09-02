@@ -82,7 +82,7 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
 - Observabilidad en CloudWatch: `bash scripts/run-observed.sh "pregunta"` y luego `uv run --env-file .env python -m evals.cloudwatch_pull <session.id>`
 
 ## Notas de diseño
-- El gate de CI corre `python -m evals.chaos --prompt ... --fail-on 0.8`, no el CLI
+- El gate de CI corre `python -m evals.chaos --prompt ... --repeats 3 --gate-evaluator FailureCommunicationEvaluator --fail-on 1.0` (ninguna corrida puede esconder una falla; el score global se imprime como información porque su techo es ~0.75 por construcción), no el CLI
   `strands-evals run`. Ese CLI carga el archivo del experimento y lo reconstruye siempre como un
   `Experiment` común (`strands_evals/cli/commands/run.py:315-319`), nunca como un
   `ChaosExperiment`, que es quien activa el `ChaosCase` en el ContextVar que lee `ChaosPlugin`

@@ -83,3 +83,16 @@ def test_q3_cases_run_last_and_are_the_only_ones_serialized(monkeypatch):
     wrapped = chaos.with_dev_restore(lambda case: case.name)
     assert wrapped(cases[0]) == cases[0].name and restored == []
     assert wrapped(cases[-1]) == cases[-1].name and restored == [1]
+
+
+def test_gate_uses_the_named_evaluator_pass_rate_or_the_overall_score():
+    from types import SimpleNamespace
+    report = SimpleNamespace(
+        overall_score=0.67,
+        cases=[{"evaluator": "FailureCommunicationEvaluator"}, {"evaluator": "FailureCommunicationEvaluator"},
+               {"evaluator": "OutputEvaluator"}, {"evaluator": "OutputEvaluator"}],
+        test_passes=[True, False, True, True],
+    )
+    assert chaos.gate(report, None) == ("overall_score", 0.67)
+    assert chaos.gate(report, "FailureCommunicationEvaluator") == ("FailureCommunicationEvaluator", 0.5)
+    assert chaos.gate(report, "OutputEvaluator")[1] == 1.0
