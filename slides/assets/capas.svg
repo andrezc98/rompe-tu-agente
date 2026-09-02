@@ -1,0 +1,75 @@
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tres capas de defensa del agente Sentinel - modelo, sandbox y permisos - y cu&#225;nto avanza cada categor&#237;a de ataque antes de que algo la detenga">
+  <title>Tres capas de defensa</title>
+  <desc>
+    Fuga del system prompt y bypass de gu&#237;as quedan detenidos en la capa del modelo.
+    Exfiltraci&#243;n de datos llega hasta la capa del sandbox (Strands Shell).
+    Agencia excesiva llega hasta la capa de permisos (IAM), donde el Deny expl&#237;cito la detiene.
+  </desc>
+
+  <rect x="0" y="0" width="1600" height="900" fill="#FFFFFF" />
+
+  <!-- Title -->
+  <text x="800" y="42" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="38" font-weight="bold" fill="#1A1A2E">Tres capas de defensa</text>
+  <text x="800" y="76" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#555555">Cu&#225;nto avanza cada ataque antes de que algo lo detenga</text>
+
+  <!-- Depth axis -->
+  <line x1="55" y1="170" x2="55" y2="835" stroke="#999999" stroke-width="3" />
+  <polygon points="55,845 45,827 65,827" fill="#999999" />
+  <text x="15" y="890" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#666666">m&#225;s profundo</text>
+
+  <!-- Band 3: permisos (drawn first, back) -->
+  <rect x="130" y="626" width="1430" height="220" rx="14" fill="#FBE7EA" stroke="#DD344C" stroke-width="3" />
+  <!-- Band 2: sandbox -->
+  <rect x="130" y="398" width="1430" height="220" rx="14" fill="#FDEEE0" stroke="#ED7100" stroke-width="3" />
+  <!-- Band 1: modelo -->
+  <rect x="130" y="170" width="1430" height="220" rx="14" fill="#EAF3FB" stroke="#146EB4" stroke-width="3" />
+
+  <!-- Band labels: kept narrow (x <= 470) so the attack lanes (x >= 560) never cross the text -->
+  <text x="160" y="215" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="bold" fill="#0B4C79">CAPA 1 &#183; MODELO</text>
+  <text x="160" y="252" font-family="Helvetica, Arial, sans-serif" font-size="28" font-style="italic" fill="#3B3B3B">prompt v1 / v2</text>
+
+  <text x="160" y="443" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="bold" fill="#A35400">CAPA 2 &#183; SANDBOX</text>
+  <text x="160" y="480" font-family="Helvetica, Arial, sans-serif" font-size="28" font-style="italic" fill="#3B3B3B">Strands Shell:</text>
+  <text x="160" y="515" font-family="Helvetica, Arial, sans-serif" font-size="28" font-style="italic" fill="#3B3B3B">solo /runbooks</text>
+
+  <text x="160" y="671" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="bold" fill="#8E1F34">CAPA 3 &#183; PERMISOS</text>
+  <text x="160" y="708" font-family="Helvetica, Arial, sans-serif" font-size="28" font-style="italic" fill="#3B3B3B">IAM: Deny si</text>
+  <text x="160" y="743" font-family="Helvetica, Arial, sans-serif" font-size="28" font-style="italic" fill="#3B3B3B">env=prod</text>
+
+  <!-- Attack lanes (x=560,880,1200,1520): two-line label on top, downward arrow, stop bar where the attack is blocked -->
+  <!-- Lane 1: fuga del system prompt - stopped at the model -->
+  <text x="560" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#333333">fuga del</text>
+  <text x="560" y="140" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#333333">system prompt</text>
+  <line x1="560" y1="152" x2="560" y2="258" stroke="#333333" stroke-width="4" />
+  <polygon points="560,268 548,250 572,250" fill="#333333" />
+  <rect x="530" y="268" width="60" height="9" rx="3" fill="#222222" />
+  <text x="560" y="304" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#222222">modelo</text>
+
+  <!-- Lane 2: bypass de guias - stopped at the model, deeper in the band -->
+  <text x="880" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#333333">bypass de</text>
+  <text x="880" y="140" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#333333">gu&#237;as</text>
+  <line x1="880" y1="152" x2="880" y2="358" stroke="#333333" stroke-width="4" />
+  <polygon points="880,368 868,350 892,350" fill="#333333" />
+  <rect x="850" y="368" width="60" height="9" rx="3" fill="#222222" />
+  <text x="880" y="404" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#222222">modelo</text>
+
+  <!-- Lane 3: exfiltracion de datos - stopped at the sandbox -->
+  <text x="1200" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#007A5E">exfiltraci&#243;n</text>
+  <text x="1200" y="140" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#007A5E">de datos</text>
+  <line x1="1200" y1="152" x2="1200" y2="498" stroke="#007A5E" stroke-width="4" />
+  <polygon points="1200,508 1188,490 1212,490" fill="#007A5E" />
+  <rect x="1170" y="508" width="60" height="9" rx="3" fill="#222222" />
+  <text x="1200" y="544" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#222222">sandbox</text>
+
+  <!-- Lane 4: agencia excesiva - stopped at IAM, the deepest -->
+  <text x="1520" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#7B3294">agencia</text>
+  <text x="1520" y="140" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#7B3294">excesiva</text>
+  <line x1="1520" y1="152" x2="1520" y2="758" stroke="#7B3294" stroke-width="4" />
+  <polygon points="1520,768 1508,750 1532,750" fill="#7B3294" />
+  <rect x="1490" y="768" width="60" height="9" rx="3" fill="#222222" />
+  <text x="1520" y="804" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#222222">IAM (Deny)</text>
+
+  <!-- Legend for the stop bar -->
+  <rect x="990" y="856" width="34" height="8" rx="3" fill="#222222" />
+  <text x="1034" y="866" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#444444">= capa que detiene el ataque</text>
+</svg>
