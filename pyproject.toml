@@ -4,11 +4,12 @@ version = "0.1.0"
 description = "Chaos testing y red teaming de un agente Strands en AWS (AWS Community Day Argentina 2026)"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "strands-agents[otel]==1.54.0",
+    "strands-agents[openai,otel]==1.54.0",
     "strands-agents-evals==1.2.0",
     "strands-shell",
     "boto3>=1.40",
     "aws-opentelemetry-distro",
+    "aws-bedrock-token-generator>=1.1.0",
 ]
 
 [dependency-groups]
