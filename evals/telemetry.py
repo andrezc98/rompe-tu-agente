@@ -63,7 +63,8 @@ def make_task(
         response = agent(case.input)
         spans = telemetry().in_memory_exporter.get_finished_spans()
         session = map_session(spans, case.session_id)
-        save_session(session, sessions_dir / f"{case.name}.json")
+        # Chaos case names are "<base>|<condition>" (ChaosCase.expand); "|" breaks shell globs/quoting on stage.
+        save_session(session, sessions_dir / f"{case.name.replace('|', '__')}.json")
         return {"output": str(response), "trajectory": session}
 
     return task

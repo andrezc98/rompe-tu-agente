@@ -37,8 +37,10 @@ def test_task_returns_output_and_trajectory(monkeypatch, tmp_path):
 
     case1 = Case(name="q1", input="hola")
     case2 = Case(name="q2", input="mundo")
+    case3 = Case(name="q3|baseline", input="chau")
     result1 = task(case1)
     result2 = task(case2)
+    result3 = task(case3)
 
     assert result1["output"] == "respuesta a hola"
     assert result2["output"] == "respuesta a mundo"
@@ -47,3 +49,5 @@ def test_task_returns_output_and_trajectory(monkeypatch, tmp_path):
     assert fake.in_memory_exporter.cleared == 1
     assert json.loads((tmp_path / "q1.json").read_text())["session_id"] == case1.session_id
     assert json.loads((tmp_path / "q2.json").read_text())["session_id"] == case2.session_id
+    # Chaos case names contain "|" (ChaosCase.expand); the saved filename must not.
+    assert json.loads((tmp_path / "q3__baseline.json").read_text())["session_id"] == case3.session_id

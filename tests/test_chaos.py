@@ -2,7 +2,7 @@ import json
 import subprocess
 import sys
 
-from strands_evals.chaos import RemoveFields, TruncateFields
+from strands_evals.chaos import ChaosExperiment, RemoveFields, TruncateFields
 
 from evals import chaos
 
@@ -53,6 +53,15 @@ def test_effects_bite_our_payloads():
     # ChaosPlugin.after_tool_call only corrupts string tool output that parses as a JSON dict —
     # confirm our tools' JSON-string shape satisfies that.
     assert isinstance(json.loads(instances_json), dict)
+
+
+def test_build_experiment_constructs_without_models():
+    # ChaosExperiment.__init__ (strands_evals/chaos/experiment.py) only stores cases/evaluators as
+    # self._cases / self._evaluators; the evaluators themselves only store the model, no call is made.
+    exp = chaos.build_experiment(chaos.build_cases(1), judge="dummy-judge")
+    assert isinstance(exp, ChaosExperiment)
+    assert len(exp.cases) == 18
+    assert len(exp._evaluators) == 4
 
 
 def test_cli_refuses_without_models(monkeypatch):
