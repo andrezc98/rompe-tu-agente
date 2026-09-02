@@ -18,7 +18,7 @@ cd "$(git rev-parse --show-toplevel)"
 #
 # Client/codename literals do NOT live here (a guard containing the names it protects would
 # publish them the moment this file is committed) -- see build_extra_pattern() below.
-BASE_PATTERN='arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|(AKIA|ASIA)[0-9A-Z]{16}|aws_secret_access_key[[:space:]]*[=:][[:space:]]*["'\'']?[A-Za-z0-9/+]{40}|(^|[^0-9])[0-9]{12}([^0-9]|$)|phdata\.io|OPENAI_API_KEY=[^[:space:]]+'
+BASE_PATTERN='arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|(AKIA|ASIA)[0-9A-Z]{16}|aws_secret_access_key[[:space:]]*[=:][[:space:]]*["'\'']?[A-Za-z0-9/+]{40}|(^|[^0-9A-Fa-f.])[0-9]{12}([^0-9A-Fa-f.]|$)|phdata\.io|OPENAI_API_KEY=[^[:space:]]+'
 
 # Appends word-list alternatives from an optional, git-ignored file: one bare word per line
 # ('#'-comment and blank lines skipped). Each word is whitelisted (letters/digits/._- only) and
@@ -99,6 +99,9 @@ selftest() {
 
   check_content "$BASE_PATTERN" match   "123456789012"                    "12-digit account id matches"
   check_content "$BASE_PATTERN" nomatch "1234567890123"                   "13-digit number does not match"
+  check_content "$BASE_PATTERN" nomatch '"span_id": "8d8b385763102690"'  "12 digits inside a hex span id do not match"
+  check_content "$BASE_PATTERN" nomatch "3.519357654122E-4"               "12 digits inside a float mantissa do not match"
+  check_content "$BASE_PATTERN" match   "Account: 123456789012"           "12-digit account id after a space matches"
   check_content "$BASE_PATTERN" match   "arn:aws:iam::123456789012:role/x" "arn with account id matches"
   check_content "$BASE_PATTERN" match   "AKIA1234567890ABCDEF"            "AKIA + 16 uppercase alnum matches"
   check_content "$BASE_PATTERN" nomatch 'aws_secret_access_key="y"'       "aws_secret_access_key with a short test fixture does not match"
