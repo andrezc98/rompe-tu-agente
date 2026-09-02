@@ -21,7 +21,7 @@ Everything below needs the personal sandbox account, model access, or the public
 
 ## 3. Chaos (plan Task 7, step 6)
 - [ ] Smoke: `uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 1 --out evals/results/chaos-v1-smoke.json`; open `evals/results/sessions/chaos-v1/q2-r1__metric_timeout.json` and confirm the injected timeout on `get_metric`.
-- [ ] Full: `--prompt v1 --repeats 3 --out evals/results/chaos-v1.json` then `--prompt v2 --repeats 3 --out evals/results/chaos-v2.json`.
+- [ ] Full: `--prompt v1 --repeats 3 --out evals/results/chaos-v1.json` then `--prompt v2 --repeats 3 --out evals/results/chaos-v2.json`. **Alone**: nothing else may touch the dev instance while chaos runs (no red team, replay or CI in parallel); q3 stops dev and the runner restores it, but a stop from elsewhere confounds q1/q2 (happened twice on 2026-09-02).
 - [ ] Copy the timeout session to `evals/results/show/timeout-v1.json`.
 - [ ] Verdict pass (plan Task 8, step 5): fill `evals/verdicts.json`, run `uv run python -m evals.verdicts evals/results/chaos-v1.json --out evals/results/chaos-v1-revisado.json` and the same for v2.
 - [ ] `uv run --env-file .env python -m evals.diagnose evals/results/show/timeout-v1.json --out evals/results/show/timeout-v1-diagnosis.json` (plan Task 9, step 5).
