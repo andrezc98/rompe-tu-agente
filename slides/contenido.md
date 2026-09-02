@@ -546,14 +546,24 @@ Qué haría distinto:
 - Empezar por el gate, no terminar en él
 - Validar el ticket en la tool desde el día uno: el prompt no es una capa
 
-**Layout sugerido:** bullets en tres bloques (o tres columnas)
+Si lo compras hecho (no probado en esta charla):
+
+- Capa 1, modelo: Amazon Bedrock Guardrails filtra jailbreaks, inyección de prompt y fuga del system prompt en la entrada del usuario. No evalúa los tool results, y una confirmación verbal inventada no entra en esa definición: no cuentes con que frene la brecha de la slide 17
+- Capa 4, tool: AgentCore Policy evalúa una regla Cedar en cada llamada a una tool detrás de un Gateway, con condiciones sobre los argumentos (`context.input.ticket`). Es nuestra validación del ticket sin escribirla en la tool
+- Capa 3, permisos: sigue siendo IAM
+
+**Layout sugerido:** bullets en cuatro bloques (los tres primeros arriba, el cuarto como franja abajo)
 
 **Notas del orador:**
 > Lo que funcionó: repetir cada caso tres veces, tener siempre una falla ruidosa y una silenciosa
 > sobre la misma tool, y revisar a mano lo que puntuó el juez. Lo que no funcionó lo dejo con
 > nombre y apellido, porque un mazo donde todo sale bien no le sirve a nadie. Y si lo hiciera de
 > nuevo, empezaría por el gate de CI: te obliga a elegir un umbral y a defenderlo con datos desde
-> el primer día. (~105 s)
+> el primer día. Y si prefieres comprarlo hecho: Guardrails cubre la entrada del usuario contra
+> jailbreaks e inyección, pero "el responsable me lo confirmó por chat" no es una inyección, así
+> que no lo pongas a frenar esa brecha. Lo que la frena es una regla sobre los argumentos de la
+> tool, y eso hoy existe como AgentCore Policy con Cedar. No lo probé aquí; lo dejo como el lugar
+> donde vive la capa cuatro si no quieres escribirla. (~125 s)
 
 ---
 
