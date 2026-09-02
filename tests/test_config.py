@@ -37,6 +37,19 @@ def test_mantle_base_url_uses_region(monkeypatch):
 
 
 def test_bedrock_api_key_mints_short_term_token(monkeypatch):
+    monkeypatch.setenv("AWS_PROFILE", "test-sandbox")
     monkeypatch.setattr(config, "REGION", "us-east-1")
     monkeypatch.setattr(config, "_provide_token", lambda region: f"bedrock-api-key-{region}")
     assert config.bedrock_api_key() == "bedrock-api-key-us-east-1"
+
+
+def test_bedrock_api_key_requires_sandbox(monkeypatch):
+    monkeypatch.delenv("AWS_PROFILE", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+
+    def _must_not_be_called(region):
+        raise AssertionError("_provide_token must not run outside the sandbox")
+
+    monkeypatch.setattr(config, "_provide_token", _must_not_be_called)
+    with pytest.raises(RuntimeError, match="sandbox"):
+        config.bedrock_api_key()

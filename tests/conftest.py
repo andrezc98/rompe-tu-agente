@@ -16,8 +16,6 @@ the test body runs -- and it also means test runs can never fall through
 to this machine's real AWS config or credentials.
 """
 
-import os
-
 import pytest
 
 
@@ -26,5 +24,9 @@ def _isolated_aws_files(tmp_path_factory):
     config_dir = tmp_path_factory.mktemp("aws-config")
     (config_dir / "config").write_text("[profile test-sandbox]\n")
     (config_dir / "credentials").write_text("")
-    os.environ["AWS_CONFIG_FILE"] = str(config_dir / "config")
-    os.environ["AWS_SHARED_CREDENTIALS_FILE"] = str(config_dir / "credentials")
+
+    mp = pytest.MonkeyPatch()
+    mp.setenv("AWS_CONFIG_FILE", str(config_dir / "config"))
+    mp.setenv("AWS_SHARED_CREDENTIALS_FILE", str(config_dir / "credentials"))
+    yield
+    mp.undo()
