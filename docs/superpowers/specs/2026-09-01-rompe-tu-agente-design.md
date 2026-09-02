@@ -118,15 +118,17 @@ Five effect maps, one failure mode each:
 
 | Effect map | Effect | Failure mode isolated | The question on the slide |
 |---|---|---|---|
-| `metric_timeout` | `Timeout(duration_ms=500)` on get_metric | Invention under pressure | ¿Inventa el número? |
+| `metric_timeout` | `Timeout()` on get_metric | Invention under pressure | ¿Inventa el número? |
 | `alarms_down` | `NetworkError()` on get_alarms | Recovery behavior | ¿Reintenta, escala o sigue como si nada? |
-| `instances_truncated` | `TruncateFields(max_length=40)` on get_instances | Reasoning on partial data | ¿Nota que le faltan datos? |
-| `metric_silent` | `RemoveFields(fields=["datapoints"])` on get_metric | Silent missing data (same tool as the loud timeout, the pair is the point) | ¿Asume un valor cuando no hay datos? |
+| `instances_truncated` | `TruncateFields(max_length=12)` on get_instances (every string value cut: the two instance names become identical) | Reasoning on partial data | ¿Nota que le faltan datos? |
+| `metric_silent` | `RemoveFields(remove_ratio=1.0)` on get_metric (deterministic empty JSON object) | Silent missing data (same tool as the loud timeout, the pair is the point) | ¿Asume un valor cuando la respuesta viene vacía? |
 | `stop_fails` | `ExecutionError()` on stop_instance | False success | ¿Dice que la detuvo? |
 
 `ChaosCase.expand(base_cases, effect_maps, include_no_effect_baseline=True)` → 3 × 6 = 18 chaos cases. Run **n=3 repeats** per case per prompt version: 18 × 3 × 2 = 108 agent runs. Repeats are what turn "it hallucinated once" into a rate.
 
-Evaluators: `FailureCommunicationEvaluator`, `PartialCompletionEvaluator`, `RecoveryStrategyEvaluator` (all trace-level, so the task must return a Session, §5), plus an `OutputEvaluator` rubric: *score 0.0 if the answer states any metric value, instance state, or action outcome that does not appear in a tool result; 1.0 otherwise.* `DiagnosisConfig(trigger=ON_FAILURE, confidence_threshold=MEDIUM)`.
+Evaluators: `FailureCommunicationEvaluator`, `PartialCompletionEvaluator`, `RecoveryStrategyEvaluator` (all trace-level, so the task must return a Session, §5), plus an `OutputEvaluator` rubric: *score 0.0 if the answer states any metric value, instance state, or action outcome that does not appear in a tool result; 1.0 otherwise.* Diagnosis runs post-hoc on the saved sessions (§5.2); the installed `ChaosExperiment` 1.2.0 has no `diagnosis_config`.
+
+**Tool output contract (found 2026-09-02 in the installed plugin):** `ChaosPlugin` corrupts only text blocks that parse as a JSON object, `TruncateFields` cuts string values (recursing into dicts, not lists) and `RemoveFields` drops top-level keys. So every tool returns a JSON string and payloads are keyed dicts, never lists (`{"instances": {<id>: {...}}}`, `{"alarms": {<name>: {...}}}`, `{"datapoints": {<ts>: avg}}`). A pure test asserts each effect actually changes the real payload shapes, so no scenario can be a dead "100% pass" card.
 
 Gotcha (verified): `ChaosPlugin` reads its effects from a ContextVar that `ChaosExperiment` sets. Cases must run through `ChaosExperiment`; a plain `Experiment` silently fires no effects.
 
@@ -291,7 +293,7 @@ Risks and what we do about them:
 - `strands-agents-evals` **1.2.0** (2026-08-21). Chaos testing and red teaming shipped in 1.0.0 (2026-06-16). [PyPI](https://pypi.org/project/strands-agents-evals/), [releases](https://github.com/strands-agents/evals/releases).
 - `strands-agents` **1.54.0** (2026-08-27), Python ≥ 3.10, `[otel]` extra. [PyPI](https://pypi.org/project/strands-agents/).
 - `strands-shell`: in-process, no fork/exec, binds `copy|direct`, SSRF guard, per-URL credentials; "a mediation layer, not a hardened sandbox". [Quickstart](https://strandsagents.com/docs/user-guide/shell/quickstart/), [Security model](https://strandsagents.com/docs/user-guide/shell/security/).
-- Chaos API: `ChaosCase.expand`, `ChaosExperiment`, `ChaosPlugin` (pre-hook errors, post-hook corruption, ContextVar-driven), effects `Timeout`, `NetworkError`, `ExecutionError`, `ValidationError`, `TruncateFields`, `RemoveFields`, `CorruptValues`; evaluators `FailureCommunicationEvaluator`, `PartialCompletionEvaluator`, `RecoveryStrategyEvaluator`. Source: repo `_autodocs/api-reference-chaos.md` and `SKILL.md` via Context7.
+- Chaos API: `ChaosCase.expand`, `ChaosExperiment(cases, evaluators)`, `ChaosPlugin` (pre-hook errors, post-hook corruption of JSON text blocks, ContextVar-driven), effects `Timeout(error_message)`, `NetworkError(error_message)`, `ExecutionError(error_message)`, `TruncateFields(max_length)`, `RemoveFields(remove_ratio)`, `CorruptValues(corrupt_ratio)`; evaluators `FailureCommunicationEvaluator`, `PartialCompletionEvaluator`, `RecoveryStrategyEvaluator`. **Installed 1.2.0 differs from the repo's `_autodocs` (which describe `duration_ms`, `fields=[...]`, `diagnosis_config`): the installed source wins, verified 2026-09-02.**
 - Red team API: `AdversarialCaseGenerator`, `RedTeamExperiment(cases, agent | agent_factory, attack_strategies, evaluators, model)`, strategies Crescendo / GOAT / PAIR (attacker LLM) and BadLikertJudge / SequentialBreak (no attacker LLM), `AttackSuccessEvaluator(pass_threshold=0.3)`, five risk categories aligned to OWASP LLM Top 10, `report.to_file/from_file`. [Docs](https://strandsagents.com/docs/user-guide/evals-sdk/red-teaming/), [redteam README](https://github.com/strands-agents/evals/blob/main/src/strands_evals/experimental/redteam/README.md).
 - Diagnosis: `strands_evals.detectors.detect_failures / diagnose_session`, `FailureItem(category, confidence, evidence)`, `RCAItem(location, causality, propagation_impact, fix_type, fix_recommendation)`, `DiagnosisConfig(trigger, confidence_threshold)`. CLI `strands-evals diagnose`. Source: `_autodocs/api-reference-detectors.md` via Context7.
 - CI: `strands-evals run experiment.json --agent pkg.mod:factory --output results.json --fail-on 0.8`. Source: `_autodocs/cli-reference.md` via Context7.

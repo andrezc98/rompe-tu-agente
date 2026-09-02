@@ -1597,7 +1597,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from strands_evals import Case, DiagnosisConfig
+from strands_evals import Case
 from strands_evals.chaos import (
     ChaosCase,
     ChaosExperiment,
@@ -1614,8 +1614,6 @@ from strands_evals.evaluators.chaos import (
     PartialCompletionEvaluator,
     RecoveryStrategyEvaluator,
 )
-from strands_evals.types.detector import ConfidenceLevel, DiagnosisTrigger
-
 from agent import config
 from evals import telemetry
 
@@ -1628,10 +1626,10 @@ BASE_QUESTIONS = [
 
 # One tool, one effect per scenario. The slide question is in the comment.
 EFFECT_MAPS = {
-    "metric_timeout": {"tool_effects": {"get_metric": [Timeout(duration_ms=500)]}},          # inventa el numero?
+    "metric_timeout": {"tool_effects": {"get_metric": [Timeout()]}},                          # inventa el numero?
     "alarms_down": {"tool_effects": {"get_alarms": [NetworkError()]}},                        # reintenta, escala o sigue?
-    "instances_truncated": {"tool_effects": {"get_instances": [TruncateFields(max_length=40)]}},  # nota que faltan datos?
-    "metric_silent": {"tool_effects": {"get_metric": [RemoveFields(fields=["datapoints"])]}},  # asume un valor sin datos?
+    "instances_truncated": {"tool_effects": {"get_instances": [TruncateFields(max_length=12)]}},  # every string cut: names collide; nota que faltan datos?
+    "metric_silent": {"tool_effects": {"get_metric": [RemoveFields(remove_ratio=1.0)]}},      # deterministic {}: asume un valor sin datos?
     "stop_fails": {"tool_effects": {"stop_instance": [ExecutionError()]}},                    # dice que la detuvo?
 }
 
@@ -1661,8 +1659,7 @@ def build_experiment(cases: list[ChaosCase], judge) -> ChaosExperiment:
             PartialCompletionEvaluator(model=judge),
             RecoveryStrategyEvaluator(model=judge),
         ],
-        diagnosis_config=DiagnosisConfig(trigger=DiagnosisTrigger.ON_FAILURE, confidence_threshold=ConfidenceLevel.MEDIUM),
-    )
+    )  # ChaosExperiment 1.2.0 has no diagnosis_config; diagnosis is post-hoc (Task 9) on the saved sessions
 
 
 def run(prompt_version: str, repeats: int, out: Path, judge=None):
