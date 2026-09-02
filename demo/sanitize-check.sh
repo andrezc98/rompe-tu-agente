@@ -7,7 +7,12 @@ cd "$(git rev-parse --show-toplevel)"
 # the tool the --selftest below actually runs) and git's built-in grep (`git grep -E`), so the
 # PCRE (-P) fallback the brief anticipated for macOS was not needed here. Ran with plain `-E`:
 # `123456789012` matches, `1234567890123` does not, `basura`/`mensura` don't, `sura` alone does.
-PATTERN='arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key|\b[0-9]{12}\b|\bsura\b|morrisopazo|phdata\.io|bedrock-api-key-|OPENAI_API_KEY='
+#
+# aws_secret_access_key/OPENAI_API_KEY are value-shaped, not bare-name matches: a real AWS
+# secret key is 40 base64-ish chars, so `aws_secret_access_key="y"` (test fixtures) and the
+# literal kwarg name in agent/tools.py no longer match, only an actual-looking value does.
+# `bedrock-api-key-` was dropped: it only ever matched our own synthetic test prefix.
+PATTERN="arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key\s*[=:]\s*[\"']?[A-Za-z0-9/+]{40}|\b[0-9]{12}\b|\bsura\b|morrisopazo|phdata\.io|OPENAI_API_KEY=\S+"
 
 selftest() {
   local matches fail=0
@@ -21,6 +26,11 @@ mensura
 sura
 arn:aws:iam::123456789012:role/x
 AKIA1234567890ABCDEF
+aws_secret_access_key="y"
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+bedrock-api-key-us-east-1
+OPENAI_API_KEY=
+OPENAI_API_KEY=sk-abc
 LINES
 )"
 
@@ -42,6 +52,11 @@ LINES
   assert match   "sura"                                   "sura alone matches"
   assert match   "arn:aws:iam::123456789012:role/x"       "arn with account id matches"
   assert match   "AKIA1234567890ABCDEF"                   "AKIA + 16 uppercase alnum matches"
+  assert nomatch 'aws_secret_access_key="y"'               "aws_secret_access_key with a short test fixture does not match"
+  assert match   "aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" "aws_secret_access_key with a 40-char value matches"
+  assert nomatch "bedrock-api-key-us-east-1"               "bedrock-api-key- test fixture does not match"
+  assert nomatch "OPENAI_API_KEY="                         "OPENAI_API_KEY with no value does not match"
+  assert match   "OPENAI_API_KEY=sk-abc"                   "OPENAI_API_KEY with a value matches"
 
   # The fake account used across tests/test_tools.py (000000000000 is not a real AWS account
   # id) must be excluded from the real check below via `grep -v 000000000000`.
@@ -66,19 +81,12 @@ if [[ "${1:-}" == "--selftest" ]]; then
   exit $?
 fi
 
-# Exclusions beyond this script and the lockfile:
-#   - docs/** carries the project's plan/spec write-up, which quotes this very PATTERN string
-#     (including the literal substrings below) and dummy boto3 kwargs as documentation, not
-#     committed secrets.
-#   - agent/tools.py, tests/test_config.py, tests/test_tools.py use the literal boto3 kwarg
-#     name `aws_secret_access_key` (with STS-vended values, never a hardcoded key) and the
-#     synthetic `bedrock-api-key-` test prefix — real code/tests, not leaked material.
+# No exclusions beyond this script and the lockfile: the patterns above are value-shaped
+# (see the comment on PATTERN), so real source/test/doc files no longer need a pathspec carve-out.
 # --untracked: this runs before a commit, i.e. exactly when new results/assets are still
 # unstaged; without it git grep would only see already-tracked files and miss them entirely.
 # It still respects .gitignore, so .superpowers/ (git-ignored) is not scanned either way.
-if git grep --untracked -nEi "$PATTERN" -- \
-    ':!demo/sanitize-check.sh' ':!uv.lock' ':!docs/**' \
-    ':!agent/tools.py' ':!tests/test_config.py' ':!tests/test_tools.py' \
+if git grep --untracked -nEi "$PATTERN" -- ':!demo/sanitize-check.sh' ':!uv.lock' \
   | grep -v '000000000000'; then
   echo "sanitize-check: FOUND sensitive-looking strings above" >&2
   exit 1
