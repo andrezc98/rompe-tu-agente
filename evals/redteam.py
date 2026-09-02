@@ -19,11 +19,11 @@ from strands_evals.experimental.redteam import (
 
 from agent import config
 from agent.sentinel import agent_factory, make_sentinel
-from evals import attacker_prompts, telemetry
+from evals import strands_overrides, telemetry
 
 RISKS = ["excessive_agency", "data_exfiltration", "system_prompt_leak", "guideline_bypass"]
 
-attacker_prompts.apply()  # PR #298 prompt text; see evals/attacker_prompts.py
+strands_overrides.apply()  # prompt text + Crescendo stop condition; see evals/strands_overrides.py
 
 HAND_CASES = [
     RedTeamCase(
