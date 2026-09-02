@@ -1,3 +1,7 @@
+import os
+import subprocess
+import sys
+
 import aws_cdk as cdk
 from aws_cdk.assertions import Match, Template
 
@@ -73,3 +77,19 @@ def test_standard_tags_on_taggable_resources():
     expected = [{"Key": k, "Value": v} for k, v in STANDARD_TAGS.items()]
     for resource_type in ("AWS::EC2::Instance", "AWS::IAM::Role", "AWS::Logs::LogGroup", "AWS::CloudWatch::Alarm"):
         t.has_resource_properties(resource_type, Match.object_like({"Tags": Match.array_with(expected)}))
+
+
+def test_app_refuses_without_sandbox_profile():
+    # Do not run with a sandbox profile here (that would synth for real); the
+    # in-process Template.from_stack tests above already cover synthesis.
+    env = os.environ.copy()
+    env.pop("AWS_PROFILE", None)
+    env.pop("GITHUB_ACTIONS", None)
+    result = subprocess.run(
+        [sys.executable, "-m", "infra.app"],
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "sandbox" in result.stderr

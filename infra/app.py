@@ -4,7 +4,10 @@ import os
 
 import aws_cdk as cdk
 
+from agent import config
 from infra.sentinel_stack import SentinelStack, name
+
+config.require_sandbox()  # the CDK CLI resolves CDK_DEFAULT_ACCOUNT from ambient credentials; refuse before that happens
 
 app = cdk.App()
 SentinelStack(
