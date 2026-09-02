@@ -87,6 +87,7 @@ class SentinelStack(cdk.Stack):
             threshold=101,
             comparison_operator=cw.ComparisonOperator.LESS_THAN_THRESHOLD,
             evaluation_periods=1,
+            treat_missing_data=cw.TreatMissingData.BREACHING,  # ALARM from the first period, not INSUFFICIENT_DATA
         )
 
         log_group = logs.LogGroup(
