@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/terraform.tfvars
+infra/.terraform.lock.hcl
+evals/results/sessions/
+slides/assets/raw/
+.DS_Store
