@@ -45,7 +45,7 @@
 | `evals/regression.py` | Replays the breach suite, exit 1 on breach |
 | `evals/cloudwatch_pull.py` | Round trip through `CloudWatchProvider` |
 | `evals/charts.py` | Result charts from the committed JSON |
-| `evals/results/`, `evals/regression/` | Committed artifacts used on stage |
+| `evals/results/`, `evals/suites/` | Committed artifacts used on stage |
 | `infra/*.tf`, `infra/example.tfvars`, `infra/enable-transaction-search.sh` | Sandbox resources, roles, observability prerequisite |
 | `scripts/pin-models.sh`, `scripts/smoke.py`, `scripts/run-observed.sh`, `scripts/gen-art.py` | Setup-day and demo-day helpers |
 | `.github/workflows/evals.yml` | The CI gate |
@@ -58,7 +58,7 @@
 ### Task 1: Repo skeleton, pins, rules
 
 **Files:**
-- Create: `pyproject.toml`, `.python-version`, `.gitignore`, `CLAUDE.md`, `README.md`, `agent/__init__.py`, `evals/__init__.py`, `tests/__init__.py`, `evals/results/.gitkeep`, `evals/regression/.gitkeep`, `slides/assets/.gitkeep`
+- Create: `pyproject.toml`, `.python-version`, `.gitignore`, `CLAUDE.md`, `README.md`, `agent/__init__.py`, `evals/__init__.py`, `tests/__init__.py`, `evals/results/.gitkeep`, `evals/suites/.gitkeep`, `slides/assets/.gitkeep`
 
 **Interfaces:**
 - Produces: a `uv` project where `uv run python -c "import strands, strands_evals, strands_shell"` works and `uv run pytest` runs.
@@ -2143,7 +2143,7 @@ def main() -> int:
         report.to_file(str(args.out_dir / f"redteam-{date.today().isoformat()}-pass{p}.json"))
         report.display()
         last = report
-    n = export_suite(cases, last, Path("evals/regression/redteam.json"))
+    n = export_suite(cases, last, Path("evals/suites/redteam.json"))
     print(f"regression suite: {n} breaching cases")
     return 0
 
@@ -2167,7 +2167,7 @@ Smoke: `uv run --env-file .env python -c "from evals import redteam, telemetry; 
 Expected: a report with 2 cases × 3 strategies; read the transcripts. Confirm on the prod case that when the model complies, the tool result shows the IAM denial (search the transcript for `UnauthorizedOperation`). That confirmation is the headline evidence; save the transcript to `evals/results/show/stop-prod-transcript.txt`.
 
 Full: `uv run --env-file .env python -m evals.redteam --generate 8 --passes 2`
-Expected: `redteam-cases.json`, two pass reports, and `evals/regression/redteam.json` with the breaching cases. Commit all. Record breach counts per category and per strategy in `evals/results/redteam-summary.md` (this feeds slide 16).
+Expected: `redteam-cases.json`, two pass reports, and `evals/suites/redteam.json` with the breaching cases. Commit all. Record breach counts per category and per strategy in `evals/results/redteam-summary.md` (this feeds slide 16).
 
 ---
 
@@ -2243,7 +2243,7 @@ Test (pure): `tests/test_replay.py` builds a fake report object with two attack 
 - Test: `tests/test_regression.py`
 
 **Interfaces:**
-- Consumes: `evals/regression/redteam.json` (Task 10), `agent.sentinel.agent_factory`.
+- Consumes: `evals/suites/redteam.json` (Task 10), `agent.sentinel.agent_factory`.
 - Produces: `exit_code(report) -> int`, CLI `python -m evals.regression [--suite PATH] [--out PATH]` exiting 1 when any attack breached.
 
 Spec: §6.
@@ -2288,7 +2288,7 @@ from agent import config
 from agent.sentinel import agent_factory
 from evals import telemetry
 
-SUITE = Path(__file__).resolve().parent / "regression" / "redteam.json"
+SUITE = Path(__file__).resolve().parent / "suites" / "redteam.json"
 
 
 def exit_code(report) -> int:

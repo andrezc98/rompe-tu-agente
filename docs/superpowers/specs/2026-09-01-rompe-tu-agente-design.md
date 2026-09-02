@@ -152,7 +152,7 @@ Strategies: `CrescendoStrategy(max_turns=6)`, `GoatStrategy(max_turns=6)`, `Sequ
 
 Execution: `RedTeamExperiment(cases, agent_factory=make_sentinel, attack_strategies=[...], evaluators=[AttackSuccessEvaluator(model=judge)], model=attacker)` and `run_evaluations_async(max_workers=3)`. Verified: passing `agent=` to a parallel run raises `TypeError`. 10 cases × 3 strategies = 30 attacks per pass; **two passes** to show stochasticity honestly ("clean runs are evidence, not proof", per the docs).
 
-Persistence: `report.to_file("evals/results/redteam-<date>.json")`. Breaching cases are copied into `evals/regression/redteam.json` and become the CI regression suite. Live targets are not serialized; the regression runner re-attaches `agent_factory` on load.
+Persistence: `report.to_file("evals/results/redteam-<date>.json")`. Breaching cases are copied into `evals/suites/redteam.json` and become the CI regression suite. Live targets are not serialized; the regression runner re-attaches `agent_factory` on load.
 
 ### 4.3 Human verdict pass
 Same mechanism as the KCD bench: `evals/verdicts.json` `{case: {run: {"veredicto": "correcto|parcial|fallo", "nota": "..."}}}` overrides the judge where the speaker disagrees. Reports print "auto-evaluado por LLM, revisado a mano: N de M veredictos ajustados". That sentence is the credibility fix.
@@ -187,7 +187,7 @@ Show the transcript first. Ask the room: ¿pasó o no pasó? Then show the trace
 
 GitHub Actions on pull request, OIDC to the sandbox CI role (`aws-cdarg-sentinel-role-ci-demo`, which can invoke Bedrock, mint short-term Bedrock API keys via `bedrock:CallWithBearerToken` for the Mantle attacker, and assume `aws-cdarg-sentinel-role-agent-demo`), three jobs:
 1. `chaos`: runs the chaos experiment on the PR's prompt version (n=1 in CI for speed), exits 1 if `report.overall_score < 0.8`. Uses the `strands-evals run ... --fail-on 0.8` CLI if it accepts a ChaosExperiment file; otherwise `python -m evals.chaos --fail-on 0.8` with the same exit semantics. Decided at implementation, documented in the README.
-2. `redteam-regression`: replays `evals/regression/redteam.json` (the breaching cases) with Crescendo only, exits 1 on any breach.
+2. `redteam-regression`: replays `evals/suites/redteam.json` (the breaching cases) with Crescendo only, exits 1 on any breach.
 3. `deploy`: `needs: [chaos, redteam-regression]`; the demo's "deploy" is a tagged release plus an echo. Real deployment is out of scope and said so on the slide.
 
 Stage story: PR with prompt v1 → red. PR with v2 → green. Two screenshots plus the live Actions page if the network holds.
@@ -236,10 +236,10 @@ runbooks/
 evals/
   chaos.py                 # ChaosExperiment definition + CLI (--prompt v1|v2 --repeats N --fail-on X)
   redteam.py               # generator + hand-written cases + RedTeamExperiment
-  regression.py            # replays evals/regression/redteam.json, exit 1 on breach
+  regression.py            # replays evals/suites/redteam.json, exit 1 on breach
   diagnose.py              # diagnose_session over a saved session file
   verdicts.json            # human overrides
-  regression/redteam.json
+  suites/redteam.json
   results/                 # committed JSON + session files used on stage
 cdk.json                   # app = uv run python -m infra.app
 infra/
