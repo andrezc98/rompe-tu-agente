@@ -1,4 +1,10 @@
-"""SentinelDemo: the sandbox the Sentinel agent operates on. Small on purpose; every name follows aws-cdarg-sentinel-<resource>-<env>."""
+"""Two stacks, every name aws-cdarg-sentinel-<resource>-<env>.
+
+BootstrapStack: what GitHub Actions needs before it can deploy anything (OIDC provider + CI role).
+Deployed once from the laptop. SentinelStack: the sandbox the Sentinel agent operates on. Deployed
+and destroyed from GitHub Actions by the CI role. The two reference each other only by
+deterministic ARN, never by CloudFormation export, so neither can lock the other's destroy.
+"""
 
 import aws_cdk as cdk
 from aws_cdk import aws_cloudwatch as cw
@@ -21,6 +27,10 @@ STANDARD_TAGS = {
     "Project": "rompe-tu-agente",
 }
 GITHUB_OIDC = "token.actions.githubusercontent.com"
+# The four bootstrap roles a deployer assumes, per the CDK guide (best-practices-security,
+# "Permissions for deployments"): matched by the aws-cdk:bootstrap-role tag, so this holds
+# for whatever qualifier cdk.json sets.
+CDK_BOOTSTRAP_ROLES = ["deploy", "file-publishing", "image-publishing", "lookup"]
 
 
 def name(resource: str, env: str) -> str:
@@ -28,8 +38,80 @@ def name(resource: str, env: str) -> str:
     return f"{NAMING}-{resource}-{env}"
 
 
+def _role_arn(stack: cdk.Stack, resource: str) -> str:
+    """ARN of a demo role in this account, built from its name (cross-stack without exports)."""
+    return stack.format_arn(service="iam", region="", resource="role", resource_name=name(resource, "demo"))
+
+
+class BootstrapStack(cdk.Stack):
+    def __init__(
+        self, scope: Construct, construct_id: str, *, github_repo: str, oidc_provider_arn: str | None = None, **kwargs
+    ) -> None:
+        super().__init__(scope, construct_id, **kwargs)
+        for key, value in STANDARD_TAGS.items():
+            cdk.Tags.of(self).add(key, value)
+
+        # One OIDC provider per issuer URL per account: import it if the account already has one.
+        provider = (
+            iam.OidcProviderNative.from_oidc_provider_arn(self, "GitHubOidc", oidc_provider_arn)
+            if oidc_provider_arn
+            else iam.OidcProviderNative(self, "GitHubOidc", url=f"https://{GITHUB_OIDC}", client_ids=["sts.amazonaws.com"])
+        )
+        ci_role = iam.Role(
+            self,
+            "CiRole",
+            role_name=name("role-ci", "demo"),
+            assumed_by=iam.OpenIdConnectPrincipal(provider).with_conditions(
+                {
+                    "StringEquals": {f"{GITHUB_OIDC}:aud": "sts.amazonaws.com"},
+                    "StringLike": {f"{GITHUB_OIDC}:sub": f"repo:{github_repo}:*"},
+                }
+            ),
+        )
+        ci_role.add_to_policy(
+            iam.PolicyStatement(
+                sid="CdkDeploy",
+                actions=["sts:AssumeRole"],
+                resources=["*"],
+                conditions={"StringEquals": {"iam:ResourceTag/aws-cdk:bootstrap-role": CDK_BOOTSTRAP_ROLES}},
+            )
+        )
+        ci_role.add_to_policy(
+            iam.PolicyStatement(
+                sid="Bedrock",
+                actions=[
+                    "bedrock:InvokeModel",
+                    "bedrock:InvokeModelWithResponseStream",
+                    "bedrock:Converse",
+                    "bedrock:ConverseStream",
+                    "bedrock:CallWithBearerToken",
+                ],
+                resources=["*"],
+            )
+        )
+        ci_role.add_to_policy(
+            iam.PolicyStatement(sid="AssumeSentinel", actions=["sts:AssumeRole"], resources=[_role_arn(self, "role-agent")])
+        )
+        ci_role.add_to_policy(
+            iam.PolicyStatement(
+                sid="Telemetry",
+                actions=[
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogGroups",
+                    "logs:DescribeLogStreams",
+                    "xray:PutTraceSegments",
+                    "xray:PutSpans",
+                    "xray:PutSpansForIndexing",
+                ],
+                resources=["*"],
+            )
+        )
+        cdk.CfnOutput(self, "CiRoleArn", value=ci_role.role_arn)
+
+
 class SentinelStack(cdk.Stack):
-    def __init__(self, scope: Construct, construct_id: str, *, github_repo: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
         for key, value in STANDARD_TAGS.items():
             cdk.Tags.of(self).add(key, value)
@@ -98,28 +180,13 @@ class SentinelStack(cdk.Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY,
         )
 
-        # --- CI role: GitHub OIDC, scoped to this repo ---
-        provider = iam.OpenIdConnectProvider(
-            self, "GitHubOidc", url=f"https://{GITHUB_OIDC}", client_ids=["sts.amazonaws.com"]
-        )
-        ci_role = iam.Role(
-            self,
-            "CiRole",
-            role_name=name("role-ci", "demo"),
-            assumed_by=iam.OpenIdConnectPrincipal(provider).with_conditions(
-                {
-                    "StringEquals": {f"{GITHUB_OIDC}:aud": "sts.amazonaws.com"},
-                    "StringLike": {f"{GITHUB_OIDC}:sub": f"repo:{github_repo}:*"},
-                }
-            ),
-        )
-
         # --- sentinel-agent: the principal the tools run as. The Deny is the whole point. ---
+        # Trusts the CI role by ARN, so BootstrapStack must exist first (IAM validates principals).
         sentinel_role = iam.Role(
             self,
             "SentinelRole",
             role_name=name("role-agent", "demo"),
-            assumed_by=iam.CompositePrincipal(iam.AccountRootPrincipal(), ci_role),
+            assumed_by=iam.CompositePrincipal(iam.AccountRootPrincipal(), iam.ArnPrincipal(_role_arn(self, "role-ci"))),
         )
         sentinel_role.add_to_policy(
             iam.PolicyStatement(
@@ -139,40 +206,7 @@ class SentinelStack(cdk.Stack):
             )
         )
 
-        ci_role.add_to_policy(
-            iam.PolicyStatement(
-                sid="Bedrock",
-                actions=[
-                    "bedrock:InvokeModel",
-                    "bedrock:InvokeModelWithResponseStream",
-                    "bedrock:Converse",
-                    "bedrock:ConverseStream",
-                    "bedrock:CallWithBearerToken",
-                ],
-                resources=["*"],
-            )
-        )
-        ci_role.add_to_policy(
-            iam.PolicyStatement(sid="AssumeSentinel", actions=["sts:AssumeRole"], resources=[sentinel_role.role_arn])
-        )
-        ci_role.add_to_policy(
-            iam.PolicyStatement(
-                sid="Telemetry",
-                actions=[
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                    "logs:DescribeLogGroups",
-                    "logs:DescribeLogStreams",
-                    "xray:PutTraceSegments",
-                    "xray:PutSpans",
-                    "xray:PutSpansForIndexing",
-                ],
-                resources=["*"],
-            )
-        )
-
         cdk.CfnOutput(self, "DevInstanceId", value=instances["dev"].instance_id)
         cdk.CfnOutput(self, "ProdInstanceId", value=instances["prod"].instance_id)
         cdk.CfnOutput(self, "SentinelRoleArn", value=sentinel_role.role_arn)
-        cdk.CfnOutput(self, "CiRoleArn", value=ci_role.role_arn)
         cdk.CfnOutput(self, "LogGroupName", value=log_group.log_group_name)

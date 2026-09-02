@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import sys
@@ -6,17 +7,19 @@ from pathlib import Path
 import aws_cdk as cdk
 from aws_cdk.assertions import Match, Template
 
-from infra.sentinel_stack import INSTANCE_TYPE, STANDARD_TAGS, SentinelStack, name
+from infra.sentinel_stack import CDK_BOOTSTRAP_ROLES, INSTANCE_TYPE, STANDARD_TAGS, BootstrapStack, SentinelStack, name
 
 
-def _template() -> Template:
-    app = cdk.App()
-    stack = SentinelStack(app, "SentinelDemoTest", github_repo="owner/repo")
-    return Template.from_stack(stack)
+def _demo() -> Template:
+    return Template.from_stack(SentinelStack(cdk.App(), "SentinelDemoTest"))
+
+
+def _bootstrap(**kwargs) -> Template:
+    return Template.from_stack(BootstrapStack(cdk.App(), "SentinelBootstrapTest", github_repo="owner/repo", **kwargs))
 
 
 def test_two_graviton_bottlerocket_instances_with_team_and_env_tags():
-    t = _template()
+    t = _demo()
     t.resource_count_is("AWS::EC2::Instance", 2)
     for env_name in ("prod", "dev"):
         t.has_resource_properties("AWS::EC2::Instance", Match.object_like({
@@ -33,13 +36,13 @@ def test_two_graviton_bottlerocket_instances_with_team_and_env_tags():
 
 
 def test_instances_use_bottlerocket_arm64_ssm_parameter():
-    t = _template()
+    t = _demo()
     params = t.to_json()["Parameters"]
     assert any("bottlerocket/aws-ecs-2/arm64/latest/image_id" in str(p.get("Default", "")) for p in params.values())
 
 
 def test_sentinel_role_denies_stop_on_prod():
-    t = _template()
+    t = _demo()
     t.has_resource_properties("AWS::IAM::Policy", Match.object_like({
         "PolicyDocument": {"Statement": Match.array_with([Match.object_like({
             "Sid": "NeverProd",
@@ -51,7 +54,7 @@ def test_sentinel_role_denies_stop_on_prod():
 
 
 def test_ci_role_trusts_only_this_repo():
-    t = _template()
+    t = _bootstrap()
     t.has_resource_properties("AWS::IAM::Role", Match.object_like({
         "RoleName": name("role-ci", "demo"),
         "AssumeRolePolicyDocument": {"Statement": Match.array_with([Match.object_like({
@@ -64,45 +67,71 @@ def test_ci_role_trusts_only_this_repo():
     }))
 
 
-def test_agent_role_trusts_account_root_and_ci_role():
-    t = _template()
-    t.has_resource_properties("AWS::IAM::Role", Match.object_like({
-        "RoleName": name("role-agent", "demo"),
-        "AssumeRolePolicyDocument": Match.object_like({
-            "Statement": Match.array_with([
-                Match.object_like({"Principal": {"AWS": Match.any_value()}}),
-                Match.object_like({"Principal": {"AWS": {"Fn::GetAtt": Match.any_value()}}}),
-            ]),
-        }),
-    }))
-    tj = t.to_json()
-    for resource in tj["Resources"].values():
-        if resource["Type"] == "AWS::IAM::Role" and resource["Properties"].get("RoleName") == name("role-agent", "demo"):
-            assert len(resource["Properties"]["AssumeRolePolicyDocument"]["Statement"]) == 2
-            break
-    else:
-        raise AssertionError("SentinelRole not found in template")
+def test_oidc_provider_is_native_not_a_custom_resource():
+    t = _bootstrap()
+    t.resource_count_is("AWS::IAM::OIDCProvider", 1)
+    assert not [r for r in t.to_json()["Resources"].values() if r["Type"].startswith("Custom::")]
 
 
-def test_ci_role_can_mint_bedrock_api_keys_for_mantle():
-    t = _template()
+def test_existing_oidc_provider_can_be_imported():
+    t = _bootstrap(oidc_provider_arn="arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com")
+    t.resource_count_is("AWS::IAM::OIDCProvider", 0)
+    t.resource_count_is("AWS::IAM::Role", 1)
+
+
+def test_ci_role_can_assume_cdk_bootstrap_roles():
+    # The policy the CDK guide prescribes for deployers (best-practices-security): tag-based,
+    # so it holds for any bootstrap qualifier.
+    t = _bootstrap()
     t.has_resource_properties("AWS::IAM::Policy", Match.object_like({
         "PolicyDocument": {"Statement": Match.array_with([Match.object_like({
-            "Sid": "Bedrock",
-            "Action": Match.array_with(["bedrock:CallWithBearerToken"]),
+            "Sid": "CdkDeploy",
+            "Action": "sts:AssumeRole",
+            "Resource": "*",
+            "Condition": {"StringEquals": {"iam:ResourceTag/aws-cdk:bootstrap-role": CDK_BOOTSTRAP_ROLES}},
         })])},
     }))
 
 
+def test_agent_role_trusts_account_root_and_ci_role_by_arn():
+    t = _demo()
+    role = next(
+        r for r in t.to_json()["Resources"].values()
+        if r["Type"] == "AWS::IAM::Role" and r["Properties"].get("RoleName") == name("role-agent", "demo")
+    )
+    statements = role["Properties"]["AssumeRolePolicyDocument"]["Statement"]
+    assert len(statements) == 2
+    # The CI role lives in the bootstrap stack: trusted by deterministic ARN, never by GetAtt/Export.
+    assert name("role-ci", "demo") in json.dumps(statements)
+    assert "Fn::GetAtt" not in json.dumps(statements)
+
+
+def test_ci_role_can_assume_sentinel_by_arn_and_mint_bedrock_api_keys():
+    t = _bootstrap()
+    t.has_resource_properties("AWS::IAM::Policy", Match.object_like({
+        "PolicyDocument": {"Statement": Match.array_with([
+            Match.object_like({"Sid": "Bedrock", "Action": Match.array_with(["bedrock:CallWithBearerToken"])}),
+            Match.object_like({"Sid": "AssumeSentinel", "Action": "sts:AssumeRole"}),
+        ])},
+    }))
+    assert name("role-agent", "demo") in json.dumps(t.to_json()["Resources"])
+
+
+def test_no_cross_stack_exports():
+    for t in (_demo(), _bootstrap()):
+        assert not [o for o in t.to_json().get("Outputs", {}).values() if "Export" in o]
+
+
 def test_standard_tags_on_taggable_resources():
-    t = _template()
     expected = [{"Key": k, "Value": v} for k, v in STANDARD_TAGS.items()]
+    t = _demo()
     for resource_type in ("AWS::EC2::Instance", "AWS::IAM::Role", "AWS::Logs::LogGroup", "AWS::CloudWatch::Alarm"):
         t.has_resource_properties(resource_type, Match.object_like({"Tags": Match.array_with(expected)}))
+    _bootstrap().has_resource_properties("AWS::IAM::Role", Match.object_like({"Tags": Match.array_with(expected)}))
 
 
 def test_instances_have_no_public_ip_and_no_open_egress():
-    t = _template()
+    t = _demo()
     t.has_resource_properties("AWS::EC2::Instance", Match.object_like({
         "NetworkInterfaces": Match.array_with([Match.object_like({"AssociatePublicIpAddress": False})]),
     }))
@@ -122,15 +151,13 @@ def test_instances_have_no_public_ip_and_no_open_egress():
             assert egress is None or egress == placeholder
 
 
-def test_outputs_are_exactly_the_five_expected():
-    t = _template()
-    assert set(t.to_json()["Outputs"].keys()) == {
-        "DevInstanceId", "ProdInstanceId", "SentinelRoleArn", "CiRoleArn", "LogGroupName",
-    }
+def test_outputs_are_exactly_the_expected_ones():
+    assert set(_demo().to_json()["Outputs"]) == {"DevInstanceId", "ProdInstanceId", "SentinelRoleArn", "LogGroupName"}
+    assert set(_bootstrap().to_json()["Outputs"]) == {"CiRoleArn"}
 
 
 def test_alarm_thresholds_and_breaching_behavior():
-    t = _template()
+    t = _demo()
     tj = t.to_json()
     dev_tag = {"Key": "Name", "Value": name("ec2", "dev")}
     dev_instance_id = next(
