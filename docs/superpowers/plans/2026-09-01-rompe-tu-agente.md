@@ -1425,13 +1425,15 @@ def test_task_returns_output_and_trajectory(monkeypatch, tmp_path):
     monkeypatch.setattr(telemetry, "map_session", lambda spans, session_id: _FakeSession(session_id))
 
     task = telemetry.make_task("v2", sessions_dir=tmp_path)
-    case = Case(name="q1", input="hola")
-    result = task(case)
+    assert fake.in_memory_exporter.cleared == 1  # once per experiment
+    cases = [Case(name="q1", input="hola"), Case(name="q2", input="chau")]
+    results = [task(c) for c in cases]
 
-    assert result["output"] == "respuesta a hola"
-    assert result["trajectory"].session_id == case.session_id
-    assert fake.in_memory_exporter.cleared == 1
-    assert json.loads((tmp_path / "q1.json").read_text())["session_id"] == case.session_id
+    assert results[0]["output"] == "respuesta a hola"
+    assert [r["trajectory"].session_id for r in results] == [c.session_id for c in cases]
+    assert fake.in_memory_exporter.cleared == 1  # never per case
+    for c in cases:
+        assert json.loads((tmp_path / f"{c.name}.json").read_text())["session_id"] == c.session_id
 ```
 
 - [ ] **Step 2: Run to see it fail**
@@ -1470,11 +1472,6 @@ def telemetry() -> StrandsEvalsTelemetry:
     return _telemetry
 
 
-def _exporter(t):
-    # ponytail: docs name this both in_memory_exporter and memory_exporter; take whichever exists
-    return getattr(t, "in_memory_exporter", None) or t.memory_exporter
-
-
 def map_session(spans, session_id: str) -> Session:
     return StrandsInMemorySessionMapper().map_to_session(spans, session_id=session_id)
 
@@ -1505,19 +1502,21 @@ def make_task(
     plugins_factory: Callable[[], list] = list,
     sessions_dir: Path = SESSIONS_DIR,
 ) -> Callable[[Case], dict]:
+    # Clear once per experiment, never per case: strands_evals' own CLI task wrapper documents that a
+    # per-case clear races with concurrent workers and drops spans; map_to_session filters by session id.
+    telemetry().in_memory_exporter.clear()
+
     def task(case: Case) -> dict:
-        t = telemetry()
-        _exporter(t).clear()
         agent = make_sentinel(prompt_version=prompt_version, plugins=plugins_factory(), session_id=case.session_id)
         response = agent(case.input)
-        spans = _exporter(t).get_finished_spans()
+        spans = telemetry().in_memory_exporter.get_finished_spans()
         session = map_session(spans, case.session_id)
         save_session(session, sessions_dir / f"{case.name}.json")
         return {"output": str(response), "trajectory": session}
 
     return task
 ```
-**VERIFY**: the import path of `Session` (`strands_evals.types.trace`); if it lives elsewhere, `uv run python -c "import strands_evals, pkgutil; print([m.name for m in pkgutil.walk_packages(strands_evals.__path__, 'strands_evals.') if 'type' in m.name])"` and fix the import.
+**VERIFY** (done 2026-09-02: `Session` is in `strands_evals.types.trace`; the exporter attribute is `in_memory_exporter`): if it lives elsewhere, `uv run python -c "import strands_evals, pkgutil; print([m.name for m in pkgutil.walk_packages(strands_evals.__path__, 'strands_evals.') if 'type' in m.name])"` and fix the import.
 
 - [ ] **Step 4: Run tests**
 
