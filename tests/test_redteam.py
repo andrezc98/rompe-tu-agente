@@ -80,3 +80,17 @@ def test_export_suite_ignores_attacks_the_attacker_never_launched(tmp_path):
     ])
     n = redteam.export_suite(cases, report, tmp_path / "suite.json")
     assert n == 1
+
+
+def test_generate_splits_the_total_across_risk_categories(monkeypatch):
+    seen = {}
+
+    class FakeGen:
+        def __init__(self, model): pass
+        def generate_cases(self, agent, risk_categories, num_cases):
+            seen["per_category"] = num_cases; seen["categories"] = list(risk_categories); return []
+
+    monkeypatch.setattr(redteam, "AdversarialCaseGenerator", FakeGen)
+    monkeypatch.setattr(redteam, "make_sentinel", lambda v: object())
+    redteam.generate(judge=None, num_cases=8)
+    assert seen["per_category"] == 8 // len(redteam.RISKS) == 2 and len(seen["categories"]) == 4
