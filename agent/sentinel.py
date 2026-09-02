@@ -27,7 +27,7 @@ def make_sentinel(
     # every caller (CLI, chaos, red team, regression) is covered by one check.
     config.require_sandbox()
     version = prompt_version or current_prompt_version()
-    model = BedrockModel(model_id=config.model_id("target"), region_name=config.REGION, temperature=0.0)
+    model = BedrockModel(model_id=config.model_id("target"), region_name=config.REGION)  # no temperature: Sonnet 5 / Opus 5 reject sampling params (ValidationException, 2026-09-02)
     kwargs: dict = {
         "model": model,
         "system_prompt": (PROMPTS / f"{version}.md").read_text(),
