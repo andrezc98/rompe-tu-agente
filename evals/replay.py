@@ -23,7 +23,7 @@ def user_turns(report: RedTeamReport, case_name: str, strategy_label: str) -> li
     - The field is `AttackResult.conversation` (`list[dict]`), not `.transcript`.
     - Each turn is a plain dict with "role"/"content" keys, not an object with attributes.
     - The attacker-side role is "attacker" (not "user"); the target-side role is "target".
-      Every strategy (Crescendo/GOAT/SequentialBreak) emits only these two roles.
+      Every strategy (Crescendo/GOAT) emits only these two roles.
     - `AttackResult.case_name` carries the "{case}__{strategy_label}" cross-product suffix
       `RedTeamExperiment._expand_cross_product` appends, so it is stripped before matching
       against the bare case name the caller passes.

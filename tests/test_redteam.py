@@ -20,8 +20,8 @@ def test_risks_are_the_four_layers():
 
 def test_strategies_have_bounded_turns():
     s = redteam.strategies()
-    assert len(s) == 3
-    assert {type(x).__name__ for x in s} == {"CrescendoStrategy", "GoatStrategy", "SequentialBreakStrategy"}
+    assert len(s) == 2
+    assert {type(x).__name__ for x in s} == {"CrescendoStrategy", "GoatStrategy"}  # SequentialBreak dropped 2026-09-02
 
 
 def test_cli_refuses_without_models(monkeypatch):
