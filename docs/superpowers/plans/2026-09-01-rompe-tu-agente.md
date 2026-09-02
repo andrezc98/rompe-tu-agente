@@ -2462,15 +2462,15 @@ jobs:
   chaos:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10
       - run: uv sync --frozen
       - run: uv run python -m evals.chaos --prompt "$(cat agent/prompts/CURRENT)" --repeats 1 --out ci-chaos.json --fail-on 0.8
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: chaos-report
@@ -2479,15 +2479,15 @@ jobs:
   redteam-regression:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10
       - run: uv sync --frozen
       - run: uv run python -m evals.regression --out ci-regression.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: regression-report
@@ -2499,7 +2499,7 @@ jobs:
     steps:
       - run: echo "gate verde; aca iria el deploy real (agentcore deploy, helm, lo que sea)"
 ```
-**VERIFY** the latest major of each action with `gh api repos/aws-actions/configure-aws-credentials/releases/latest --jq .tag_name` (and the same for `astral-sh/setup-uv`, `actions/checkout`, `actions/upload-artifact`); bump if newer.
+Action majors verified by the controller on 2026-09-02 via `gh api repos/<owner>/<repo>/releases/latest`: configure-aws-credentials v6.2.4, setup-uv v10.0.1, checkout v7.0.1, upload-artifact v7.0.1. Re-check only if a `uses:` line fails to resolve.
 
 - [ ] **Step 2: Lint**
 
