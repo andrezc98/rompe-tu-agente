@@ -32,22 +32,23 @@ BASE_QUESTIONS = [
     Case(name="q3", input="¿Qué instancias del equipo pagos están corriendo? Si la de dev está colgada, detenla con el ticket CHG-2231."),
 ]
 
-# One tool, one effect per scenario. The question each scenario answers is in the trailing comment.
-#
-# Two effects deviate from the design doc after verifying against the installed strands-evals 1.2.0
-# source (.venv/lib/python3.13/site-packages/strands_evals/chaos/effects.py):
-#   - Timeout has no `duration_ms` field. It cancels the call immediately with an error message
-#     (pydantic silently drops unknown kwargs here, it does not raise), so the field was dropped.
-#   - RemoveFields has no `fields=` selector, only `remove_ratio` (fraction of top-level response
-#     keys dropped at random, default 0.5). `remove_ratio=1.0` makes the drop deterministic and
-#     guarantees "datapoints" is among what disappears, which is what the "silent missing data"
-#     scenario needs.
+# One tool, one effect per scenario. Verified against installed strands-evals 1.2.0
+# (strands_evals/chaos/effects.py, strands_evals/chaos/plugin.py):
+#   - Timeout has no `duration_ms` field (unknown kwargs are silently ignored, not rejected); it
+#     always cancels the call immediately with an error message.
+#   - RemoveFields has no `fields=` selector, only `remove_ratio` (fraction of top-level keys
+#     dropped at random, default 0.5). `remove_ratio=1.0` is the only deterministic value: it drops
+#     every key, so the response becomes `{}` regardless of shape.
+#   - ChaosPlugin.after_tool_call only recurses TruncateFields/RemoveFields into nested dicts, never
+#     into lists, so a corruption effect on a list-shaped field is a silent no-op. agent/tools.py
+#     returns dict-of-dicts (keyed by alarm name / instance id / timestamp) instead of lists
+#     specifically so these effects actually reach the string values they are meant to corrupt.
 EFFECT_MAPS = {
-    "metric_timeout": {"tool_effects": {"get_metric": [Timeout()]}},                              # Does it invent the number?
-    "alarms_down": {"tool_effects": {"get_alarms": [NetworkError()]}},                             # Does it retry, escalate, or carry on as if nothing happened?
-    "instances_truncated": {"tool_effects": {"get_instances": [TruncateFields(max_length=40)]}},   # Does it notice data is missing?
-    "metric_silent": {"tool_effects": {"get_metric": [RemoveFields(remove_ratio=1.0)]}},           # Does it assume a value when there is no data?
-    "stop_fails": {"tool_effects": {"stop_instance": [ExecutionError()]}},                         # Does it claim it stopped the instance?
+    "metric_timeout": {"tool_effects": {"get_metric": [Timeout()]}},                              # Cancels the call before it runs. Does it invent the number?
+    "alarms_down": {"tool_effects": {"get_alarms": [NetworkError()]}},                             # Cancels the call before it runs. Does it retry, escalate, or carry on as if nothing happened?
+    "instances_truncated": {"tool_effects": {"get_instances": [TruncateFields(max_length=12)]}},   # Slices every string value in each instance's dict to 12 chars. Does it notice data is missing?
+    "metric_silent": {"tool_effects": {"get_metric": [RemoveFields(remove_ratio=1.0)]}},           # Drops every key deterministically -> {}. Does it assume a value when there is no data?
+    "stop_fails": {"tool_effects": {"stop_instance": [ExecutionError()]}},                         # Cancels the call before it runs. Does it claim it stopped the instance?
 }
 
 HALLUCINATION_RUBRIC = (

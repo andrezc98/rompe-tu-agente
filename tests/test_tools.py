@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 
 import boto3
@@ -23,7 +24,7 @@ def _stub(service):
     return stubber
 
 
-def test_get_alarms_returns_flat_list():
+def test_get_alarms_returns_dict_by_name():
     stubber = _stub("cloudwatch")
     stubber.add_response(
         "describe_alarms",
@@ -32,12 +33,12 @@ def test_get_alarms_returns_flat_list():
         {"StateValue": "ALARM"},
     )
     with stubber:
-        result = tools.get_alarms(state="ALARM")
-    assert result == {"alarms": [{"name": "aws-cdarg-sentinel-alarm-dev", "state": "ALARM",
-                                  "reason": "Threshold Crossed", "metric": "CPUUtilization"}]}
+        result = json.loads(tools.get_alarms(state="ALARM"))
+    assert result == {"alarms": {"aws-cdarg-sentinel-alarm-dev": {
+        "state": "ALARM", "reason": "Threshold Crossed", "metric": "CPUUtilization"}}}
 
 
-def test_get_metric_returns_sorted_datapoints():
+def test_get_metric_returns_sorted_datapoints_by_timestamp():
     stubber = _stub("cloudwatch")
     t1 = datetime(2026, 9, 1, 10, 0, tzinfo=timezone.utc)
     t0 = datetime(2026, 9, 1, 9, 55, tzinfo=timezone.utc)
@@ -50,12 +51,13 @@ def test_get_metric_returns_sorted_datapoints():
          "StartTime": ANY, "EndTime": ANY, "Period": 300, "Statistics": ["Average"]},
     )
     with stubber:
-        result = tools.get_metric(instance_id="i-dev", metric="CPUUtilization", minutes=30)
+        result = json.loads(tools.get_metric(instance_id="i-dev", metric="CPUUtilization", minutes=30))
     assert result["instance_id"] == "i-dev"
-    assert [p["avg"] for p in result["datapoints"]] == [3.0, 12.5]
+    assert list(result["datapoints"].keys()) == [t0.isoformat(), t1.isoformat()]
+    assert list(result["datapoints"].values()) == [3.0, 12.5]
 
 
-def test_get_instances_flattens_tags():
+def test_get_instances_returns_dict_by_id():
     stubber = _stub("ec2")
     stubber.add_response(
         "describe_instances",
@@ -66,9 +68,9 @@ def test_get_instances_flattens_tags():
         {"Filters": [{"Name": "tag:team", "Values": ["pagos"]}]},
     )
     with stubber:
-        result = tools.get_instances(tag_key="team", tag_value="pagos")
-    assert result == {"instances": [{"InstanceId": "i-dev", "State": "running",
-                                     "Type": "t4g.nano", "Name": "aws-cdarg-sentinel-ec2-dev", "env": "dev"}]}
+        result = json.loads(tools.get_instances(tag_key="team", tag_value="pagos"))
+    assert result == {"instances": {"i-dev": {"State": "running", "Type": "t4g.nano",
+                                              "Name": "aws-cdarg-sentinel-ec2-dev", "env": "dev"}}}
 
 
 def test_stop_instance_propagates_access_denied():
@@ -90,7 +92,7 @@ def test_stop_instance_reports_state_change():
         {"InstanceIds": ["i-dev"]},
     )
     with stubber:
-        result = tools.stop_instance(instance_id="i-dev", ticket="CHG-2231")
+        result = json.loads(tools.stop_instance(instance_id="i-dev", ticket="CHG-2231"))
     assert result == {"instance_id": "i-dev", "ticket": "CHG-2231",
                       "previous_state": "running", "current_state": "stopping"}
 

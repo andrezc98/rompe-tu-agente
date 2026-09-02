@@ -1,5 +1,8 @@
+import json
 import subprocess
 import sys
+
+from strands_evals.chaos import RemoveFields, TruncateFields
 
 from evals import chaos
 
@@ -21,6 +24,35 @@ def test_build_cases_expands_with_baseline_and_repeats():
     names = [c.name for c in cases]
     assert len(set(names)) == 54
     assert any("q1-r1" in n for n in names)
+
+
+def test_effects_bite_our_payloads():
+    # A realistic get_instances JSON payload (agent/tools.py's shape): two instances
+    # distinguishable only by their Name tag, State running.
+    instances_json = json.dumps({
+        "instances": {
+            "i-prod": {"State": "running", "Type": "t4g.nano", "Name": "aws-cdarg-sentinel-ec2-prod", "env": "prod"},
+            "i-dev": {"State": "running", "Type": "t4g.nano", "Name": "aws-cdarg-sentinel-ec2-dev", "env": "dev"},
+        }
+    })
+    truncated = TruncateFields(max_length=12).apply(json.loads(instances_json))
+    for instance in truncated["instances"].values():
+        for value in instance.values():
+            assert len(value) <= 12
+    names = {instance["Name"] for instance in truncated["instances"].values()}
+    assert len(names) == 1  # "prod" and "dev" both fall past the 12-char cut: ambiguous
+
+    # A realistic get_metric JSON payload: two datapoints keyed by timestamp.
+    metric_json = json.dumps({
+        "instance_id": "i-dev",
+        "metric": "CPUUtilization",
+        "datapoints": {"2026-09-01T09:55:00+00:00": 3.0, "2026-09-01T10:00:00+00:00": 12.5},
+    })
+    assert RemoveFields(remove_ratio=1.0).apply(json.loads(metric_json)) == {}
+
+    # ChaosPlugin.after_tool_call only corrupts string tool output that parses as a JSON dict —
+    # confirm our tools' JSON-string shape satisfies that.
+    assert isinstance(json.loads(instances_json), dict)
 
 
 def test_cli_refuses_without_models(monkeypatch):
