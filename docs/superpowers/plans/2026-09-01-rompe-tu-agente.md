@@ -2845,6 +2845,8 @@ git commit -m "feat(slides): architecture diagram, layers diagram, scene art gen
 
 Spec: §2, §8. Inputs: every JSON and PNG from Tasks 7 to 16, `evals/results/redteam-summary.md`, the verdict sentence, the CloudWatch screenshots.
 
+> **Amended 2026-09-02 (controller ruling):** the gated runs have not happened when this task first executes, so it runs in two passes. **Pass A (now):** write the complete `slides/contenido.md` with every slide, headline, body, layout and speaker notes, and mark each number or quote that must come from a result file with a slot of the form `[DATO: evals/results/<file> -> <what>]` (never an invented value). **Pass B (after the gated runs):** replace every slot with the real value and its file, remove the markers, re-time the notes. `slides/fuentes.md` is written in Pass A with the dated sources already verified in the spec; result files are added in Pass B. The deck is not handed to the speaker until Pass B has no `[DATO:` left (a grep guard in `tests/test_slides.py` enforces it only when `evals/results/chaos-v2.json` exists).
+
 - [ ] **Step 1: Write `slides/contenido.md` in the Colombia format**
 
 For each slide: `## Slide NN — <título corto>`, then **Headline**, **Body** (one idea; bullets of at most 8 words; code blocks of at most 15 lines in monospace; image filename when a chart or diagram goes there), **Notas del orador** (45 to 90 words, first person, neutral Spanish, timing note in seconds), and **Layout sugerido** (título / bullets / imagen completa / código / dos columnas) so the speaker knows which template slide to duplicate. The full list, with the source of each:
