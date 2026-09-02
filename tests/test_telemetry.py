@@ -33,10 +33,17 @@ def test_task_returns_output_and_trajectory(monkeypatch, tmp_path):
     monkeypatch.setattr(telemetry, "map_session", lambda spans, session_id: _FakeSession(session_id))
 
     task = telemetry.make_task("v2", sessions_dir=tmp_path)
-    case = Case(name="q1", input="hola")
-    result = task(case)
-
-    assert result["output"] == "respuesta a hola"
-    assert result["trajectory"].session_id == case.session_id
     assert fake.in_memory_exporter.cleared == 1
-    assert json.loads((tmp_path / "q1.json").read_text())["session_id"] == case.session_id
+
+    case1 = Case(name="q1", input="hola")
+    case2 = Case(name="q2", input="mundo")
+    result1 = task(case1)
+    result2 = task(case2)
+
+    assert result1["output"] == "respuesta a hola"
+    assert result2["output"] == "respuesta a mundo"
+    assert result1["trajectory"].session_id == case1.session_id
+    assert result2["trajectory"].session_id == case2.session_id
+    assert fake.in_memory_exporter.cleared == 1
+    assert json.loads((tmp_path / "q1.json").read_text())["session_id"] == case1.session_id
+    assert json.loads((tmp_path / "q2.json").read_text())["session_id"] == case2.session_id

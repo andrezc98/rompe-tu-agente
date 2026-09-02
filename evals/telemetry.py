@@ -25,11 +25,6 @@ def telemetry() -> StrandsEvalsTelemetry:
     return _telemetry
 
 
-def _exporter(t):
-    # ponytail: docs name this both in_memory_exporter and memory_exporter; take whichever exists
-    return getattr(t, "in_memory_exporter", None) or t.memory_exporter
-
-
 def map_session(spans, session_id: str) -> Session:
     return StrandsInMemorySessionMapper().map_to_session(spans, session_id=session_id)
 
@@ -60,12 +55,13 @@ def make_task(
     plugins_factory: Callable[[], list] = list,
     sessions_dir: Path = SESSIONS_DIR,
 ) -> Callable[[Case], dict]:
+    # Clear once per experiment, not per case: a per-case clear races concurrent workers and drops spans (strands_evals.cli._agent_task); map_session filters the shared buffer by session_id instead.
+    telemetry().in_memory_exporter.clear()
+
     def task(case: Case) -> dict:
-        t = telemetry()
-        _exporter(t).clear()
         agent = make_sentinel(prompt_version=prompt_version, plugins=plugins_factory(), session_id=case.session_id)
         response = agent(case.input)
-        spans = _exporter(t).get_finished_spans()
+        spans = telemetry().in_memory_exporter.get_finished_spans()
         session = map_session(spans, case.session_id)
         save_session(session, sessions_dir / f"{case.name}.json")
         return {"output": str(response), "trajectory": session}
