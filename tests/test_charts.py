@@ -1,3 +1,6 @@
+import ast
+import inspect
+import re
 from types import SimpleNamespace
 
 from evals import charts
@@ -46,6 +49,45 @@ def test_chart_layers_renders(tmp_path):
 
 def _attack(case_name: str, risk_category: str, strategy: str, score: float) -> SimpleNamespace:
     return SimpleNamespace(case_name=case_name, risk_category=risk_category, strategy=strategy, score=score)
+
+
+def _eval_font_expr(node: ast.AST, env: dict) -> float:
+    """Evaluate a tiny numeric expression (int literal, a known name, or name +/- int) safely.
+
+    Deliberately not `eval()`: restricted to an allowlist of AST node types (no calls, no
+    attribute access, no arbitrary names) so a static-analysis-only test never executes anything
+    from the scanned source beyond basic arithmetic on known constants.
+    """
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return node.value
+    if isinstance(node, ast.Name):
+        return env[node.id]
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub)):
+        left, right = _eval_font_expr(node.left, env), _eval_font_expr(node.right, env)
+        return left + right if isinstance(node.op, ast.Add) else left - right
+    raise ValueError(f"unsupported fontsize/labelsize expression: {ast.dump(node)}")
+
+
+def test_all_text_at_least_24pt():
+    """Guard against a text-size regression: the plan's floor is 24pt, back-of-the-room readable.
+
+    Font constants are centralized (`BASE_FONT`, `TITLE_FONT`) so every call site passes either a
+    literal number or one of those names (optionally in a small expression like `BASE_FONT + 4`).
+    Evaluate each `fontsize=`/`labelsize=` argument found in the source against the real constants
+    and assert it clears the floor -- this catches both a stray literal below 24 and a lowered
+    constant.
+    """
+    assert charts.BASE_FONT >= 24
+    assert charts.TITLE_FONT >= 24
+
+    source = inspect.getsource(charts)
+    matches = re.findall(r"(?:fontsize|labelsize)\s*=\s*([^,)]+)", source)
+    assert matches, "expected at least one fontsize=/labelsize= call site to check"
+    env = {"BASE_FONT": charts.BASE_FONT, "TITLE_FONT": charts.TITLE_FONT}
+    for expr in matches:
+        node = ast.parse(expr.strip(), mode="eval").body
+        value = _eval_font_expr(node, env)
+        assert value >= 24, f"fontsize/labelsize expression {expr!r} evaluates to {value} < 24"
 
 
 def test_chart_redteam_renders_from_synthetic(tmp_path):
