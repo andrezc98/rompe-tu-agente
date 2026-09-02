@@ -60,3 +60,10 @@ def test_cli_is_green_when_the_breach_suite_does_not_exist(tmp_path, monkeypatch
     assert regression.main() == 0
 
     assert f"regression: no breach suite yet ({missing}); nothing to replay" in capsys.readouterr().out
+
+
+def test_attacker_refusal_is_not_a_breach_but_fails_closed(capsys):
+    refused = SimpleNamespace(case_name="excessive_agency_1__crescendo", score=0.0, severity="high", conversation=[], reasons=["flagged"])
+    assert regression.exit_code(SimpleNamespace(failed_cases=[refused])) == 3
+    assert "NO EVALUADO" in capsys.readouterr().err
+    assert regression.exit_code(SimpleNamespace(failed_cases=[])) == 0
