@@ -1718,14 +1718,14 @@ git commit -m "feat(evals): chaos experiment with five isolated failure modes"
 ```bash
 uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 1 --out evals/results/chaos-v1-smoke.json
 ```
-Expected: 18 runs, a JSON report, one session file per case under `evals/results/sessions/chaos-v1/`. Open `evals/results/sessions/chaos-v1/q2-r1_metric_timeout.json` (name pattern as expanded) and confirm the `get_metric` span carries the injected timeout error. If it does not, the ContextVar was not set (case not from `ChaosExperiment`) or the tool name differs from the effect map key; fix and rerun.
+Expected: 18 runs, a JSON report, one session file per case under `evals/results/sessions/chaos-v1/`. Open `evals/results/sessions/chaos-v1/q2-r1|metric_timeout.json` (expanded name pattern `<base>|<condition>`) and confirm the `get_metric` span carries the injected timeout error. If it does not, the ContextVar was not set (case not from `ChaosExperiment`) or the tool name differs from the effect map key; fix and rerun.
 
 Then the real matrix, both versions:
 ```bash
 uv run --env-file .env python -m evals.chaos --prompt v1 --repeats 3 --out evals/results/chaos-v1.json
 uv run --env-file .env python -m evals.chaos --prompt v2 --repeats 3 --out evals/results/chaos-v2.json
 ```
-Expected: two reports; v1 `overall_score` clearly below v2. Commit both JSONs and the session files for the cases that will be shown (§5.2): copy `q2-r1_metric_timeout` from `chaos-v1` to `evals/results/show/timeout-v1.json`. Session files are gitignored by default; `git add -f` the two shown ones.
+Expected: two reports; v1 `overall_score` clearly below v2. Commit both JSONs and the session files for the cases that will be shown (§5.2): copy `q2-r1|metric_timeout` from `chaos-v1` to `evals/results/show/timeout-v1.json`. Session files are gitignored by default; `git add -f` the two shown ones.
 
 ---
 
@@ -1754,7 +1754,7 @@ def _report(tmp_path):
     data = {
         "overall_score": 0.5,
         "scores": [1.0, 0.0],
-        "cases": [{"name": "q1-r1_baseline"}, {"name": "q2-r1_metric_timeout"}],
+        "cases": [{"name": "q1-r1|baseline"}, {"name": "q2-r1|metric_timeout"}],
         "test_passes": [True, False],
         "reasons": ["ok", "invento 45%"],
     }
@@ -1766,7 +1766,7 @@ def _report(tmp_path):
 def test_apply_overrides_and_counts(tmp_path):
     report = _report(tmp_path)
     v = tmp_path / "v.json"
-    v.write_text(json.dumps({"q2-r1_metric_timeout": {"veredicto": "parcial", "nota": "dijo que no pudo pero igual dio un rango"}}))
+    v.write_text(json.dumps({"q2-r1|metric_timeout": {"veredicto": "parcial", "nota": "dijo que no pudo pero igual dio un rango"}}))
     adjusted, n = verdicts.apply(report, v)
     assert n == 1
     assert adjusted["scores"] == [1.0, 0.5]
@@ -2586,13 +2586,13 @@ from evals import charts
 
 
 def test_effect_of_case_name():
-    assert charts.effect_of("q2-r1_metric_timeout") == "metric_timeout"
-    assert charts.effect_of("q1-r3_baseline") == "baseline"
+    assert charts.effect_of("q2-r1|metric_timeout") == "metric_timeout"
+    assert charts.effect_of("q1-r3|baseline") == "baseline"
     assert charts.effect_of("q3-r2") == "baseline"
 
 
 def test_pass_rate_by_effect():
-    report = {"cases": [{"name": "q1-r1_metric_timeout"}, {"name": "q1-r2_metric_timeout"}, {"name": "q1-r1_alarms_down"}],
+    report = {"cases": [{"name": "q1-r1|metric_timeout"}, {"name": "q1-r2|metric_timeout"}, {"name": "q1-r1|alarms_down"}],
               "test_passes": [True, False, True]}
     rates = charts.pass_rate_by_effect(report)
     assert rates["metric_timeout"] == 0.5
@@ -2634,11 +2634,9 @@ LABELS = {
 
 
 def effect_of(case_name: str) -> str:
-    # ChaosCase.expand names cases "<base>_<scenario>"; VERIFY the separator on the real report and adjust here only
-    for effect in EFFECT_MAPS:
-        if case_name.endswith(effect):
-            return effect
-    return "baseline"
+    # ChaosCase.expand (1.2.0) names cases "<base>|<condition>", baseline condition is the literal "baseline"
+    condition = case_name.rsplit("|", 1)[-1] if "|" in case_name else "baseline"
+    return condition if condition in EFFECT_MAPS else "baseline"
 
 
 def pass_rate_by_effect(report: dict) -> dict[str, float]:
