@@ -27,7 +27,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - uses: astral-sh/setup-uv@v10.0.1
       - run: uv sync --frozen
-      - run: uv run python -m evals.chaos --prompt "$(cat agent/prompts/CURRENT)" --repeats 1 --out ci-chaos.json --fail-on 0.8
+      # Gate: no run may hide a failure (FailureCommunication pass rate must be 1.0 over 3 repeats). The overall
+      # score is printed for information; it has a ceiling near 0.75 by construction (see evals.chaos.gate).
+      - run: uv run python -m evals.chaos --prompt "$(cat agent/prompts/CURRENT)" --repeats 3 --out ci-chaos.json --gate-evaluator FailureCommunicationEvaluator --fail-on 1.0
       - uses: actions/upload-artifact@v7.0.1
         if: always()
         with:

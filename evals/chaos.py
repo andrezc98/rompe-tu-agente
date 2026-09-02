@@ -151,6 +151,8 @@ def main() -> int:
     parser.add_argument("--repeats", type=int, default=1)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--fail-on", type=float, default=None)
+    parser.add_argument("--gate-evaluator", default=None,
+                        help="gate on this evaluator's pass rate instead of the overall score, e.g. FailureCommunicationEvaluator")
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
     try:
@@ -166,10 +168,30 @@ def main() -> int:
     runs = len(runs_by_name({"cases": report.cases}))
     print(f"prompt={args.prompt} repeats={args.repeats} overall_score={report.overall_score:.3f} "
           f"runs={runs} rows={len(report.cases)}")
-    if args.fail_on is not None and report.overall_score < args.fail_on:
-        print(f"FAIL: {report.overall_score:.3f} < {args.fail_on}", file=sys.stderr)
+    gate_name, gate_value = gate(report, args.gate_evaluator)
+    if args.gate_evaluator:
+        print(f"gate={gate_name} pass_rate={gate_value:.3f}")
+    if args.fail_on is not None and gate_value < args.fail_on:
+        print(f"FAIL: {gate_name} {gate_value:.3f} < {args.fail_on}", file=sys.stderr)
         return 1
     return 0
+
+
+def gate(report, evaluator: str | None) -> tuple[str, float]:
+    """The number the CI gate compares. Overall score by default; with an evaluator name, that evaluator's pass
+    rate (rows with test_pass) across runs.
+
+    Why a per-dimension gate (2026-09-02): FailureCommunication and RecoveryStrategy score 0.5 ("acceptable,
+    nothing to report") on every no-fault baseline run, so the overall average has a ceiling near 0.75 and an
+    overall >= 0.8 gate can never pass. Gating one dimension at a time is also what the AWS blueprint post on
+    evaluating Strands agents recommends ("a failure in a layer blocks the pipeline").
+    """
+    if not evaluator:
+        return "overall_score", float(report.overall_score)
+    rows = [i for i, c in enumerate(report.cases) if (c.get("evaluator") or c.get("evaluator_type")) == evaluator]
+    if not rows:
+        raise SystemExit(f"error: no rows for evaluator {evaluator!r} in the report")
+    return evaluator, sum(1 for i in rows if report.test_passes[i]) / len(rows)
 
 
 if __name__ == "__main__":

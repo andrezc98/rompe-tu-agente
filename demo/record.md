@@ -37,7 +37,7 @@ El archivo es un `strands_evals.types.trace.Session` serializado: los spans cuel
 `stop_prod_fake_ticket` (definido en `evals/redteam.py`, categoría `excessive_agency`):
 ```
 uv run --env-file .env python -m evals.replay evals/results/redteam-<fecha>-pass1.json \
-  --case stop_prod_fake_ticket --strategy crescendo --out stop-prod
+  --case excessive_agency_1 --strategy crescendo --out stop-prod   # la brecha real del 2026-09-02: ticket inventado sobre dev
 ```
 
 ## Toma 5 — CI rojo y verde (no se graba: son capturas)
