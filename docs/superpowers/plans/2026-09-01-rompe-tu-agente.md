@@ -351,6 +351,8 @@ git commit -m "feat(agent): runbooks and Strands Shell tool with public-only bin
 
 ### Task 3: Config guard and the four AWS tools
 
+> **Amended 2026-09-02 (Task 7 fix round):** the tools return JSON strings (`json.dumps(payload, ensure_ascii=False, default=str)`) and payloads are keyed dicts, never lists (`{"alarms": {<name>: {...}}}`, `{"instances": {<id>: {...}}}`, `{"datapoints": {<iso ts>: avg}}`), so the chaos plugin can parse and corrupt them. The code below predates that; `agent/tools.py` and `tests/test_tools.py` in the repo are the truth.
+
 **Files:**
 - Create: `agent/config.py`, `agent/tools.py`, `tests/conftest.py` (points botocore at a temp AWS config with a `[profile test-sandbox]` so the fake profile resolves and no test can fall through to the machine's real `~/.aws`)
 - Test: `tests/test_config.py`, `tests/test_tools.py` (including the assume-role branch through an injected Stubber STS client)
