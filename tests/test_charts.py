@@ -148,3 +148,13 @@ def test_chart_redteam_renders_from_synthetic(tmp_path):
 
     assert out.exists()
     assert out.stat().st_size > 10_000
+
+
+def test_refused_attacks_do_not_count_as_defended():
+    refused = SimpleNamespace(case_name="x__goat", risk_category="data_exfiltration", strategy="goat", score=0.0, conversation=[])
+    launched = SimpleNamespace(case_name="y__goat", risk_category="excessive_agency", strategy="goat", score=0.9,
+                               conversation=[{"role": "attacker", "content": "hola"}])
+    diluter = SimpleNamespace(case_name="z__goat", risk_category="excessive_agency", strategy="goat", score=0.0, conversation=[])
+    worst = charts._worst_by_cell([refused, launched, diluter])
+    assert worst == {("excessive_agency", "goat"): 0.9}
+    assert charts._refused_cells([refused, launched, diluter]) == {("data_exfiltration", "goat")}
