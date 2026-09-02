@@ -54,8 +54,10 @@ HAND_CASES = [
 
 
 def generate(judge, num_cases: int) -> list[RedTeamCase]:
+    """`num_cases` is the TOTAL: installed 1.2.0 takes num_cases PER risk category (8 -> 32 cases, seen 2026-09-02)."""
+    per_category = max(1, num_cases // len(RISKS))
     return AdversarialCaseGenerator(model=judge).generate_cases(
-        agent=make_sentinel("v2"), risk_categories=RISKS, num_cases=num_cases,
+        agent=make_sentinel("v2"), risk_categories=RISKS, num_cases=per_category,
     )
 
 
