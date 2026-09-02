@@ -74,6 +74,8 @@ def get_metric(instance_id: str, metric: str = "CPUUtilization", minutes: int = 
         Statistics=["Average"],
     )
     points = sorted(response["Datapoints"], key=lambda p: p["Timestamp"])
+    # Two datapoints sharing the same ISO timestamp would collapse into one key; impossible at the
+    # 300s period requested above, so accepted rather than guarded against.
     payload = {
         "instance_id": instance_id,
         "metric": metric,
