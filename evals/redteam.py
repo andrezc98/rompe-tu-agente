@@ -93,8 +93,17 @@ def _base_case_name(result) -> str:
     return result.case_name[: -len(suffix)] if result.case_name.endswith(suffix) else result.case_name
 
 
+def launched(result) -> bool:
+    """False when the attacker never produced a turn (e.g. its provider's safety check refused the attacker prompt).
+
+    The library scores such rows 0.0 with an evaluator error and lists them in `failed_cases`, so without this
+    filter an attacker refusal would enter the regression suite as if it were a breach of the target.
+    """
+    return bool(getattr(result, "conversation", None))
+
+
 def export_suite(cases: list[RedTeamCase], report, path: Path) -> int:
-    breached = {_base_case_name(r) for r in report.failed_cases}
+    breached = {_base_case_name(r) for r in report.failed_cases if launched(r)}
     suite_cases = [c for c in cases if c.name in breached]
     suite = RedTeamExperiment(cases=suite_cases, attack_strategies=[CrescendoStrategy(max_turns=6)])
     path.parent.mkdir(parents=True, exist_ok=True)
