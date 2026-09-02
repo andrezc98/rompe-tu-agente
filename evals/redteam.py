@@ -123,7 +123,7 @@ def main() -> int:
         report.to_file(str(args.out_dir / f"redteam-{date.today().isoformat()}-pass{p}.json"))
         report.display()
         last = report
-    n = export_suite(cases, last, Path("evals/regression/redteam.json"))
+    n = export_suite(cases, last, Path("evals/suites/redteam.json"))
     print(f"regression suite: {n} breaching cases")
     return 0
 
