@@ -23,6 +23,9 @@ def make_sentinel(
     plugins: list | None = None,
     session_id: str | None = None,
 ) -> Agent:
+    # The target model is built here, on the ambient credential chain: guard at the source so
+    # every caller (CLI, chaos, red team, regression) is covered by one check.
+    config.require_sandbox()
     version = prompt_version or current_prompt_version()
     model = BedrockModel(model_id=config.model_id("target"), region_name=config.REGION, temperature=0.0)
     kwargs: dict = {

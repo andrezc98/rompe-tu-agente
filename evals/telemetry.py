@@ -39,6 +39,8 @@ def load_session(path: Path) -> Session:
 
 
 def judge_model() -> BedrockModel:
+    # Builds a Bedrock client on the ambient credential chain, so it is a place AWS gets touched.
+    config.require_sandbox()
     return BedrockModel(model_id=config.model_id("judge"), region_name=config.REGION, temperature=0.0)
 
 
