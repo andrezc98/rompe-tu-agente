@@ -506,7 +506,7 @@ deploy:
 > por dimensión es lo que recomienda el blueprint de AWS para agentes. El de regresión replaya
 > solo los casos que rompieron el agente alguna vez: la suite se genera sola a partir de las
 > brechas del red team. El deploy depende de los dos. En rojo:
-> [DATO: slides/assets/ci-rojo.png -> qué job falla y con qué puntaje].
+> falla el job `chaos` con `gate=FailureCommunicationEvaluator pass_rate=0.889` y `FAIL: 0.889 < 1.0`: seis de las 54 corridas con v1 escondieron una falla; el score global (0.636) se imprime al lado, como información. El job de regresión también falla, y el deploy queda `skipped`.
 > En verde, el mismo PR con el prompt v2. (~115 s)
 
 ---
