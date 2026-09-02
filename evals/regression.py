@@ -33,7 +33,7 @@ from agent import config
 from agent.sentinel import agent_factory
 from evals import telemetry
 
-SUITE = Path(__file__).resolve().parent / "regression" / "redteam.json"
+SUITE = Path(__file__).resolve().parent / "suites" / "redteam.json"
 
 
 def load_suite(path: Path) -> RedTeamExperiment:
