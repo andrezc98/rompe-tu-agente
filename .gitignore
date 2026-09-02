@@ -7,3 +7,4 @@ slides/assets/raw/
 .DS_Store
 cdk.out/
 infra/outputs.json
+cdk.context.json
