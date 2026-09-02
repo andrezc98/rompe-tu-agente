@@ -3,59 +3,92 @@
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-# Verified on this machine: `\b` works as a real word boundary under both BSD grep (`grep -E`,
-# the tool the --selftest below actually runs) and git's built-in grep (`git grep -E`), so the
-# PCRE (-P) fallback the brief anticipated for macOS was not needed here. Proven via the
-# `\b[0-9]{12}\b` assertions below (12 digits match, 13 don't).
+# ONE regex engine, everywhere: the system `grep -E` (POSIX ERE). Verified on this machine
+# (Apple Git-155, git 2.50.1) that `git grep -E` silently treats `\b`, `\s`, `\S` as literal
+# characters instead of the GNU/PCRE shorthands they look like -- a pattern using them matches
+# under the system `grep -E` but NOT under `git grep -E`, with no error, just silent
+# under-matching. So `git` is used only to enumerate files (`git ls-files`); every regex match
+# happens via `scan_files()`, which always shells out to the system `grep`. Patterns below are
+# therefore POSIX ERE only: no \b/\s/\S/\d, word boundaries are `(^|[^0-9])...([^0-9]|$)` style.
 #
 # aws_secret_access_key/OPENAI_API_KEY are value-shaped, not bare-name matches: a real AWS
 # secret key is 40 base64-ish chars, so `aws_secret_access_key="y"` (test fixtures) and the
-# literal kwarg name in agent/tools.py no longer match, only an actual-looking value does.
-# `bedrock-api-key-` was dropped: it only ever matched our own synthetic test prefix.
+# literal kwarg name in agent/tools.py don't match, only an actual-looking value does.
 # `phdata.io` stays: it's the speaker's public employer domain, not a secret.
 #
-# Client/codename literals do NOT live here (a guard that contains the names it protects would
-# publish them the moment this file is committed). They go in an optional, git-ignored word
-# list instead — see full_pattern() below.
-PATTERN="arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key\s*[=:]\s*[\"']?[A-Za-z0-9/+]{40}|\b[0-9]{12}\b|phdata\.io|OPENAI_API_KEY=\S+"
+# Client/codename literals do NOT live here (a guard containing the names it protects would
+# publish them the moment this file is committed) -- see build_extra_pattern() below.
+BASE_PATTERN='arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:|(AKIA|ASIA)[0-9A-Z]{16}|aws_secret_access_key[[:space:]]*[=:][[:space:]]*["'\'']?[A-Za-z0-9/+]{40}|(^|[^0-9])[0-9]{12}([^0-9]|$)|phdata\.io|OPENAI_API_KEY=[^[:space:]]+'
 
-# Appends non-comment, non-blank lines of an optional word list to PATTERN. One extended-regex
-# alternative per line; '#'-prefixed and blank lines are skipped. File path is
-# $SANITIZE_EXTRA or, by default, .sanitize-extra at the repo root (gitignored, never committed).
-full_pattern() {
-  local file="${SANITIZE_EXTRA:-.sanitize-extra}" extra
-  if [[ -f "$file" ]]; then
-    extra="$(grep -vE '^[[:space:]]*(#|$)' "$file" | paste -sd '|' -)"
-    if [[ -n "$extra" ]]; then
-      printf '%s|%s' "$PATTERN" "$extra"
-      return
+# Appends word-list alternatives from an optional, git-ignored file: one bare word per line
+# ('#'-comment and blank lines skipped). Each word is whitelisted (letters/digits/._- only) and
+# wrapped as a boundary-safe alternative, so client names/codenames never sit in this tracked
+# script as regex syntax, only as plain words in a file that is never committed. On a bad word,
+# prints the required message and returns 2 (caller decides whether to exit); never matches
+# silently wrong. File path: $SANITIZE_EXTRA, default .sanitize-extra at the repo root.
+build_extra_pattern() {
+  local file="${SANITIZE_EXTRA:-.sanitize-extra}" line pattern=""
+  [[ -f "$file" ]] || { printf ''; return 0; }
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    case "$line" in
+      ''|'#'*) continue ;;
+    esac
+    if ! grep -Eq '^[A-Za-z0-9._-]+$' <<<"$line"; then
+      echo "sanitize-check: bad word in .sanitize-extra: $line" >&2
+      return 2
     fi
+    # ponytail: '.' in a word is left as "any char" (like the rest of BASE_PATTERN's dots
+    # elsewhere use \. when an exact dot is meant); over-matching a word is the safe direction.
+    if [[ -n "$pattern" ]]; then
+      pattern="${pattern}|(^|[^[:alnum:]_])${line}([^[:alnum:]_]|\$)"
+    else
+      pattern="(^|[^[:alnum:]_])${line}([^[:alnum:]_]|\$)"
+    fi
+  done < "$file"
+  printf '%s' "$pattern"
+}
+
+# Scans a file list against $1 (a POSIX ERE) with the system grep, case-insensitively.
+# File list: $SANITIZE_FILES (newline-delimited manifest, for --selftest) if set, else
+# `git ls-files` (tracked + untracked-but-not-ignored, i.e. exactly what's about to be
+# committed or is already committed). Returns grep's own exit code untouched: 0 = matched,
+# 1 = no match (normal, not an error), 2 = grep error (caller must fail closed on this).
+scan_files() {
+  local pattern="$1" f files=()
+  if [[ -n "${SANITIZE_FILES:-}" ]]; then
+    while IFS= read -r f; do
+      [[ -n "$f" ]] && files+=("$f")
+    done < "$SANITIZE_FILES"
+  else
+    while IFS= read -r -d '' f; do
+      files+=("$f")
+    done < <(git ls-files -z --cached --others --exclude-standard -- . ':!uv.lock' ':!demo/sanitize-check.sh')
   fi
-  printf '%s' "$PATTERN"
+  [[ ${#files[@]} -eq 0 ]] && return 1
+  grep -EnHIi "$pattern" -- "${files[@]}"
+}
+
+# The 000000000000 test fixture must not hide a REAL id/secret on the same line: re-test each
+# matching line with that placeholder blanked out, against the same pattern. A line whose only
+# reason to match was the fake account no longer matches; a line with a real leak still does.
+real_hits() {
+  local pattern="$1" matches="$2"
+  [[ -z "$matches" ]] && return 1
+  printf '%s\n' "$matches" | sed 's/000000000000/FAKEACCT/g' | grep -E -i "$pattern"
 }
 
 selftest() {
-  local matches fail=0
+  local fail=0 dir
+  dir="$(mktemp -d)"
+  trap 'rm -rf "$dir"' RETURN
 
-  # One heredoc through the exact PATTERN above, then assert which lines came back.
-  matches="$(grep -E "$PATTERN" <<'LINES' || true
-123456789012
-1234567890123
-basura
-mensura
-arn:aws:iam::123456789012:role/x
-AKIA1234567890ABCDEF
-aws_secret_access_key="y"
-aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-bedrock-api-key-us-east-1
-OPENAI_API_KEY=
-OPENAI_API_KEY=sk-abc
-LINES
-)"
-
-  assert() { # assert <expect: match|nomatch> <line> <label>
-    local expect="$1" line="$2" label="$3" got=nomatch
-    grep -qxF "$line" <<<"$matches" && got=match
+  check_content() { # check_content <pattern> <expect: match|nomatch> <content> <label>
+    local pattern="$1" expect="$2" content="$3" label="$4" f manifest got=nomatch
+    f="$(mktemp "$dir/case.XXXXXX")"
+    manifest="$(mktemp "$dir/manifest.XXXXXX")"
+    printf '%s\n' "$content" > "$f"
+    printf '%s\n' "$f" > "$manifest"
+    SANITIZE_FILES="$manifest" scan_files "$pattern" >/dev/null && got=match
     if [[ "$got" == "$expect" ]]; then
       echo "ok   - $label"
     else
@@ -64,63 +97,65 @@ LINES
     fi
   }
 
-  assert match   "123456789012"                          "12-digit account id matches"
-  assert nomatch "1234567890123"                          "13-digit number does not match"
-  assert nomatch "basura"                                 "basura does not match"
-  assert nomatch "mensura"                                "mensura does not match"
-  assert match   "arn:aws:iam::123456789012:role/x"       "arn with account id matches"
-  assert match   "AKIA1234567890ABCDEF"                   "AKIA + 16 uppercase alnum matches"
-  assert nomatch 'aws_secret_access_key="y"'               "aws_secret_access_key with a short test fixture does not match"
-  assert match   "aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" "aws_secret_access_key with a 40-char value matches"
-  assert nomatch "bedrock-api-key-us-east-1"               "bedrock-api-key- test fixture does not match"
-  assert nomatch "OPENAI_API_KEY="                         "OPENAI_API_KEY with no value does not match"
-  assert match   "OPENAI_API_KEY=sk-abc"                   "OPENAI_API_KEY with a value matches"
+  check_content "$BASE_PATTERN" match   "123456789012"                    "12-digit account id matches"
+  check_content "$BASE_PATTERN" nomatch "1234567890123"                   "13-digit number does not match"
+  check_content "$BASE_PATTERN" match   "arn:aws:iam::123456789012:role/x" "arn with account id matches"
+  check_content "$BASE_PATTERN" match   "AKIA1234567890ABCDEF"            "AKIA + 16 uppercase alnum matches"
+  check_content "$BASE_PATTERN" nomatch 'aws_secret_access_key="y"'       "aws_secret_access_key with a short test fixture does not match"
+  check_content "$BASE_PATTERN" match   "aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" "aws_secret_access_key with a 40-char value matches"
+  check_content "$BASE_PATTERN" nomatch "OPENAI_API_KEY="                 "OPENAI_API_KEY with no value does not match"
+  check_content "$BASE_PATTERN" match   "OPENAI_API_KEY=sk-abc"           "OPENAI_API_KEY with a value matches"
 
-  # The fake account used across tests/test_tools.py (000000000000 is not a real AWS account
-  # id) must be excluded from the real check below via `grep -v 000000000000`.
-  local fake="arn:aws:iam::000000000000:role/aws-cdarg-sentinel-role-agent-demo"
-  if echo "$fake" | grep -E "$PATTERN" | grep -v '000000000000' | grep -q .; then
-    echo "FAIL - fake test account 000000000000 should be excluded from the real check" >&2
-    fail=1
+  # Extra word list: only a throwaway fake word ("acme") ever appears here or in the script.
+  local extra_file combined
+  extra_file="$(mktemp "$dir/extra.XXXXXX")"
+  printf '# comment, ignored\n\nacme\n' > "$extra_file"
+  combined="$(SANITIZE_EXTRA="$extra_file" build_extra_pattern)"
+  combined="${BASE_PATTERN}|${combined}"
+
+  check_content "$combined" nomatch "basura" "loading the extra list does not affect unrelated words"
+  check_content "$combined" match   "acme"   "extra list entry matches when the file is present"
+  check_content "$combined" match   "Acme,"  "extra list entry matches case-insensitively with trailing punctuation"
+
+  # Same-line leak: a fake account next to a real one must still be reported.
+  local f manifest hits reported
+  f="$(mktemp "$dir/case.XXXXXX")"
+  manifest="$(mktemp "$dir/manifest.XXXXXX")"
+  printf 'arn:aws:iam::000000000000:role/x and arn:aws:iam::111122223333:role/y\n' > "$f"
+  printf '%s\n' "$f" > "$manifest"
+  hits="$(SANITIZE_FILES="$manifest" scan_files "$BASE_PATTERN")" || true
+  reported="$(real_hits "$BASE_PATTERN" "$hits")" || true
+  if [[ -n "$reported" ]]; then
+    echo "ok   - same-line leak (fake account next to a real one) is still reported"
   else
-    echo "ok   - fake test account 000000000000 excluded"
-  fi
-
-  # Optional word list mechanism: client/codename patterns never appear in this script or in
-  # this test, only a throwaway fake word does, in a temp file passed via SANITIZE_EXTRA.
-  local extra_tmp with_extra without_extra
-  extra_tmp="$(mktemp)"
-  trap 'rm -f "$extra_tmp"' RETURN
-  printf '# comment line, ignored\n\n\\bacme\\b\n' > "$extra_tmp"
-
-  with_extra="$(grep -E "$(SANITIZE_EXTRA="$extra_tmp" full_pattern)" <<'LINES' || true
-basura
-acme
-LINES
-)"
-  without_extra="$(grep -E "$(SANITIZE_EXTRA=/no/such/file full_pattern)" <<'LINES' || true
-basura
-acme
-LINES
-)"
-
-  if echo "$with_extra" | grep -qxF "basura"; then
-    echo "FAIL - loading the extra list must not affect unrelated words" >&2
-    fail=1
-  else
-    echo "ok   - loading the extra list does not affect unrelated words"
-  fi
-  if echo "$with_extra" | grep -qxF "acme"; then
-    echo "ok   - extra list entry matches when the file is present"
-  else
-    echo "FAIL - extra list entry should match when the file is present" >&2
+    echo "FAIL - same-line leak (fake account next to a real one) should be reported" >&2
     fail=1
   fi
-  if echo "$without_extra" | grep -qxF "acme"; then
-    echo "FAIL - extra word should not match without the extra file" >&2
-    fail=1
+
+  # Fake-account-only line must NOT be reported.
+  f="$(mktemp "$dir/case.XXXXXX")"
+  manifest="$(mktemp "$dir/manifest.XXXXXX")"
+  printf 'arn:aws:iam::000000000000:role/x\n' > "$f"
+  printf '%s\n' "$f" > "$manifest"
+  hits="$(SANITIZE_FILES="$manifest" scan_files "$BASE_PATTERN")" || true
+  reported="$(real_hits "$BASE_PATTERN" "$hits")" || true
+  if [[ -z "$reported" ]]; then
+    echo "ok   - fake-account-only line is not reported"
   else
-    echo "ok   - extra word does not match without the extra file"
+    echo "FAIL - fake-account-only line should not be reported" >&2
+    fail=1
+  fi
+
+  # A malformed extra word must make the whole script exit 2, fail closed.
+  local bad_extra sub_rc=0
+  bad_extra="$(mktemp "$dir/bad.XXXXXX")"
+  printf 'a(b\n' > "$bad_extra"
+  SANITIZE_EXTRA="$bad_extra" bash demo/sanitize-check.sh >/dev/null 2>&1 || sub_rc=$?
+  if [[ "$sub_rc" -eq 2 ]]; then
+    echo "ok   - malformed extra word makes the script exit 2"
+  else
+    echo "FAIL - malformed extra word should make the script exit 2 (got $sub_rc)" >&2
+    fail=1
   fi
 
   if [[ "$fail" -eq 0 ]]; then
@@ -136,14 +171,36 @@ if [[ "${1:-}" == "--selftest" ]]; then
   exit $?
 fi
 
-# No exclusions beyond this script and the lockfile: the patterns above are value-shaped
-# (see the comment on PATTERN), so real source/test/doc files no longer need a pathspec carve-out.
-# --untracked: this runs before a commit, i.e. exactly when new results/assets are still
-# unstaged; without it git grep would only see already-tracked files and miss them entirely.
-# It still respects .gitignore, so .superpowers/ (git-ignored) is not scanned either way.
-if git grep --untracked -nEi "$(full_pattern)" -- ':!demo/sanitize-check.sh' ':!uv.lock' \
-  | grep -v '000000000000'; then
-  echo "sanitize-check: FOUND sensitive-looking strings above" >&2
-  exit 1
+# No exclusions beyond this script and the lockfile (they're built into scan_files()'s file
+# list). Build the extra pattern first so a malformed .sanitize-extra fails fast, before any
+# scanning; every fallible grep-backed call below captures its exit code explicitly so a real
+# grep error (2) always becomes `exit 2`, never a silently-passed check.
+rc=0
+extra="$(build_extra_pattern)" || rc=$?
+if [[ "$rc" -eq 2 ]]; then
+  exit 2
+fi
+FULL="$BASE_PATTERN"
+[[ -n "$extra" ]] && FULL="${FULL}|${extra}"
+
+rc=0
+matches="$(scan_files "$FULL")" || rc=$?
+if [[ "$rc" -eq 2 ]]; then
+  echo "sanitize-check: grep error while scanning" >&2
+  exit 2
+fi
+
+if [[ -n "$matches" ]]; then
+  rc=0
+  real="$(real_hits "$FULL" "$matches")" || rc=$?
+  if [[ "$rc" -eq 2 ]]; then
+    echo "sanitize-check: grep error while re-checking matches" >&2
+    exit 2
+  fi
+  if [[ -n "$real" ]]; then
+    printf '%s\n' "$real"
+    echo "sanitize-check: FOUND sensitive-looking strings above" >&2
+    exit 1
+  fi
 fi
 echo "sanitize-check: clean"
