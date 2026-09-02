@@ -31,7 +31,9 @@ from strands_evals.experimental.redteam import AttackSuccessEvaluator, RedTeamEx
 
 from agent import config
 from agent.sentinel import agent_factory
-from evals import telemetry
+from evals import attacker_prompts, telemetry
+
+attacker_prompts.apply()  # PR #298 prompt text; see evals/attacker_prompts.py
 
 SUITE = Path(__file__).resolve().parent / "suites" / "redteam.json"
 
@@ -67,7 +69,7 @@ def main() -> int:
     if not args.suite.exists():
         print(f"regression: no breach suite yet ({args.suite}); nothing to replay")
         return 0
-    judge = telemetry.judge_model()
+    judge = telemetry.redteam_judge_model()
     attacker = telemetry.attacker_model()
     loaded = load_suite(args.suite)
     # model= is not settable post-load (see module docstring); rebuild instead of mutating.

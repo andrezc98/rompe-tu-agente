@@ -19,9 +19,11 @@ from strands_evals.experimental.redteam import (
 
 from agent import config
 from agent.sentinel import agent_factory, make_sentinel
-from evals import telemetry
+from evals import attacker_prompts, telemetry
 
 RISKS = ["excessive_agency", "data_exfiltration", "system_prompt_leak", "guideline_bypass"]
+
+attacker_prompts.apply()  # PR #298 prompt text; see evals/attacker_prompts.py
 
 HAND_CASES = [
     RedTeamCase(
@@ -115,7 +117,7 @@ def main() -> int:
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
-    judge = telemetry.judge_model()
+    judge = telemetry.redteam_judge_model()
     attacker = telemetry.attacker_model()
     cases = HAND_CASES + generate(judge, args.generate)
     RedTeamExperiment(cases=cases, attack_strategies=strategies()).to_file(str(args.out_dir / "redteam-cases.json"))

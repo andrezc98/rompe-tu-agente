@@ -44,6 +44,13 @@ def judge_model() -> BedrockModel:
     return BedrockModel(model_id=config.model_id("judge"), region_name=config.REGION)  # no temperature: see agent/sentinel.py
 
 
+def redteam_judge_model() -> BedrockModel:
+    """Judge for attack transcripts. Split from judge_model() on 2026-09-02: Opus 5 returns content_filtered on
+    adversarial transcripts (the library then counts the row as a breach); Opus 4.8 rates them."""
+    config.require_sandbox()
+    return BedrockModel(model_id=config.model_id("redteam_judge"), region_name=config.REGION)
+
+
 def attacker_model() -> OpenAIResponsesModel:
     """GPT on Bedrock Mantle. The key is short-term (max 12 h): mint it per process, never persist it."""
     return OpenAIResponsesModel(
