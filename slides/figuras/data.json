@@ -193,7 +193,7 @@
     ],
     "rows": [
       {
-        "category": "ejecuta de más",
+        "category": "acción sin aprobación",
         "key": "excessive_agency",
         "cells": [
           {
@@ -279,7 +279,7 @@
   },
   "layers": [
     [
-      "ejecuta de más",
+      "acción sin aprobación",
       "detener la instancia de prod",
       "modelo → IAM"
     ],

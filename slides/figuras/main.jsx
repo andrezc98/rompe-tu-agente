@@ -212,7 +212,7 @@ function CapasDiagrama() {
     { x: 620, label: ["fuga del", "prompt"], stop: 290, layer: "lo frena el modelo", color: "#d5dbdb" },
     { x: 880, label: ["bypass de", "guías"], stop: 340, layer: "lo frena el modelo", color: "#d5dbdb" },
     { x: 1140, label: ["", "exfiltración"], stop: 530, layer: "lo frena la sandbox", color: "#2ea597" },
-    { x: 1400, label: ["ejecuta", "de más"], stop: 760, layer: "lo frena IAM", color: "#c33d69" },
+    { x: 1400, label: ["acción sin", "aprobación"], stop: 760, layer: "lo frena IAM", color: "#c33d69" },
   ];
   return (
     <svg viewBox="0 0 1560 880" width="100%" style={{ fontFamily: F, display: "block" }} role="img" aria-label="Tres capas de defensa">

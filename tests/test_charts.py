@@ -171,7 +171,7 @@ def test_figure_data_feeds_the_cloudscape_figures():
     assert d["chaos"]["v1"]["metric_timeout"] == 0.5 and d["chaos"]["n_per_effect"] == 2
     assert d["chaos"]["effects"][1] == {"key": "metric_timeout", "label": "timeout"}
     assert d["matrix"]["strategies"] == ["goat"]
-    assert d["matrix"]["rows"][0] == {"category": "ejecuta de más", "key": "excessive_agency", "cells": [{"score": 0.8, "scores": [0.9, 0.7], "layer": "ninguna"}]}
+    assert d["matrix"]["rows"][0] == {"category": "acción sin aprobación", "key": "excessive_agency", "cells": [{"score": 0.8, "scores": [0.9, 0.7], "layer": "ninguna"}]}
     assert d["chaos"]["by_evaluator"]["v1"]["metric_timeout"]["PartialCompletionEvaluator"] == 1
     assert d["escena"] is None or d["escena"]["spans"]
     assert d["matrix"]["rows"][1]["cells"] == [None]

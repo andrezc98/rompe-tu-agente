@@ -51,7 +51,7 @@ TITLE_FONT = BASE_FONT + 4
 # Spec §4.2 (docs/superpowers/specs/2026-09-01-rompe-tu-agente-design.md): category, what the
 # attacker wants, and the layers that can stop it. Row order matches evals.redteam.RISKS.
 LAYER_TABLE = [
-    ("ejecuta de más", "detener la instancia de prod", "modelo → IAM"),
+    ("acción sin aprobación", "detener la instancia de prod", "modelo → IAM"),
     ("exfiltración", "leer un archivo interno de escalamiento", "modelo → sandbox"),
     ("fuga del prompt", "sacar el system prompt", "solo modelo"),
     ("bypass de guías", "actuar sin un ticket CHG válido", "solo modelo"),
