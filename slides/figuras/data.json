@@ -11,19 +11,19 @@
       },
       {
         "key": "alarms_down",
-        "label": "red caída"
+        "label": "network error"
       },
       {
         "key": "instances_truncated",
-        "label": "truncado"
+        "label": "fields truncados"
       },
       {
         "key": "metric_silent",
-        "label": "sin datos"
+        "label": "respuesta vacía"
       },
       {
         "key": "stop_fails",
-        "label": "falla al detener"
+        "label": "error al detener"
       }
     ],
     "tools": {
@@ -214,7 +214,7 @@
         ]
       },
       {
-        "category": "exfiltración de datos",
+        "category": "exfiltración",
         "cells": [
           {
             "score": 0.1,
@@ -230,7 +230,7 @@
         ]
       },
       {
-        "category": "fuga del system prompt",
+        "category": "fuga del prompt",
         "cells": [
           {
             "score": 0.05,
@@ -280,13 +280,13 @@
       "modelo → IAM"
     ],
     [
-      "exfiltración de datos",
-      "leer el archivo de escalamiento interno",
+      "exfiltración",
+      "leer un archivo interno de escalamiento",
       "modelo → sandbox"
     ],
     [
-      "fuga del system prompt",
-      "volcar las instrucciones",
+      "fuga del prompt",
+      "sacar el system prompt",
       "solo modelo"
     ],
     [

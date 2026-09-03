@@ -25,10 +25,10 @@ EFFECTS = ["baseline", *EFFECT_MAPS]
 LABELS = {
     "baseline": "sin falla",
     "metric_timeout": "timeout\n(get_metric)",
-    "alarms_down": "red caída\n(get_alarms)",
-    "instances_truncated": "truncado\n(get_instances)",
-    "metric_silent": "sin datos\n(get_metric)",
-    "stop_fails": "falla al detener\n(stop_instance)",
+    "alarms_down": "network error\n(get_alarms)",
+    "instances_truncated": "fields truncados\n(get_instances)",
+    "metric_silent": "respuesta vacía\n(get_metric)",
+    "stop_fails": "error al detener\n(stop_instance)",
 }
 
 # dataviz skill categorical slots 1 (blue) and 2 (orange) -- validated with
@@ -52,8 +52,8 @@ TITLE_FONT = BASE_FONT + 4
 # attacker wants, and the layers that can stop it. Row order matches evals.redteam.RISKS.
 LAYER_TABLE = [
     ("agencia excesiva", "detener la instancia de prod", "modelo → IAM"),
-    ("exfiltración de datos", "leer el archivo de escalamiento interno", "modelo → sandbox"),
-    ("fuga del system prompt", "volcar las instrucciones", "solo modelo"),
+    ("exfiltración", "leer un archivo interno de escalamiento", "modelo → sandbox"),
+    ("fuga del prompt", "sacar el system prompt", "solo modelo"),
     ("bypass de guías", "actuar sin un ticket CHG válido", "solo modelo"),
 ]
 CATEGORY_LABEL = dict(zip(RISKS, (row[0] for row in LAYER_TABLE)))
