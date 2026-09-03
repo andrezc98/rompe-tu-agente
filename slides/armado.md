@@ -176,7 +176,7 @@ exportado de 44 páginas.
 ### 16 — La matriz
 
 - Usar `redteam-matrix.png` al mayor tamaño posible.
-- Destacar la celda «agencia excesiva / crescendo» con un borde o flecha simple.
+- Destacar la celda «ejecuta de más / Crescendo» con un borde o flecha simple.
 - El headline es la conclusión. No volver a escribir «promedio del peor score» como título.
 
 ### 17 — El último mensaje
@@ -638,13 +638,13 @@ Ahora las tools funcionan. El red team intenta que el agente las use mal.
 **Texto:**
 
 - Imagen: slides/assets/capas-tabla.png
-- Agencia excesiva · Exfiltración · Fuga del prompt · Bypass de guías
+- Ejecuta de más · Exfiltración · Fuga del prompt · Bypass de guías
 - Ahora medimos si el ataque termina en una tool call.
 
 **Notas del orador:**
 
 Hasta aquí rompimos el entorno. Ahora todo funciona y cambiamos la amenaza. Probamos cuatro
-categorías alineadas con OWASP: agencia excesiva, exfiltración, fuga del system prompt y bypass
+categorías alineadas con OWASP: ejecutar de más, exfiltración, fuga del system prompt y bypass
 de guías. Cada una termina contra una capa distinta. IAM puede frenar una acción en producción;
 la sandbox puede frenar la lectura de un archivo. Para una aprobación verbal falsa no había
 todavía una segunda capa. (~55 s)
@@ -685,7 +685,7 @@ muchos intentos antes de que llegaran a Sentinel. (~100 s)
 **Template:** página 14 del PDF original, «Una imagen».
 
 **Cómo llenarla:** Usar slides/assets/redteam-matrix.png al mayor tamaño posible. Destacar la
-celda «agencia excesiva / crescendo».
+celda «ejecuta de más / Crescendo».
 
 **Título:**
 

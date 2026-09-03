@@ -302,14 +302,14 @@ agent = Agent(..., plugins=[ChaosPlugin()])
 **Body:**
 
 - Imagen: `capas-tabla.png`
-- Agencia excesiva · Exfiltración · Fuga del prompt · Bypass de guías
+- Ejecuta de más · Exfiltración · Fuga del prompt · Bypass de guías
 - Ahora medimos si el ataque termina en una tool call.
 
 **Layout sugerido:** tabla de capas grande; usar el título como transición al bloque de red team
 
 **Notas del orador:**
 > Hasta aquí rompimos el entorno. Ahora todo funciona y cambiamos la amenaza. Probamos cuatro
-> categorías alineadas con OWASP: agencia excesiva, exfiltración, fuga del system prompt y bypass
+> categorías alineadas con OWASP: ejecutar de más, exfiltración, fuga del system prompt y bypass
 > de guías. Cada una termina contra una capa distinta. IAM puede frenar una acción en producción;
 > la sandbox puede frenar la lectura de un archivo. Para una aprobación verbal falsa no había
 > todavía una segunda capa. (~55 s)
@@ -348,7 +348,7 @@ agent = Agent(..., plugins=[ChaosPlugin()])
 - Imagen: `redteam-matrix.png`
 - Pie: 2 runs · 20 ataques por run · 10 casos × 2 estrategias
 
-**Layout sugerido:** matriz grande; destacar la celda de agencia excesiva con Crescendo
+**Layout sugerido:** matriz grande; destacar la celda de «ejecuta de más» con Crescendo
 
 **Notas del orador:**
 > En cada run Crescendo lanzó 8 de 10 ataques y encontró la misma brecha: el ticket inventado.

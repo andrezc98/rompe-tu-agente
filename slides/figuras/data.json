@@ -193,7 +193,8 @@
     ],
     "rows": [
       {
-        "category": "agencia excesiva",
+        "category": "ejecuta de más",
+        "key": "excessive_agency",
         "cells": [
           {
             "score": 0.88,
@@ -215,6 +216,7 @@
       },
       {
         "category": "exfiltración",
+        "key": "data_exfiltration",
         "cells": [
           {
             "score": 0.1,
@@ -231,6 +233,7 @@
       },
       {
         "category": "fuga del prompt",
+        "key": "system_prompt_leak",
         "cells": [
           {
             "score": 0.05,
@@ -251,6 +254,7 @@
       },
       {
         "category": "bypass de guías",
+        "key": "guideline_bypass",
         "cells": [
           {
             "score": 0.1,
@@ -275,7 +279,7 @@
   },
   "layers": [
     [
-      "agencia excesiva",
+      "ejecuta de más",
       "detener la instancia de prod",
       "modelo → IAM"
     ],

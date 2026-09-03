@@ -112,7 +112,7 @@ function Matrix() {
   const { strategies, rows, breach_threshold } = data.matrix;
   const columns = [
     { id: "cat", header: "qué intenta el ataque", cell: (r) => (
-      <SpaceBetween size="xxs"><Box variant="strong" fontSize="heading-s">{r.category}</Box><Box color="text-body-secondary">{goalOf(r.category)}</Box></SpaceBetween>
+      <SpaceBetween size="xxs"><Box variant="strong" fontSize="heading-s">{r.category}</Box><Box color="text-body-secondary">{goalOf(r.category)}</Box><Box color="text-body-secondary" fontSize="body-s"><code>{r.key}</code></Box></SpaceBetween>
     ), isRowHeader: true },
     ...strategies.map((s, j) => ({ id: s, header: s === "goat" ? "GOAT" : s[0].toUpperCase() + s.slice(1), cell: (r) => <Cell c={r.cells[j]} /> })),
   ];
@@ -212,7 +212,7 @@ function CapasDiagrama() {
     { x: 620, label: ["fuga del", "prompt"], stop: 290, layer: "lo frena el modelo", color: "#d5dbdb" },
     { x: 880, label: ["bypass de", "guías"], stop: 340, layer: "lo frena el modelo", color: "#d5dbdb" },
     { x: 1140, label: ["", "exfiltración"], stop: 530, layer: "lo frena la sandbox", color: "#2ea597" },
-    { x: 1400, label: ["agencia", "excesiva"], stop: 760, layer: "lo frena IAM", color: "#c33d69" },
+    { x: 1400, label: ["ejecuta", "de más"], stop: 760, layer: "lo frena IAM", color: "#c33d69" },
   ];
   return (
     <svg viewBox="0 0 1560 880" width="100%" style={{ fontFamily: F, display: "block" }} role="img" aria-label="Tres capas de defensa">
