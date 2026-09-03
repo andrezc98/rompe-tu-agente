@@ -2,6 +2,7 @@
 
 import json
 import sys
+from datetime import datetime
 from collections import defaultdict
 from pathlib import Path
 
@@ -16,7 +17,8 @@ from evals.redteam import RISKS
 from evals.report_rows import runs_by_name
 
 RESULTS = Path(__file__).resolve().parent / "results"
-ASSETS = Path(__file__).resolve().parent.parent / "slides" / "assets"
+# matplotlib fallbacks (git-ignored); the deck figures in slides/assets come from slides/figuras/render.sh
+ASSETS = Path(__file__).resolve().parent.parent / "slides" / "assets" / "raw"
 # Numbers behind the three figures, for slides/figuras (the Cloudscape renders of the same charts).
 FIGURAS = Path(__file__).resolve().parent.parent / "slides" / "figuras" / "data.json"
 EFFECTS = ["baseline", *EFFECT_MAPS]
@@ -163,13 +165,65 @@ def matrix_cells(results_pass1, results_pass2) -> tuple[list[str], list[dict]]:
             # displays as "0.30" (2 decimals) right next to a "modelo" label that a viewer reading
             # the printed number would expect to be "ninguna" (>= 0.3).
             avg = round(sum(vals) / len(vals), 2)
-            cells.append({"score": avg, "layer": "ninguna" if avg >= BREACH_THRESHOLD else CATEGORY_LAYER[cat]})
+            cells.append({"score": avg, "scores": vals, "layer": "ninguna" if avg >= BREACH_THRESHOLD else CATEGORY_LAYER[cat]})
         rows.append({"category": CATEGORY_LABEL[cat], "cells": cells})
     return strategies, rows
 
 
-def figure_data(v1: dict, v2: dict, results_pass1, results_pass2) -> dict:
-    """Everything slides/figuras needs to draw the three figures with Cloudscape: no logic there."""
+def passes_by_evaluator(report: dict) -> dict[str, dict[str, int]]:
+    """{effect: {evaluator: runs that passed}}: one evaluator's view of one injected fault."""
+    out: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    for i, case in enumerate(report["cases"]):
+        out[effect_of(case["name"])][case["evaluator"]] += 1 if report["test_passes"][i] else 0
+    return {e: dict(v) for e, v in out.items()}
+
+
+def scene_data(path: Path) -> dict | None:
+    """The question, the final answer and the span timeline of one saved session (the scene slides)."""
+    if not path.exists():
+        return None
+    session = json.loads(path.read_text())
+    spans = session["traces"][0]["spans"]
+
+    def seconds(span) -> float:
+        info = span["span_info"]
+        start = datetime.fromisoformat(info["start_time"].replace("Z", "+00:00"))
+        end = datetime.fromisoformat(info["end_time"].replace("Z", "+00:00"))
+        return round((end - start).total_seconds(), 2)
+
+    def first_text(messages, role):
+        for m in messages:
+            if m["role"] == role:
+                for c in m["content"]:
+                    if c.get("content_type") == "text":
+                        return c["text"]
+        return ""
+
+    timeline = []
+    for span in sorted(spans, key=lambda s: s["span_info"]["start_time"]):
+        kind = span.get("span_type")
+        if kind == "execute_tool":
+            call, result = span["tool_call"], span.get("tool_result") or {}
+            timeline.append({"span": call["name"], "kind": "tool", "seconds": seconds(span),
+                             "args": call.get("arguments"), "error": str(result.get("content")) if result.get("error") else None})
+        elif kind == "inference":
+            timeline.append({"span": "chat", "kind": "model", "seconds": seconds(span)})
+        elif kind == "invoke_agent":
+            timeline.append({"span": "invoke_agent", "kind": "agent", "seconds": seconds(span)})
+    inferences = [s for s in spans if s.get("span_type") == "inference"]
+    return {
+        "session_id": session.get("session_id"),
+        "question": first_text(inferences[0]["messages"], "user") if inferences else "",
+        "answer": first_text(reversed(inferences[-1]["messages"]), "assistant") if inferences else "",
+        "spans": timeline,
+    }
+
+
+SCENE = RESULTS / "show" / "timeout-v1-oculto.json"
+
+
+def figure_data(v1: dict, v2: dict, results_pass1, results_pass2, scene_path: Path = SCENE) -> dict:
+    """Everything slides/figuras needs to draw the figures with Cloudscape: no logic there."""
     strategies, rows = matrix_cells(results_pass1, results_pass2)
     runs_per_effect = defaultdict(int)
     for name in runs_by_name(v1):
@@ -181,7 +235,9 @@ def figure_data(v1: dict, v2: dict, results_pass1, results_pass2) -> dict:
             "v1": pass_rate_by_effect(v1),
             "v2": pass_rate_by_effect(v2),
             "n_per_effect": max(runs_per_effect.values(), default=0),
+            "by_evaluator": {"v1": passes_by_evaluator(v1), "v2": passes_by_evaluator(v2)},
         },
+        "escena": scene_data(scene_path),
         "matrix": {"strategies": strategies, "rows": rows, "breach_threshold": BREACH_THRESHOLD},
         "layers": [list(row) for row in LAYER_TABLE],
     }

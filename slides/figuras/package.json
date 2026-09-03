@@ -6,6 +6,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@cloudscape-design/chat-components": "1.0.166",
     "@cloudscape-design/components": "3.0.1359",
     "@cloudscape-design/global-styles": "1.0.67",
     "react": "19.2.8",

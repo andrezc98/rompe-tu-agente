@@ -75,9 +75,10 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
   porque v1 y v2 comparten los nombres de corrida.
 - Gráficos del deck: `bash slides/figuras/render.sh` (necesita Node; Playwright descarga su propio Chromium la primera vez). Corre
   `uv run python -m evals.charts`, que lee los `*-revisado.json` y los reportes de red team en
-  `evals/results/`, escribe `slides/figuras/data.json` y los PNG de respaldo en matplotlib; después
-  renderiza los tres gráficos con componentes de Cloudscape en modo oscuro y los sobreescribe en
-  `slides/assets/`. Solo `evals.charts` deja la versión matplotlib.
+  `evals/results/`, escribe `slides/figuras/data.json` y unos PNG de respaldo en matplotlib en
+  `slides/assets/raw/` (ignorado por git); después renderiza las figuras del mazo con componentes
+  de Cloudscape en modo oscuro (gráficos, matriz, tablas, las dos escenas y el diagrama de capas)
+  en `slides/assets/`, y exporta `arquitectura.drawio` con draw.io desktop si está instalado.
 - Diagnóstico: `uv run --env-file .env python -m evals.diagnose evals/results/show/timeout-v1.json`
 - Red team (genera además la suite de brechas): `uv run --env-file .env python -m evals.redteam --generate 8 --passes 2`
 - Replay de un ataque puntual (transcript + trace): `uv run --env-file .env python -m evals.replay <reporte> --case <caso> --strategy <estrategia>`

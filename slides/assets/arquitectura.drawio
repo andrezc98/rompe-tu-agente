@@ -1,235 +1,83 @@
 <mxfile host="Electron" version="29.6.1">
-  <diagram name="Page-1" id="diagram-1">
-    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1680" pageHeight="1050" math="0" shadow="0">
+  <diagram name="Sentinel" id="sentinel">
+    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <!-- ===== Title block ===== -->
-        <mxCell id="title-group" connectable="0" style="group;fontFamily=Helvetica;" value="" vertex="1" parent="1">
-          <mxGeometry height="83" width="1100" x="50" y="30" as="geometry" />
-        </mxCell>
-        <mxCell id="title-text" style="text;html=1;resizable=1;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;fontSize=30;fontStyle=1;fontFamily=Helvetica;" value="Sentinel: arquitectura y capas de defensa" vertex="1" parent="title-group">
-          <mxGeometry height="42" width="1000" as="geometry" />
-        </mxCell>
-        <mxCell id="subtitle-text" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;fontSize=16;fontFamily=Helvetica;" value="Agente de guardia en Strands sobre Amazon Bedrock: tools, sandbox, IAM, chaos testing, red team y gate de CI" vertex="1" parent="title-group">
-          <mxGeometry height="25" width="1080" x="5" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="title-separator" style="line;strokeWidth=2;html=1;fontSize=14;strokeColor=#FF9900;fontFamily=Helvetica;" value="" vertex="1" parent="title-group">
-          <mxGeometry height="10" width="1090" x="5" y="70" as="geometry" />
+        <mxCell id="lbl-tools" value="cinco tools" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#FFFFFF;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="700" y="60" width="260" height="30" as="geometry" />
         </mxCell>
 
-        <!-- Color-key mini legend -->
-        <mxCell id="legend-mini" style="text;html=1;align=left;verticalAlign=top;fontSize=13;fontFamily=Helvetica;whiteSpace=wrap;" value="&lt;div&gt;&lt;span style=&quot;color:#146EB4;font-weight:bold;&quot;&gt;&amp;#9632;&lt;/span&gt; Capa 1 &amp;middot; modelo (prompt)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color:#ED7100;font-weight:bold;&quot;&gt;&amp;#9632;&lt;/span&gt; Capa 2 &amp;middot; sandbox (Strands Shell)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color:#DD344C;font-weight:bold;&quot;&gt;&amp;#9632;&lt;/span&gt; Capa 3 &amp;middot; permisos (IAM)&lt;/div&gt;" vertex="1" parent="1">
-          <mxGeometry height="80" width="420" x="1200" y="35" as="geometry" />
+        <mxCell id="user" value="Persona&lt;br&gt;de guardia" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#7D8998;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="78" height="78" as="geometry" />
         </mxCell>
 
-        <!-- ===== External actor: Users ===== -->
-        <mxCell id="users-container" style="fillColor=#f5f5f5;strokeColor=light-dark(#666666,#D4D4D4);rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#333333;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1;perimeterSpacing=0;" value="Persona de guardia" vertex="1" parent="1">
-          <mxGeometry x="60" y="260" height="98" width="130" as="geometry" />
+        <mxCell id="capa1" value="Capa 1 · modelo&lt;br&gt;&lt;i style=&quot;font-weight:normal&quot;&gt;prompt v1 / v2&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0972D326;strokeColor=#539FE5;strokeWidth=2;fontColor=#FFFFFF;fontSize=18;fontStyle=1;verticalAlign=bottom;spacingBottom=8;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="270" y="260" width="300" height="320" as="geometry" />
         </mxCell>
-        <mxCell id="users-icon" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#232F3D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;fontFamily=Helvetica;" value="" vertex="1" parent="users-container">
-          <mxGeometry x="41" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="sentinel" value="Sentinel&lt;br&gt;&lt;i&gt;Strands Agents · Claude Sonnet 5&lt;br&gt;en Amazon Bedrock&lt;/i&gt;" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#01A88D;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="381" y="360" width="78" height="78" as="geometry" />
         </mxCell>
-
-        <!-- ===== Boundary: local process ===== -->
-        <mxCell id="local-proc" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=14;fontStyle=1;strokeColor=#545B64;fillColor=light-dark(#5459640D,#5459640D);fillStyle=auto;verticalAlign=top;align=left;spacingLeft=30;fontColor=#545B64;dashed=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;" value="Proceso local (laptop del guardia)" vertex="1" parent="1">
-          <mxGeometry x="250" y="180" width="430" height="490" as="geometry" />
+        <mxCell id="otel" value="Traces OTel →&lt;br&gt;CloudWatch GenAI Observability" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#E7157B;resIcon=mxgraph.aws4.distro_for_opentelemetry;fontSize=15;verticalLabelPosition=top;verticalAlign=bottom;" vertex="1" parent="1">
+          <mxGeometry x="381" y="70" width="78" height="78" as="geometry" />
         </mxCell>
 
-        <!-- Sentinel -->
-        <mxCell id="badge-capa1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#146EB4;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;fontFamily=Helvetica;" value="CAPA 1 &amp;middot; MODELO" vertex="1" parent="1">
-          <mxGeometry x="280" y="202" width="150" height="22" as="geometry" />
+        <mxCell id="tool-alarms" value="get_alarms&lt;br&gt;&lt;span style=&quot;font-family:Helvetica;font-size:14px;font-weight:normal&quot;&gt;lectura&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2532;strokeColor=#9BA7B4;strokeWidth=2;fontColor=#FFFFFF;fontSize=22;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="120" width="260" height="64" as="geometry" />
         </mxCell>
-        <mxCell id="svc-group-sentinel" style="fillColor=#FFF2E8;strokeColor=#ED7100;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#ED7100;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Cómputo" vertex="1" parent="1">
-          <mxGeometry x="290" y="230" width="120" height="140" as="geometry" />
+        <mxCell id="tool-metric" value="get_metric&lt;br&gt;&lt;span style=&quot;font-family:Helvetica;font-size:14px;font-weight:normal&quot;&gt;lectura&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2532;strokeColor=#9BA7B4;strokeWidth=2;fontColor=#FFFFFF;fontSize=22;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="250" width="260" height="64" as="geometry" />
         </mxCell>
-        <mxCell id="svc-sentinel" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.generic_application;fontFamily=Helvetica;" value="Sentinel&lt;div&gt;&lt;i&gt;Strands Agents, local&lt;br&gt;prompt v1 / v2&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-sentinel">
-          <mxGeometry x="36" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="tool-instances" value="get_instances&lt;br&gt;&lt;span style=&quot;font-family:Helvetica;font-size:14px;font-weight:normal&quot;&gt;lectura&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2532;strokeColor=#9BA7B4;strokeWidth=2;fontColor=#FFFFFF;fontSize=22;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="380" width="260" height="64" as="geometry" />
         </mxCell>
-
-        <!-- Strands Shell (runbooks bind folded into caption) -->
-        <mxCell id="badge-capa2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ED7100;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;fontFamily=Helvetica;" value="CAPA 2 &amp;middot; SANDBOX" vertex="1" parent="1">
-          <mxGeometry x="450" y="202" width="190" height="22" as="geometry" />
+        <mxCell id="tool-stop" value="stop_instance&lt;br&gt;&lt;span style=&quot;font-family:Helvetica;font-size:14px;font-weight:normal&quot;&gt;escritura · pide un ticket CHG&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2532;strokeColor=#9BA7B4;strokeWidth=2;fontColor=#FFFFFF;fontSize=22;fontFamily=Courier New;fontStyle=1;strokeColor=#EB6F6F;" vertex="1" parent="1">
+          <mxGeometry x="700" y="510" width="260" height="64" as="geometry" />
         </mxCell>
-        <mxCell id="svc-group-shell" style="fillColor=#FFF2E8;strokeColor=#ED7100;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#ED7100;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Cómputo" vertex="1" parent="1">
-          <mxGeometry x="460" y="230" width="180" height="190" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-shell" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.container_1;fontFamily=Helvetica;" value="Strands Shell&lt;div&gt;&lt;i&gt;sandbox nuevo por llamada&lt;/i&gt;&lt;/div&gt;&lt;div style=&quot;color:#3F8624;&quot;&gt;/runbooks (público): montado&lt;/div&gt;&lt;div style=&quot;color:#DD344C;font-style:italic;&quot;&gt;runbooks/internal: sin acceso&lt;/div&gt;" vertex="1" parent="svc-group-shell">
-          <mxGeometry x="66" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="tool-shell" value="run_shell&lt;br&gt;&lt;span style=&quot;font-family:Helvetica;font-size:14px;font-weight:normal&quot;&gt;shell en sandbox&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2532;strokeColor=#9BA7B4;strokeWidth=2;fontColor=#FFFFFF;fontSize=22;fontFamily=Courier New;fontStyle=1;strokeColor=#E07941;" vertex="1" parent="1">
+          <mxGeometry x="700" y="640" width="260" height="64" as="geometry" />
         </mxCell>
 
-        <!-- Strands Evals: ChaosPlugin + Red team -->
-        <mxCell id="svc-group-chaos" style="fillColor=#F5F5F5;strokeColor=#666666;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#666666;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Pruebas" vertex="1" parent="1">
-          <mxGeometry x="290" y="490" width="130" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-chaos" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#666666;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.fault_injection_simulator;fontFamily=Helvetica;shadow=1;" value="ChaosPlugin&lt;div&gt;&lt;i&gt;Strands Evals: inyecta&lt;br&gt;fallas en las tools&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-chaos">
-          <mxGeometry x="41" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="cloudwatch" value="Amazon CloudWatch&lt;br&gt;&lt;i&gt;alarmas · métricas&lt;/i&gt;" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#E7157B;resIcon=mxgraph.aws4.cloudwatch_2;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="178" width="78" height="78" as="geometry" />
         </mxCell>
 
-        <mxCell id="svc-group-redteam" style="fillColor=#F5F5F5;strokeColor=#666666;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#666666;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Pruebas" vertex="1" parent="1">
-          <mxGeometry x="440" y="490" width="200" height="150" as="geometry" />
+        <mxCell id="ec2-box" value="Amazon EC2 · dos instancias reales" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ED710026;strokeColor=#ED7100;strokeWidth=2;fontColor=#FFFFFF;fontSize=18;fontStyle=1;verticalAlign=top;spacingTop=6;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="350" width="320" height="230" as="geometry" />
         </mxCell>
-        <mxCell id="svc-redteam" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#666666;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.security_agent;fontFamily=Helvetica;shadow=1;" value="Red team (Strands Evals)&lt;div&gt;&lt;i&gt;atacante GPT-5.6 Sol (Bedrock Mantle)&lt;br&gt;juez Claude (Bedrock)&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-redteam">
-          <mxGeometry x="76" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="ec2-dev" value="dev&lt;br&gt;&lt;i&gt;env=dev&lt;/i&gt;" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#ED7100;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="1">
+          <mxGeometry x="1262" y="415" width="78" height="78" as="geometry" />
         </mxCell>
-
-        <!-- ===== Boundary: AWS Cloud ===== -->
-        <mxCell id="aws-cloud" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=14;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=light-dark(#232F3E0D,#232F3E0D);fillStyle=auto;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;" value="AWS -- cuenta sandbox" vertex="1" parent="1">
-          <mxGeometry x="800" y="180" width="820" height="600" as="geometry" />
+        <mxCell id="ec2-prod" value="prod&lt;br&gt;&lt;i&gt;env=prod&lt;/i&gt;" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#ED7100;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="415" width="78" height="78" as="geometry" />
         </mxCell>
 
-        <!-- Bedrock -->
-        <mxCell id="svc-group-bedrock" style="fillColor=#E0F2F1;strokeColor=#01A88D;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#01A88D;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="IA/ML" vertex="1" parent="1">
-          <mxGeometry x="1150" y="210" width="120" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-bedrock" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;fontFamily=Helvetica;shadow=1;" value="Amazon Bedrock&lt;div&gt;&lt;i&gt;Claude -- modelo target&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-bedrock">
-          <mxGeometry x="36" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="iam" value="Capa 3 · permisos&lt;br&gt;&lt;i&gt;IAM: Deny StopInstances si env=prod&lt;/i&gt;" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#FFFFFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=17;fontStyle=0;aspect=fixed;fontFamily=Helvetica;shape=mxgraph.aws4.resourceIcon;fillColor=#DD344C;resIcon=mxgraph.aws4.identity_and_access_management;verticalLabelPosition=top;verticalAlign=bottom;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="503" width="78" height="78" as="geometry" />
         </mxCell>
 
-        <!-- CloudWatch traces -->
-        <mxCell id="svc-group-cwtraces" style="fillColor=#FCE4EC;strokeColor=#E7157B;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#E7157B;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Observabilidad" vertex="1" parent="1">
-          <mxGeometry x="1420" y="210" width="140" height="170" as="geometry" />
+        <mxCell id="lbl-capa2" value="Capa 2 · sandbox · Strands Shell" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#FFFFFF;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="606" width="260" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="svc-cwtraces" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch_2;fontFamily=Helvetica;shadow=1;" value="CloudWatch GenAI Observability&lt;div&gt;&lt;i&gt;log group&lt;br&gt;aws-cdarg-sentinel-logs-demo&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-cwtraces">
-          <mxGeometry x="46" y="30" width="48" height="48" as="geometry" />
-        </mxCell>
-
-        <!-- IAM role -->
-        <mxCell id="badge-capa3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DD344C;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;fontFamily=Helvetica;" value="CAPA 3 &amp;middot; PERMISOS (IAM)" vertex="1" parent="1">
-          <mxGeometry x="870" y="392" width="200" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-group-iam" style="fillColor=#FFEBEE;strokeColor=#DD344C;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#DD344C;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Seguridad" vertex="1" parent="1">
-          <mxGeometry x="880" y="420" width="170" height="140" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-iam" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.identity_and_access_management;fontFamily=Helvetica;shadow=1;" value="aws-cdarg-sentinel-role-agent-demo&lt;div&gt;&lt;i&gt;Deny: StopInstances si env=prod&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-iam">
-          <mxGeometry x="61" y="30" width="48" height="48" as="geometry" />
+        <mxCell id="runbooks" value="/runbooks&lt;br&gt;&lt;span style=&quot;font-family:Helvetica;font-size:14px;font-weight:normal&quot;&gt;único directorio visible&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2532;strokeColor=#9BA7B4;strokeWidth=2;fontColor=#FFFFFF;fontSize=22;fontFamily=Courier New;fontStyle=1;fillColor=#E0794126;strokeColor=#E07941;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="640" width="260" height="64" as="geometry" />
         </mxCell>
 
-        <!-- CloudWatch tools -->
-        <mxCell id="svc-group-cwtools" style="fillColor=#FCE4EC;strokeColor=#E7157B;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#E7157B;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Observabilidad" vertex="1" parent="1">
-          <mxGeometry x="1150" y="420" width="130" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-cwtools" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch_2;fontFamily=Helvetica;shadow=1;" value="Amazon CloudWatch&lt;div&gt;&lt;i&gt;get_alarms, get_metric&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-cwtools">
-          <mxGeometry x="41" y="30" width="48" height="48" as="geometry" />
-        </mxCell>
-
-        <!-- EC2 -->
-        <mxCell id="svc-group-ec2" style="fillColor=#FFF2E8;strokeColor=#ED7100;rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#ED7100;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1.5;" value="Cómputo" vertex="1" parent="1">
-          <mxGeometry x="1150" y="580" width="160" height="170" as="geometry" />
-        </mxCell>
-        <mxCell id="svc-ec2" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;fontFamily=Helvetica;shadow=1;" value="Amazon EC2&lt;div&gt;&lt;i&gt;aws-cdarg-sentinel-ec2-prod&lt;br&gt;aws-cdarg-sentinel-ec2-dev&lt;br&gt;m9g.medium Bottlerocket&lt;/i&gt;&lt;/div&gt;" vertex="1" parent="svc-group-ec2">
-          <mxGeometry x="56" y="30" width="48" height="48" as="geometry" />
-        </mxCell>
-
-        <!-- ===== CI gate ===== -->
-        <mxCell id="ext-github" style="fillColor=#f5f5f5;strokeColor=light-dark(#666666,#D4D4D4);rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#333333;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1;perimeterSpacing=0;" value="GitHub Actions" vertex="1" parent="1">
-          <mxGeometry x="900" y="830" width="260" height="175" as="geometry" />
-        </mxCell>
-        <mxCell id="github-icon" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#666666;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.git_repository;fontFamily=Helvetica;" value="&lt;i&gt;gate: evals.chaos + evals.regression&lt;br&gt;rol OIDC aws-cdarg-sentinel-role-ci-demo&lt;/i&gt;" vertex="1" parent="ext-github">
-          <mxGeometry x="106" y="42" width="48" height="48" as="geometry" />
-        </mxCell>
-
-        <mxCell id="svc-deploy" style="fillColor=#f5f5f5;strokeColor=light-dark(#666666,#D4D4D4);rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=12;fontColor=#333333;fontFamily=Helvetica;container=1;collapsible=0;shadow=1;strokeWidth=1;perimeterSpacing=0;" value="Deploy" vertex="1" parent="1">
-          <mxGeometry x="1190" y="830" width="150" height="150" as="geometry" />
-        </mxCell>
-        <mxCell id="deploy-icon" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#666666;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.deployment;fontFamily=Helvetica;" value="&lt;i&gt;si el gate pasa&lt;/i&gt;" vertex="1" parent="svc-deploy">
-          <mxGeometry x="51" y="42" width="48" height="48" as="geometry" />
-        </mxCell>
-
-        <!-- ===== Edges ===== -->
-        <mxCell id="e-users-sentinel" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="users-container" target="svc-sentinel">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-users-sentinel-label" value="pregunta del guardia" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-users-sentinel">
-          <mxGeometry relative="1" x="0" y="0" as="geometry"><mxPoint x="0" y="-20" as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-sentinel-bedrock" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=1;exitY=0.3;entryX=0;entryY=0.5;" edge="1" parent="1" source="svc-sentinel" target="svc-bedrock">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-sentinel-bedrock-label" value="invoke / Converse" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-sentinel-bedrock">
-          <mxGeometry relative="1" x="0" y="0" as="geometry"><mxPoint x="0" y="-20" as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-sentinel-shell" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=1;exitY=0.7;entryX=0;entryY=0.5;" edge="1" parent="1" source="svc-sentinel" target="svc-shell">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-sentinel-shell-label" value="run_shell(cmd)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-sentinel-shell">
-          <mxGeometry relative="1" x="0" y="16" as="geometry"><mxPoint as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-sentinel-iam" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=0.2;exitY=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="svc-sentinel" target="svc-iam">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="230" y="260" />
-              <mxPoint x="230" y="172" />
-              <mxPoint x="760" y="172" />
-              <mxPoint x="760" y="474" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-sentinel-iam-label" value="assume role (STS)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-sentinel-iam">
-          <mxGeometry relative="1" x="0" y="-14" as="geometry"><mxPoint as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-iam-cwtools" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" edge="1" parent="1" source="svc-iam" target="svc-cwtools">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <mxCell id="e-iam-ec2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=1;exitY=0.8;entryX=0;entryY=0.2;" edge="1" parent="1" source="svc-iam" target="svc-ec2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-iam-ec2-label" value="get_instances, stop_instance &lt;span style=&quot;color:#DD344C;font-weight:bold;&quot;&gt;(Deny: env=prod)&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-iam-ec2">
-          <mxGeometry relative="1" x="0" y="16" as="geometry"><mxPoint as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-sentinel-cwtraces" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;dashed=1;exitX=0.6;exitY=0;entryX=0.5;entryY=0;" edge="1" parent="1" source="svc-sentinel" target="svc-cwtraces">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="210" y="260" />
-              <mxPoint x="210" y="150" />
-              <mxPoint x="1490" y="150" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-sentinel-cwtraces-label" value="trazas OpenTelemetry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-sentinel-cwtraces">
-          <mxGeometry relative="1" x="0" y="-14" as="geometry"><mxPoint as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-chaos-sentinel" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#666666;rounded=0;dashed=1;exitX=0;exitY=0.3;entryX=0;entryY=0.3;" edge="1" parent="1" source="svc-chaos" target="svc-sentinel">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="275" y="534" />
-              <mxPoint x="275" y="274" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-chaos-sentinel-label" value="fallas en las tools" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;fontColor=#666666;" connectable="0" vertex="1" parent="e-chaos-sentinel">
-          <mxGeometry relative="1" x="0" y="30" as="geometry"><mxPoint as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-redteam-sentinel" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#666666;rounded=0;dashed=1;exitX=0;exitY=0.5;entryX=0;entryY=0.7;" edge="1" parent="1" source="svc-redteam" target="svc-sentinel">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="430" y="544" />
-              <mxPoint x="430" y="650" />
-              <mxPoint x="260" y="650" />
-              <mxPoint x="260" y="294" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-redteam-sentinel-label" value="Crescendo / GOAT" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;fontColor=#666666;" connectable="0" vertex="1" parent="e-redteam-sentinel">
-          <mxGeometry relative="1" x="0" y="24" as="geometry"><mxPoint as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="e-github-deploy" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="ext-github" target="svc-deploy">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-github-deploy-label" value="gate verde" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontFamily=Helvetica;fontSize=11;" connectable="0" vertex="1" parent="e-github-deploy">
-          <mxGeometry relative="1" x="0" y="0" as="geometry"><mxPoint x="0" y="-20" as="offset" /></mxGeometry>
-        </mxCell>
-
+        <mxCell id="e-user" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="user" target="sentinel"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-user-lbl" value="pregunta" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#D1D5DB;fontSize=14;fontFamily=Helvetica;" connectable="0" vertex="1" parent="e-user"><mxGeometry relative="1" x="-0.1" y="-14" as="geometry"><mxPoint as="offset" /></mxGeometry></mxCell>
+        <mxCell id="e-otel" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;dashed=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="sentinel" target="otel"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-t1" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sentinel" target="tool-alarms"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-t2" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sentinel" target="tool-metric"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-t3" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sentinel" target="tool-instances"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-t4" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sentinel" target="tool-stop"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-t5" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sentinel" target="tool-shell"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-alarms-cw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.3;" edge="1" parent="1" source="tool-alarms" target="cloudwatch"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-metric-cw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.7;" edge="1" parent="1" source="tool-metric" target="cloudwatch"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-instances-ec2" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.27;" edge="1" parent="1" source="tool-instances" target="ec2-box"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-stop-iam" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tool-stop" target="iam"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-iam-ec2" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.835;" edge="1" parent="1" source="iam" target="ec2-box"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e-shell-runbooks" style="edgeStyle=none;rounded=0;html=1;strokeColor=#D1D5DB;strokeWidth=2.5;endArrow=blockThin;endFill=1;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tool-shell" target="runbooks"><mxGeometry relative="1" as="geometry" /></mxCell>
       </root>
     </mxGraphModel>
   </diagram>

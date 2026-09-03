@@ -11,3 +11,10 @@ python3 -m http.server 4173 --directory dist >/dev/null 2>&1 & SRV=$!
 trap 'kill $SRV' EXIT
 sleep 1
 node shot.mjs
+# The architecture is a draw.io file with the official AWS icons; export needs draw.io desktop.
+DRAWIO="/Applications/draw.io.app/Contents/MacOS/draw.io"
+if [ -x "$DRAWIO" ]; then
+  "$DRAWIO" -x -f png -s 3 -t -b 24 -o ../assets/arquitectura.png ../assets/arquitectura.drawio >/dev/null 2>&1 && echo "wrote slides/assets/arquitectura.png"
+else
+  echo "draw.io desktop not found: slides/assets/arquitectura.png not re-exported" >&2
+fi

@@ -33,7 +33,7 @@ diapositivas están en `slides/contenido.md`.
 - Bottlerocket ARM64 vía parámetro SSM público — https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-bottlerocket-retrieve-ami.html — consultado 2026-09-01 — slide 6 (las dos instancias del sandbox)
 - Tipos de instancia EC2 de propósito general (familia M9g, Graviton5) — https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html — consultado 2026-09-01 — slide 6
 - AWS CDK v2, referencia de Python (PolicyStatement con Effect.DENY y condiciones por tag) — https://docs.aws.amazon.com/cdk/api/v2/python/ — consultado 2026-09-01 — slides 7, 18 (capa 3: Deny si env=prod)
-- Cloudscape Design System — bar chart, table y status indicator; modo oscuro con `applyMode` (componentes 3.0.1359, global-styles 1.0.67) — https://cloudscape.design/components/bar-chart/ — consultado 2026-09-03 — slides 11, 13, 14, 16 (los tres gráficos generados, mismo sistema de diseño que la consola de las capturas)
+- Cloudscape Design System — bar chart, table y status indicator; modo oscuro con `applyMode` (componentes 3.0.1359, chat-components 1.0.166, global-styles 1.0.67) — https://cloudscape.design/components/bar-chart/ — consultado 2026-09-03 — slides 2, 3, 7, 11, 13, 14, 16 (las escenas, el diagrama de capas, los gráficos y la matriz: el mismo sistema de diseño que la consola de las capturas)
 - Amazon Nova Canvas — estructura de request/response de generación de imágenes — https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html — consultado 2026-09-02 — slides 3, 4 (las dos ilustraciones son generación propia, sin derechos de terceros)
 
 ## Evento
