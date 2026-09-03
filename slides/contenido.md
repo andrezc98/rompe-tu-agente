@@ -503,6 +503,28 @@ agent = Agent(..., plugins=[ChaosPlugin()])
 
 ---
 
+## Slide 22b — Cómo se vería más sólido
+
+**Headline:** Lo mismo, comprado hecho.
+
+**Body:**
+
+- Imagen: `arquitectura-solida.png`
+- Pie: cada capa tiene un servicio detrás; no lo probé en esta charla.
+
+**Layout sugerido:** imagen a todo el ancho; una sola frase al pie
+
+**Notas del orador:**
+> Si esto tuviera que vivir en producción, cada capa tiene un servicio que la hace por ti. El
+> agente se hospeda en AgentCore Runtime. Guardrails filtra prompt attacks antes del modelo; ojo,
+> «me lo confirmaron por chat» no es un prompt attack, así que no le pidas que frene esa brecha.
+> Las tools salen por AgentCore Gateway, y AgentCore Policy evalúa una regla Cedar sobre los
+> argumentos de cada tool call: ese es el check del ticket que puse en la tool, ya hecho. El shell
+> corre en Code Interpreter, IAM sigue siendo IAM y el gate de CI sigue delante del deploy. No lo
+> probé aquí; lo dejo como mapa. (~60 s)
+
+---
+
 ## Slide 23 — Cierre
 
 **Headline:** Que el modelo diga «no» no es un security boundary.

@@ -14,7 +14,9 @@ node shot.mjs
 # The architecture is a draw.io file with the official AWS icons; export needs draw.io desktop.
 DRAWIO="/Applications/draw.io.app/Contents/MacOS/draw.io"
 if [ -x "$DRAWIO" ]; then
-  "$DRAWIO" -x -f png -s 3 -t -b 24 -o ../assets/arquitectura.png ../assets/arquitectura.drawio >/dev/null 2>&1 && echo "wrote slides/assets/arquitectura.png"
+  for d in arquitectura arquitectura-solida; do
+    "$DRAWIO" -x -f png -s 3 -t -b 24 -o "../assets/$d.png" "../assets/$d.drawio" >/dev/null 2>&1 && echo "wrote slides/assets/$d.png"
+  done
 else
   echo "draw.io desktop not found: slides/assets/arquitectura.png not re-exported" >&2
 fi
