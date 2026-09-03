@@ -53,7 +53,8 @@ function ChaosChart({ versions, title, description }) {
     valueFormatter: (y) => `${y} de ${n_per_effect}`,
   }));
   return (
-    <Container header={<Header variant="h2" description={description}>{title}</Header>}>
+    <SpaceBetween size="l">
+      <Header variant="h2" description={description}>{title}</Header>
       <SpaceBetween size="l">
         <Grid gridDefinition={versions.map(() => ({ colspan: 12 / versions.length }))}>
           {versions.map((v) => (
@@ -75,7 +76,7 @@ function ChaosChart({ versions, title, description }) {
           ariaLabel={title}
         />
       </SpaceBetween>
-    </Container>
+    </SpaceBetween>
   );
 }
 
@@ -247,4 +248,6 @@ const FIGURES = { "chaos-v1": ChaosV1, "chaos-v2": ChaosV2, matrix: Matrix, capa
 const params = new URLSearchParams(location.search);
 const Fig = FIGURES[params.get("fig")] ?? ChaosV1;
 document.getElementById("root").style.width = `${params.get("w") ?? 992}px`;
+// These sit directly on the slide's navy: no page background, screenshot with omitBackground.
+if (["capas-diagrama", "chaos-v1", "chaos-v2"].includes(params.get("fig"))) document.body.style.background = "transparent";
 createRoot(document.getElementById("root")).render(<Fig />);

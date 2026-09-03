@@ -12,6 +12,7 @@ const FIGS = [
   ["escena-timeout", 1180, "escena-timeout.png"],
   ["capas-diagrama", 1000, "capas-diagrama.png"],
 ];
+const TRANSPARENT = new Set(["capas-diagrama", "chaos-v1", "chaos-v2"]); // the slide supplies the navy
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1300, height: 900 }, deviceScaleFactor: 3 });
 for (const [fig, width, out] of FIGS) {
@@ -19,7 +20,7 @@ for (const [fig, width, out] of FIGS) {
   await page.waitForSelector("#root svg, #root table, #root [class*=chat-bubble]");
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(400);
-  await page.locator("#root").screenshot({ path: `../assets/${out}`, omitBackground: fig === "capas-diagrama" });
+  await page.locator("#root").screenshot({ path: `../assets/${out}`, omitBackground: TRANSPARENT.has(fig) });
   console.log(`wrote slides/assets/${out}`);
 }
 await browser.close();
