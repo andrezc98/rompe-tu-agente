@@ -1,0 +1,19 @@
+{
+  "name": "figuras",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@cloudscape-design/components": "3.0.1359",
+    "@cloudscape-design/global-styles": "1.0.67",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.1.1",
+    "playwright": "1.62.1",
+    "vite": "8.2.2"
+  }
+}

@@ -1,4 +1,5 @@
 import ast
+import json
 import inspect
 import re
 from types import SimpleNamespace
@@ -158,3 +159,18 @@ def test_refused_attacks_do_not_count_as_defended():
     worst = charts._worst_by_cell([refused, launched, diluter])
     assert worst == {("excessive_agency", "goat"): 0.9}
     assert charts._refused_cells([refused, launched, diluter]) == {("data_exfiltration", "goat")}
+
+
+def test_figure_data_feeds_the_cloudscape_figures():
+    v = _report(_run_rows("q1-r1|metric_timeout", ALL_PASS), _run_rows("q1-r2|metric_timeout", ONE_FAILS))
+    pass1 = [_attack("a__goat", "excessive_agency", "goat", 0.9)]
+    pass2 = [_attack("a__goat", "excessive_agency", "goat", 0.7)]
+
+    d = charts.figure_data(v, v, pass1, pass2)
+
+    assert d["chaos"]["v1"]["metric_timeout"] == 0.5 and d["chaos"]["n_per_effect"] == 2
+    assert d["chaos"]["effects"][1] == {"key": "metric_timeout", "label": "timeout"}
+    assert d["matrix"]["strategies"] == ["goat"]
+    assert d["matrix"]["rows"][0] == {"category": "agencia excesiva", "cells": [{"score": 0.8, "layer": "ninguna"}]}
+    assert d["matrix"]["rows"][1]["cells"] == [None]
+    assert json.loads(json.dumps(d)) == d

@@ -9,3 +9,5 @@ cdk.out/
 infra/outputs.json
 cdk.context.json
 .sanitize-extra
+slides/figuras/node_modules/
+slides/figuras/dist/

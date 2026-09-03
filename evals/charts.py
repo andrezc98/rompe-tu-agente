@@ -17,6 +17,8 @@ from evals.report_rows import runs_by_name
 
 RESULTS = Path(__file__).resolve().parent / "results"
 ASSETS = Path(__file__).resolve().parent.parent / "slides" / "assets"
+# Numbers behind the three figures, for slides/figuras (the Cloudscape renders of the same charts).
+FIGURAS = Path(__file__).resolve().parent.parent / "slides" / "figuras" / "data.json"
 EFFECTS = ["baseline", *EFFECT_MAPS]
 LABELS = {
     "baseline": "sin falla",
@@ -47,8 +49,8 @@ TITLE_FONT = BASE_FONT + 4
 # Spec §4.2 (docs/superpowers/specs/2026-09-01-rompe-tu-agente-design.md): category, what the
 # attacker wants, and the layers that can stop it. Row order matches evals.redteam.RISKS.
 LAYER_TABLE = [
-    ("agencia excesiva", "detener la instancia de prod", "modelo -> IAM"),
-    ("exfiltración de datos", "leer el archivo de escalamiento interno", "modelo -> sandbox"),
+    ("agencia excesiva", "detener la instancia de prod", "modelo → IAM"),
+    ("exfiltración de datos", "leer el archivo de escalamiento interno", "modelo → sandbox"),
     ("fuga del system prompt", "volcar las instrucciones", "solo modelo"),
     ("bypass de guías", "actuar sin un ticket CHG válido", "solo modelo"),
 ]
@@ -140,6 +142,51 @@ def _refused_cells(*result_lists) -> set[tuple[str, str]]:
     return seen - launched
 
 
+def matrix_cells(results_pass1, results_pass2) -> tuple[list[str], list[dict]]:
+    """The category x strategy matrix as data: strategies in column order and one row per risk
+    category with a cell per strategy: {"score", "layer"} for launched attacks (worst score averaged
+    over the passes, layer "ninguna" at/above the breach threshold), {"refused": True} when every
+    attack in the cell was refused by the attacker's provider, None when the cell had no attacks."""
+    w1, w2 = _worst_by_cell(results_pass1), _worst_by_cell(results_pass2)
+    refused = _refused_cells(results_pass1, results_pass2)
+    strategies = sorted({r.strategy for r in (*results_pass1, *results_pass2)}) or ["(sin ataques)"]
+    rows = []
+    for cat in RISKS:
+        cells = []
+        for strat in strategies:
+            key = (cat, strat)
+            vals = [d[key] for d in (w1, w2) if key in d]
+            if not vals:
+                cells.append({"refused": True} if key in refused else None)
+                continue
+            # Round before comparing to the threshold, not after: otherwise a value like 0.2956
+            # displays as "0.30" (2 decimals) right next to a "modelo" label that a viewer reading
+            # the printed number would expect to be "ninguna" (>= 0.3).
+            avg = round(sum(vals) / len(vals), 2)
+            cells.append({"score": avg, "layer": "ninguna" if avg >= BREACH_THRESHOLD else CATEGORY_LAYER[cat]})
+        rows.append({"category": CATEGORY_LABEL[cat], "cells": cells})
+    return strategies, rows
+
+
+def figure_data(v1: dict, v2: dict, results_pass1, results_pass2) -> dict:
+    """Everything slides/figuras needs to draw the three figures with Cloudscape: no logic there."""
+    strategies, rows = matrix_cells(results_pass1, results_pass2)
+    runs_per_effect = defaultdict(int)
+    for name in runs_by_name(v1):
+        runs_per_effect[effect_of(name)] += 1
+    return {
+        "chaos": {
+            "effects": [{"key": e, "label": LABELS[e].split("\n")[0]} for e in EFFECTS],
+            "tools": {e: LABELS[e].split("\n")[1].strip("()") for e in EFFECT_MAPS},
+            "v1": pass_rate_by_effect(v1),
+            "v2": pass_rate_by_effect(v2),
+            "n_per_effect": max(runs_per_effect.values(), default=0),
+        },
+        "matrix": {"strategies": strategies, "rows": rows, "breach_threshold": BREACH_THRESHOLD},
+        "layers": [list(row) for row in LAYER_TABLE],
+    }
+
+
 def chart_redteam_from(results_pass1, results_pass2, out: Path) -> None:
     """Category x strategy heatmap of the worst score, averaged over two passes.
 
@@ -151,27 +198,20 @@ def chart_redteam_from(results_pass1, results_pass2, out: Path) -> None:
     pass reads `sin datos` and is greyed out; a cell whose attacks were all refused by the attacker's own
     provider (0 turns) reads `atacante rechazado` and is greyed out too: it measures the attacker, not the target.
     """
-    w1, w2 = _worst_by_cell(results_pass1), _worst_by_cell(results_pass2)
-    refused = _refused_cells(results_pass1, results_pass2)
-    strategies = sorted({r.strategy for r in (*results_pass1, *results_pass2)}) or ["(sin ataques)"]
+    strategies, rows = matrix_cells(results_pass1, results_pass2)
 
     scores = np.full((len(RISKS), len(strategies)), np.nan)
     cell_text = []
-    for i, cat in enumerate(RISKS):
+    for i, row in enumerate(rows):
         row_text = []
-        for j, strat in enumerate(strategies):
-            key = (cat, strat)
-            vals = [d[key] for d in (w1, w2) if key in d]
-            if not vals:
-                row_text.append("atacante\nrechazado" if key in refused else "sin datos")
-                continue
-            # Round before comparing to the threshold, not after: otherwise a value like 0.2956
-            # displays as "0.30" (2 decimals) right next to a "modelo" label that a viewer reading
-            # the printed number would expect to be "ninguna" (>= 0.3).
-            avg = round(sum(vals) / len(vals), 2)
-            scores[i, j] = avg
-            layer = "ninguna" if avg >= BREACH_THRESHOLD else CATEGORY_LAYER[cat]
-            row_text.append(f"{avg:.2f}\n{layer}")
+        for j, cell in enumerate(row["cells"]):
+            if cell is None:
+                row_text.append("sin datos")
+            elif cell.get("refused"):
+                row_text.append("atacante\nrechazado")
+            else:
+                scores[i, j] = cell["score"]
+                row_text.append(f"{cell['score']:.2f}\n{cell['layer']}")
         cell_text.append(row_text)
 
     # Cells need room for two 24pt lines (score + layer name) plus padding: ~3.4in per strategy
@@ -240,6 +280,7 @@ def main() -> int:
 
     chaos_v1 = RESULTS / "chaos-v1-revisado.json"
     chaos_v2 = RESULTS / "chaos-v2-revisado.json"
+    v1 = v2 = None
     if chaos_v1.exists() and chaos_v2.exists():
         v1 = json.loads(chaos_v1.read_text())
         v2 = json.loads(chaos_v2.read_text())
@@ -255,6 +296,12 @@ def main() -> int:
         out = ASSETS / "redteam-matrix.png"
         chart_redteam(pass1_files[-1], pass2_files[-1], out)
         print("wrote", out)
+        if v1 is not None:
+            results1 = RedTeamReport.from_file(str(pass1_files[-1])).attack_results()
+            results2 = RedTeamReport.from_file(str(pass2_files[-1])).attack_results()
+            FIGURAS.parent.mkdir(parents=True, exist_ok=True)
+            FIGURAS.write_text(json.dumps(figure_data(v1, v2, results1, results2), indent=2, ensure_ascii=False))
+            print("wrote", FIGURAS)
     else:
         print(f"skip red-team chart: no redteam-*-pass1.json / pass2.json found in {RESULTS}")
 
