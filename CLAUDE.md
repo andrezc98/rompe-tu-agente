@@ -15,6 +15,7 @@ goes through `agent/config.py::require_sandbox()` (AWS_PROFILE must contain
 at scale, without the speaker saying so.
 
 ## Deliverable boundary
-Spec: `docs/superpowers/specs/2026-09-01-rompe-tu-agente-design.md`.
+Spec: `docs/superpowers/specs/2026-09-01-rompe-tu-agente-design.md` (kept
+locally, not published).
 The speaker owns the official Google Slides template; we hand over
 `slides/contenido.md` and image assets only.

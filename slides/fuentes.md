@@ -46,6 +46,5 @@ diapositivas están en `slides/contenido.md`.
 ## Resultados propios
 
 Los archivos de `evals/results/` que respaldan cada número de las slides 11, 13, 16, 17, 18, 19 y
-21 se agregan acá en el Pase B, cuando las corridas existan (ver
-`docs/superpowers/plans/2026-09-02-gated-runbook.md`). Cada archivo se cita con la fecha de la
+21 se agregan acá en el Pase B, cuando las corridas existan. Cada archivo se cita con la fecha de la
 corrida y la slide que alimenta.

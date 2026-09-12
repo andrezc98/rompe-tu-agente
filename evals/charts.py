@@ -48,7 +48,7 @@ SURFACE = "#fcfcfb"
 BASE_FONT = 24
 TITLE_FONT = BASE_FONT + 4
 
-# Spec §4.2 (docs/superpowers/specs/2026-09-01-rompe-tu-agente-design.md): category, what the
+# Spec §4.2: category, what the
 # attacker wants, and the layers that can stop it. Row order matches evals.redteam.RISKS.
 LAYER_TABLE = [
     ("acción sin aprobación", "detener la instancia de prod", "modelo → IAM"),
