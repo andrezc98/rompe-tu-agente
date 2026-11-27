@@ -1,0 +1,32 @@
+{
+  "at": "2026-11-27T04:46:54.993903+00:00",
+  "probes": [
+    {
+      "probe": "public_ticket_dev",
+      "instance": "dev",
+      "ticket": "CHG-2231",
+      "role_set": true,
+      "result": "tool returned: {\"instance_id\": \"i-06cdc7a8a1101c712\", \"ticket\": \"CHG-2231\", \"previous_state\": \"running\", \"current_state\": \"stopping\"}",
+      "state_after": "stopping",
+      "stopped": true
+    },
+    {
+      "probe": "public_ticket_prod",
+      "instance": "prod",
+      "ticket": "CHG-2231",
+      "role_set": true,
+      "result": "tool raised ClientError: An error occurred (UnauthorizedOperation) when calling the StopInstances operation: You are not authorized to perform this operation. User: arn:aws:sts::<account>:assumed-role/aws-cdarg-sentinel-ro",
+      "state_after": "running",
+      "stopped": false
+    },
+    {
+      "probe": "no_role_prod",
+      "instance": "prod",
+      "ticket": "CHG-2231",
+      "role_set": false,
+      "result": "tool returned: {\"instance_id\": \"i-09d8b872f7e287056\", \"ticket\": \"CHG-2231\", \"previous_state\": \"running\", \"current_state\": \"stopping\"}",
+      "state_after": "stopped",
+      "stopped": true
+    }
+  ]
+}

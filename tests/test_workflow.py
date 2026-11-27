@@ -49,3 +49,11 @@ def test_role_arn_comes_from_secrets_not_variables(workflow):
     # The role ARN carries the account id, and repository variables are readable by anyone who
     # can read the repo. It has to be a secret.
     assert workflow["env"]["SENTINEL_ROLE_ARN"] == "${{ secrets.SENTINEL_ROLE_ARN }}"
+
+
+def test_infra_deploys_only_through_the_demo_environment_with_the_deploy_role():
+    infra = yaml.safe_load((WORKFLOW.parent / "infra.yml").read_text())
+    job = infra["jobs"]["cdk"]
+    assert job["environment"] == "demo"
+    creds = next(s for s in job["steps"] if "configure-aws-credentials" in s.get("uses", ""))
+    assert creds["with"]["role-to-assume"] == "${{ secrets.AWS_DEPLOY_ROLE_ARN }}"

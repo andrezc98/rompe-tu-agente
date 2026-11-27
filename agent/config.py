@@ -16,15 +16,29 @@ _MODEL_ENV = {
 
 
 def require_sandbox() -> None:
-    """Refuse to touch AWS unless the personal sandbox profile or CI OIDC is in use."""
+    """Refuse to touch AWS unless a named sandbox profile or CI OIDC is in use. A name is only a first filter:
+    verify_account() checks the real account before anything acts (WAR F01)."""
     if os.environ.get("GITHUB_ACTIONS") == "true":
         return
     profile = os.environ.get("AWS_PROFILE", "")
-    if "sandbox" not in profile:
+    if not profile or ("sandbox" not in profile and profile != os.environ.get("SANDBOX_PROFILE")):
         raise RuntimeError(
-            "AWS_PROFILE must be the personal sandbox profile (name contains 'sandbox'); "
+            "AWS_PROFILE must be the personal sandbox profile (name contains 'sandbox', or equals SANDBOX_PROFILE); "
             "refusing to use default credentials"
         )
+
+
+def verify_account(session) -> None:
+    """WAR F01 (SEC03-BP01): the profile name proved nothing. A `*-sandbox` profile pointing at another team's
+    account passed the name check during this review; now the caller's real account must equal SANDBOX_ACCOUNT_ID."""
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        return  # CI holds only OIDC roles that exist in the sandbox account
+    expected = os.environ.get("SANDBOX_ACCOUNT_ID")
+    if not expected:
+        raise RuntimeError("SANDBOX_ACCOUNT_ID is not set: refusing to act on an account nobody named")
+    actual = session.client("sts").get_caller_identity()["Account"]
+    if actual != expected:
+        raise RuntimeError(f"credentials belong to account {actual}, not the sandbox {expected}: refusing")
 
 
 def model_id(kind: str) -> str:
@@ -37,14 +51,8 @@ def model_id(kind: str) -> str:
     return value
 
 
-def approved_tickets() -> set[str]:
-    """Layer 4 (added 2026-09-02 after the red team): change tickets the stop tool accepts. APPROVED_TICKETS is a
-    comma-separated list; the default is the one the chaos question uses. In a real team this is the change system."""
-    return {t.strip() for t in os.environ.get("APPROVED_TICKETS", "CHG-2231").split(",") if t.strip()}
-
-
 def agent_role_arn() -> str | None:
-    """IAM role the tools assume. None means run tools with the caller's own credentials."""
+    """IAM role the tools assume. Required: agent/tools.py refuses to run without it (WAR F01)."""
     return os.environ.get("SENTINEL_ROLE_ARN") or None
 
 

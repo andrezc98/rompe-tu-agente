@@ -56,8 +56,9 @@ Todo lo que se muestra en el escenario se regenera desde los JSON en `evals/resu
 2. Infra (cuenta sandbox propia), desde la laptop y una sola vez:
    `npx aws-cdk@2.1139.0 bootstrap --qualifier cdarg2026` y
    `npx aws-cdk@2.1139.0 deploy SentinelBootstrap --outputs-file infra/outputs.json`.
-   Luego `gh secret set AWS_CI_ROLE_ARN` con `CiRoleArn` de ese archivo y
-   `gh workflow run infra -f action=deploy` (GitHub Actions despliega `SentinelDemo`;
+   Luego `gh secret set AWS_CI_ROLE_ARN` con `CiRoleArn` y `gh secret set AWS_DEPLOY_ROLE_ARN` con
+   `DeployRoleArn` de ese archivo, crear el environment `demo` con un revisor requerido
+   (Settings → Environments; el rol de deploy solo confía en ese environment), y `gh workflow run infra -f action=deploy` (GitHub Actions despliega `SentinelDemo`;
    `-f action=destroy` la destruye). Las salidas de la stack demo:
    `aws cloudformation describe-stacks --stack-name aws-cdarg-sentinel-stack-demo --query 'Stacks[0].Outputs'`
 3. `bash infra/enable-transaction-search.sh` (una vez por cuenta)
@@ -109,11 +110,22 @@ modelo (prompt v1/v2) → sandbox (Strands Shell, bind de solo runbooks/public) 
 El red team encontró, con los prompts v1 y v2, que al agente se lo convence en seis turnos de detener
 una instancia con un ticket que él mismo reformateó y una aprobación "por chat" que no podía
 verificar; la regresión de CI lo reprodujo con v2. El arreglo no es otra línea de prompt:
-`stop_instance` rechaza cualquier ticket que no esté en `APPROVED_TICKETS` (por defecto `CHG-2231`,
-el de la pregunta de chaos) antes de tocar AWS. El modelo puede seguir decidiendo llamar; la tool
+`stop_instance` rechazaba cualquier ticket que no estuviera en una lista fija (`APPROVED_TICKETS`) antes de
+tocar AWS (reemplazado en noviembre, ver abajo). El modelo puede seguir decidiendo llamar; la tool
 decide si el ticket existe. IAM sigue protegiendo `env=prod` por debajo. Evidencia: `evals/results/show/capa4-transcript.txt`
 es el replay del mismo ataque contra el agente con la capa cuatro: el modelo vuelve a llamar a `stop_instance`,
 la tool lo rechaza y el agente responde "La acción falló ... no fue detenida".
+
+### Capa 4, v2: aprobación de un solo uso (después del Well-Architected review, 2026-11)
+La revisión del skill de Well-Architected de Agent Toolkit (Agentic AI Lens, AGENTSEC04-BP02) señaló que
+una lista fija de tickets no es una aprobación humana: el ticket por defecto estaba publicado en este mismo
+README. Ahora una persona emite una aprobación para una instancia, una acción y 15 minutos
+(`uv run --env-file .env python -m agent.approvals <instance-id>`), y `stop_instance` la consume con un
+único DeleteItem condicional en DynamoDB. IAM hace real la separación: el rol del agente solo puede borrar
+aprobaciones, nunca crearlas. Además las tools ya no corren con las credenciales de quien las llama si falta
+`SENTINEL_ROLE_ARN` (SEC03-BP01), el rol del agente solo puede detener instancias `team=pagos, env=dev`, y CI
+usa dos roles: evals (PRs y main, sin permiso para aprobar) y deploy (solo el environment `demo`, con revisor).
+En CI la pregunta q3 corre sin aprobación y mide que el agente informe el rechazo. Detalle en `war/`.
 
 ## Notas de reproducibilidad
 - El agente usa las credenciales del perfil sandbox para Bedrock y asume

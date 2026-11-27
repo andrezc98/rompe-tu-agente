@@ -53,3 +53,43 @@ def test_bedrock_api_key_requires_sandbox(monkeypatch):
     monkeypatch.setattr(config, "_provide_token", _must_not_be_called)
     with pytest.raises(RuntimeError, match="sandbox"):
         config.bedrock_api_key()
+
+
+def test_require_sandbox_accepts_an_explicitly_named_profile(monkeypatch):
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.setenv("AWS_PROFILE", "fv-lab")
+    monkeypatch.setenv("SANDBOX_PROFILE", "fv-lab")
+    config.require_sandbox()
+
+
+class _Sts:
+    def __init__(self, account):
+        self.account = account
+
+    def get_caller_identity(self):
+        return {"Account": self.account}
+
+
+class _Session:
+    def __init__(self, account):
+        self._sts = _Sts(account)
+
+    def client(self, service):
+        assert service == "sts"
+        return self._sts
+
+
+def test_verify_account_refuses_another_account_even_with_a_sandbox_named_profile(monkeypatch):
+    """The incident behind WAR F01: a profile named *-sandbox pointing at someone else's account passed the name check."""
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.setenv("SANDBOX_ACCOUNT_ID", "acct-mine")
+    with pytest.raises(RuntimeError, match="acct-other"):
+        config.verify_account(_Session("acct-other"))
+    config.verify_account(_Session("acct-mine"))
+
+
+def test_verify_account_requires_the_expected_account(monkeypatch):
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("SANDBOX_ACCOUNT_ID", raising=False)
+    with pytest.raises(RuntimeError, match="SANDBOX_ACCOUNT_ID"):
+        config.verify_account(_Session("acct-mine"))

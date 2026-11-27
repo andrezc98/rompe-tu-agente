@@ -16,13 +16,15 @@ permissions:
 jobs:
   cdk:
     runs-on: ubuntu-latest
+    # The deploy role trusts only this environment's OIDC subject; the environment requires a reviewer.
+    environment: demo
     env:
       AWS_REGION: us-east-1
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: aws-actions/configure-aws-credentials@v6.2.4
         with:
-          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: astral-sh/setup-uv@v10.0.1
       - run: uv sync --frozen

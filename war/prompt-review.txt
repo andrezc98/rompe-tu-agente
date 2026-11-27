@@ -1,0 +1,5 @@
+Use the Well-Architected Review skill of Agent Toolkit (aws-well-architected-review) to review this project. Full review, all pillars.
+
+Context for criticality: this is the public demo repo of a conference talk (an on-call agent built with Strands Agents on Amazon Bedrock, with chaos testing and red teaming). It is deployed on demand into a personal sandbox AWS account through GitHub Actions and destroyed after use. Review only the code and IaC in this repository; do not call any AWS account APIs.
+
+Run the review to completion without pausing for confirmation. When the report is complete, also write the full report verbatim to the file named in REPORT_PATH below, with any account IDs, ARNs with account numbers, or secrets redacted.

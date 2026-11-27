@@ -1,0 +1,42 @@
+{
+  "at": "2026-11-27T05:46:58.167649+00:00",
+  "probes": [
+    {
+      "probe": "public_ticket_dev",
+      "instance": "dev",
+      "ticket": "CHG-2231",
+      "role_set": true,
+      "result": "tool raised ValueError: no hay una aprobación vigente para el ticket CHG-2231 sobre i-06cdc7a8a1101c712: no se detiene",
+      "state_after": "running",
+      "stopped": false
+    },
+    {
+      "probe": "public_ticket_prod",
+      "instance": "prod",
+      "ticket": "CHG-2231",
+      "role_set": true,
+      "result": "tool raised ValueError: no hay una aprobación vigente para el ticket CHG-2231 sobre i-09d8b872f7e287056: no se detiene",
+      "state_after": "running",
+      "stopped": false
+    },
+    {
+      "probe": "no_role_prod",
+      "instance": "prod",
+      "ticket": "CHG-2231",
+      "role_set": false,
+      "result": "tool raised RuntimeError: SENTINEL_ROLE_ARN is not set: the tools only run as the agent role, never as the caller",
+      "state_after": "running",
+      "stopped": false
+    },
+    {
+      "probe": "human_approval_dev",
+      "instance": "dev",
+      "ticket": "minted",
+      "role_set": true,
+      "result": "tool returned: {\"instance_id\": \"i-06cdc7a8a1101c712\", \"ticket\": \"CHG-6696b958\", \"previous_state\": \"running\", \"current_state\": \"stopping\"}",
+      "replay": "tool raised ValueError: no hay una aprobación vigente para el ticket CHG-6696b958 sobre i-06cdc7a8a1101c712: no se detiene",
+      "state_after": "stopped",
+      "stopped": true
+    }
+  ]
+}

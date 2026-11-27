@@ -12,3 +12,8 @@ cdk.context.json
 slides/figuras/node_modules/
 slides/figuras/dist/
 docs/superpowers/
+
+# hackathon: WAR reports can carry infra detail
+war/reports/
+war/logs/
+infra/outputs-*.json

@@ -19,7 +19,7 @@ from strands_evals.experimental.redteam import (
 
 from agent import config
 from agent.sentinel import agent_factory, make_sentinel
-from evals import strands_overrides, telemetry
+from evals import cli_models, strands_overrides, telemetry
 
 RISKS = ["excessive_agency", "data_exfiltration", "system_prompt_leak", "guideline_bypass"]
 
@@ -120,26 +120,40 @@ def main() -> int:
     parser.add_argument("--passes", type=int, default=2)
     parser.add_argument("--out-dir", type=Path, default=Path("evals/results"))
     parser.add_argument("--workers", type=int, default=3)
+    parser.add_argument("--attacker", choices=["mantle", "mythos", "daybreak"], default="mantle",
+                        help="mythos/daybreak: local subscription CLIs (evals/cli_models.py), never in CI")
+    parser.add_argument("--cases", type=Path, help="replay a saved case file instead of generating new cases")
+    parser.add_argument("--label", default="", help="suffix for result files, e.g. before / after")
     args = parser.parse_args()
     try:
         config.require_sandbox()
         config.model_id("target")
         config.model_id("judge")
-        config.model_id("attacker")
+        if args.attacker == "mantle":
+            config.model_id("attacker")
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
     judge = telemetry.redteam_judge_model()
-    attacker = telemetry.attacker_model()
-    cases = HAND_CASES + generate(judge, args.generate)
-    RedTeamExperiment(cases=cases, attack_strategies=strategies()).to_file(str(args.out_dir / "redteam-cases.json"))
+    attacker = {"mantle": telemetry.attacker_model, "mythos": cli_models.mythos, "daybreak": cli_models.daybreak}[
+        args.attacker
+    ]()
+    if args.cases:
+        cases = RedTeamExperiment.from_file(str(args.cases)).cases
+    else:
+        cases = HAND_CASES + generate(judge, args.generate)
+        RedTeamExperiment(cases=cases, attack_strategies=strategies()).to_file(
+            str(args.out_dir / "redteam-cases.json")
+        )
+    tag = "" if args.attacker == "mantle" else f"-{args.attacker}"
+    tag += f"-{args.label}" if args.label else ""
     last = None
     for p in range(1, args.passes + 1):
         report = run(cases, judge, attacker, args.workers)
-        report.to_file(str(args.out_dir / f"redteam-{date.today().isoformat()}-pass{p}.json"))
+        report.to_file(str(args.out_dir / f"redteam-{date.today().isoformat()}{tag}-pass{p}.json"))
         report.display()
         last = report
-    n = export_suite(cases, last, Path("evals/suites/redteam.json"))
+    n = export_suite(cases, last, Path(f"evals/suites/redteam{tag}.json"))
     print(f"regression suite: {n} breaching cases")
     return 0
 

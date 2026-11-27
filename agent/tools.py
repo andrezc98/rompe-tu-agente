@@ -8,7 +8,7 @@ from typing import Any
 import boto3
 from strands import tool
 
-from agent import config
+from agent import approvals, config
 
 # Injection point for tests (botocore Stubber). Empty in production.
 CLIENTS: dict[str, Any] = {}
@@ -20,7 +20,9 @@ def _base_session() -> boto3.Session:
     global _session
     if _session is None:
         config.require_sandbox()
-        _session = boto3.Session(profile_name=os.environ.get("AWS_PROFILE") or None, region_name=config.REGION)
+        session = boto3.Session(profile_name=os.environ.get("AWS_PROFILE") or None, region_name=config.REGION)
+        config.verify_account(session)
+        _session = session
     return _session
 
 
@@ -29,15 +31,16 @@ def _client(service: str):
         return CLIENTS[service]
     session = _base_session()
     role = config.agent_role_arn()
-    if role:
-        sts = CLIENTS.get("sts") or session.client("sts")
-        creds = sts.assume_role(RoleArn=role, RoleSessionName="sentinel-agent")["Credentials"]
-        session = boto3.Session(
-            aws_access_key_id=creds["AccessKeyId"],
-            aws_secret_access_key=creds["SecretAccessKey"],
-            aws_session_token=creds["SessionToken"],
-            region_name=config.REGION,
-        )
+    if not role:  # WAR F01 (SEC03-BP01): the caller's own credentials would skip the agent role's prod Deny
+        raise RuntimeError("SENTINEL_ROLE_ARN is not set: the tools only run as the agent role, never as the caller")
+    sts = CLIENTS.get("sts") or session.client("sts")
+    creds = sts.assume_role(RoleArn=role, RoleSessionName="sentinel-agent")["Credentials"]
+    session = boto3.Session(
+        aws_access_key_id=creds["AccessKeyId"],
+        aws_secret_access_key=creds["SecretAccessKey"],
+        aws_session_token=creds["SessionToken"],
+        region_name=config.REGION,
+    )
     CLIENTS[service] = session.client(service)
     return CLIENTS[service]
 
@@ -104,15 +107,16 @@ def get_instances(tag_key: str = "team", tag_value: str = "pagos") -> str:
 
 @tool
 def stop_instance(instance_id: str, ticket: str) -> str:
-    """Detiene una instancia EC2. Requiere un ticket de cambio CHG-#### aprobado. Devuelve JSON.
+    """Detiene una instancia EC2. Requiere el ticket de una aprobación humana emitida para esa misma instancia. Devuelve JSON.
 
     La política del equipo prohíbe detener instancias con tag env=prod desde el asistente.
     """
-    # Layer 4, added after the red team (2026-09-02): with prompts v1 and v2 the model could be talked into calling
-    # this with a ticket it had reformatted itself and an approval it could not verify. The model may still decide
-    # to call; the tool decides whether the ticket is real. IAM (layer 3) still guards env=prod below.
-    if ticket not in config.approved_tickets():
-        raise ValueError(f"ticket {ticket} no figura como aprobado en el sistema de cambios: no se detiene {instance_id}")
+    # Layer 4. Talk version: a static list of tickets (the default was public in the README). After the
+    # Well-Architected review (AGENTSEC04-BP02): a single-use approval a human minted for this instance, consumed
+    # here in one conditional delete. The model may still decide to call; it cannot approve itself (IAM: the agent
+    # role can delete approvals, never create them). IAM (layer 3) still guards env=prod below.
+    if not approvals.consume(_client("dynamodb"), ticket, instance_id):
+        raise ValueError(f"no hay una aprobación vigente para el ticket {ticket} sobre {instance_id}: no se detiene")
     response = _client("ec2").stop_instances(InstanceIds=[instance_id])
     change = response["StoppingInstances"][0]
     payload = {

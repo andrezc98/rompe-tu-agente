@@ -8,6 +8,7 @@ deterministic ARN, never by CloudFormation export, so neither can lock the other
 
 import aws_cdk as cdk
 from aws_cdk import aws_cloudwatch as cw
+from aws_cdk import aws_dynamodb as ddb
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_logs as logs
@@ -38,6 +39,13 @@ def name(resource: str, env: str) -> str:
     return f"{NAMING}-{resource}-{env}"
 
 
+def _github_principal(provider, sub: str | list[str]) -> iam.OpenIdConnectPrincipal:
+    # Exact subjects only (WAR F-01/F02, SEC11-BP08): `repo:<repo>:*` let any branch, tag or workflow in.
+    return iam.OpenIdConnectPrincipal(provider).with_conditions(
+        {"StringEquals": {f"{GITHUB_OIDC}:aud": "sts.amazonaws.com", f"{GITHUB_OIDC}:sub": sub}}
+    )
+
+
 def _role_arn(stack: cdk.Stack, resource: str) -> str:
     """ARN of a demo role in this account, built from its name (cross-stack without exports)."""
     return stack.format_arn(service="iam", region="", resource="role", resource_name=name(resource, "demo"))
@@ -57,19 +65,24 @@ class BootstrapStack(cdk.Stack):
             if oidc_provider_arn
             else iam.OidcProviderNative(self, "GitHubOidc", url=f"https://{GITHUB_OIDC}", client_ids=["sts.amazonaws.com"])
         )
+        # github_repo is the subject prefix GitHub reports (owner@id/repo@id); see infra/app.py.
+        # Two roles since the Well-Architected review: evals (PRs and main) can never deploy, and deploying needs
+        # the `demo` GitHub Environment, which carries a required reviewer.
         ci_role = iam.Role(
             self,
             "CiRole",
             role_name=name("role-ci", "demo"),
-            assumed_by=iam.OpenIdConnectPrincipal(provider).with_conditions(
-                {
-                    "StringEquals": {f"{GITHUB_OIDC}:aud": "sts.amazonaws.com"},
-                    # github_repo is the subject prefix GitHub reports (owner@id/repo@id); see infra/app.py
-                    "StringLike": {f"{GITHUB_OIDC}:sub": f"repo:{github_repo}:*"},
-                }
+            assumed_by=_github_principal(
+                provider, [f"repo:{github_repo}:pull_request", f"repo:{github_repo}:ref:refs/heads/main"]
             ),
         )
-        ci_role.add_to_policy(
+        deploy_role = iam.Role(
+            self,
+            "DeployRole",
+            role_name=name("role-deploy", "demo"),
+            assumed_by=_github_principal(provider, f"repo:{github_repo}:environment:demo"),
+        )
+        deploy_role.add_to_policy(
             iam.PolicyStatement(
                 sid="CdkDeploy",
                 actions=["sts:AssumeRole"],
@@ -133,7 +146,10 @@ class BootstrapStack(cdk.Stack):
                 resources=["*"],
             )
         )
+        # No dynamodb:PutItem here on purpose: pull-request code can assume this role, so it must not be able to
+        # approve a stop (found by the Well-Architected re-review, AGENTSEC04-BP02). Only a human mints approvals.
         cdk.CfnOutput(self, "CiRoleArn", value=ci_role.role_arn)
+        cdk.CfnOutput(self, "DeployRoleArn", value=deploy_role.role_arn)
 
 
 class SentinelStack(cdk.Stack):
@@ -214,6 +230,11 @@ class SentinelStack(cdk.Stack):
             role_name=name("role-agent", "demo"),
             assumed_by=iam.CompositePrincipal(iam.AccountRootPrincipal(), iam.ArnPrincipal(_role_arn(self, "role-ci"))),
         )
+        # IAM Roles Anywhere sessions (a laptop that signs in with IAM Roles Anywhere) carry a source identity that role chaining must be allowed
+        # to pass on, with its session tags (found 2026-11-27: AccessDenied on SetSourceIdentity, then TagSession). Environment fix, not a review finding.
+        sentinel_role.assume_role_policy.add_statements(
+            iam.PolicyStatement(actions=["sts:SetSourceIdentity", "sts:TagSession"], principals=[iam.AccountRootPrincipal()])
+        )
         sentinel_role.add_to_policy(
             iam.PolicyStatement(
                 sid="Read",
@@ -221,7 +242,15 @@ class SentinelStack(cdk.Stack):
                 resources=["*"],
             )
         )
-        sentinel_role.add_to_policy(iam.PolicyStatement(sid="StopAny", actions=["ec2:StopInstances"], resources=["*"]))
+        # WAR F-04 (SEC03-BP01): allow only what the agent is for, instead of everything minus prod.
+        sentinel_role.add_to_policy(
+            iam.PolicyStatement(
+                sid="StopPagosDev",
+                actions=["ec2:StopInstances"],
+                resources=["*"],
+                conditions={"StringEquals": {"ec2:ResourceTag/team": "pagos", "ec2:ResourceTag/env": "dev"}},
+            )
+        )
         sentinel_role.add_to_policy(
             iam.PolicyStatement(
                 sid="NeverProd",
@@ -232,7 +261,22 @@ class SentinelStack(cdk.Stack):
             )
         )
 
+        # WAR L02 (AGENTSEC04-BP02): single-use stop approvals a human mints (agent/approvals.py).
+        approvals = ddb.Table(
+            self,
+            "Approvals",
+            table_name=name("approvals", "demo"),
+            partition_key=ddb.Attribute(name="ticket", type=ddb.AttributeType.STRING),
+            billing_mode=ddb.BillingMode.PAY_PER_REQUEST,
+            time_to_live_attribute="expires_at",
+            removal_policy=cdk.RemovalPolicy.DESTROY,
+        )
+        sentinel_role.add_to_policy(
+            iam.PolicyStatement(sid="ConsumeApprovals", actions=["dynamodb:DeleteItem"], resources=[approvals.table_arn])
+        )
+
         cdk.CfnOutput(self, "DevInstanceId", value=instances["dev"].instance_id)
+        cdk.CfnOutput(self, "ApprovalsTableName", value=approvals.table_name)
         cdk.CfnOutput(self, "ProdInstanceId", value=instances["prod"].instance_id)
         cdk.CfnOutput(self, "SentinelRoleArn", value=sentinel_role.role_arn)
         cdk.CfnOutput(self, "LogGroupName", value=log_group.log_group_name)

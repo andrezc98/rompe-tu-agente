@@ -80,9 +80,13 @@ def test_q3_cases_run_last_and_are_the_only_ones_serialized(monkeypatch):
     assert all(n.startswith("q3") for n in names[first_q3:]) and not any(n.startswith("q3") for n in names[:first_q3])
     restored = []
     monkeypatch.setattr(chaos, "ensure_dev_running", lambda: restored.append(1))
-    wrapped = chaos.with_dev_restore(lambda case: case.name)
-    assert wrapped(cases[0]) == cases[0].name and restored == []
-    assert wrapped(cases[-1]) == cases[-1].name and restored == [1]
+    monkeypatch.setattr(chaos, "mint_dev_approval", lambda: "CHG-feedbeef")
+    wrapped = chaos.with_dev_restore(lambda case: case)
+    assert wrapped(cases[0]) is cases[0] and restored == []
+    q3 = wrapped(cases[-1])
+    assert q3.name == cases[-1].name and restored == [1]
+    # each q3 run gets a fresh single-use approval minted by the operator (WAR L02), never a public ticket
+    assert "CHG-feedbeef" in q3.input and chaos.TICKET_SLOT not in q3.input
 
 
 def test_gate_uses_the_named_evaluator_pass_rate_or_the_overall_score():
@@ -96,3 +100,8 @@ def test_gate_uses_the_named_evaluator_pass_rate_or_the_overall_score():
     assert chaos.gate(report, None) == ("overall_score", 0.67)
     assert chaos.gate(report, "FailureCommunicationEvaluator") == ("FailureCommunicationEvaluator", 0.5)
     assert chaos.gate(report, "OutputEvaluator")[1] == 1.0
+
+
+def test_ci_never_mints_an_approval(monkeypatch):
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    assert chaos.mint_dev_approval() == chaos.NO_APPROVAL

@@ -53,18 +53,48 @@ def test_sentinel_role_denies_stop_on_prod():
     }))
 
 
-def test_ci_role_trusts_only_this_repo():
+def _role_id(t: Template, role: str) -> str:
+    return next(
+        k for k, r in t.to_json()["Resources"].items()
+        if r["Type"] == "AWS::IAM::Role" and r["Properties"].get("RoleName") == name(role, "demo")
+    )
+
+
+def _role(t: Template, role: str) -> dict:
+    return t.to_json()["Resources"][_role_id(t, role)]
+
+
+def _statements(t: Template, role: str) -> list[dict]:
+    """Every inline policy statement attached to the named role (CDK renders them as AWS::IAM::Policy)."""
+    logical = _role_id(t, role)
+    return [
+        st for r in t.to_json()["Resources"].values() if r["Type"] == "AWS::IAM::Policy"
+        and {"Ref": logical} in r["Properties"]["Roles"] for st in r["Properties"]["PolicyDocument"]["Statement"]
+    ]
+
+
+def test_ci_role_trusts_only_pull_requests_and_main_of_this_repo():
+    """WAR F-01/F02 (SEC11-BP08): no more `repo:<repo>:*`; the eval role is not reachable from other refs."""
+    trust = _role(_bootstrap(), "role-ci")["Properties"]["AssumeRolePolicyDocument"]["Statement"][0]
+    assert trust["Action"] == "sts:AssumeRoleWithWebIdentity"
+    assert trust["Condition"] == {"StringEquals": {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+        "token.actions.githubusercontent.com:sub": ["repo:owner/repo:pull_request", "repo:owner/repo:ref:refs/heads/main"],
+    }}
+
+
+def test_deploy_role_trusts_only_the_demo_environment():
+    trust = _role(_bootstrap(), "role-deploy")["Properties"]["AssumeRolePolicyDocument"]["Statement"][0]
+    assert trust["Condition"] == {"StringEquals": {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+        "token.actions.githubusercontent.com:sub": "repo:owner/repo:environment:demo",
+    }}
+
+
+def test_eval_role_cannot_deploy_and_deploy_role_can_only_deploy():
     t = _bootstrap()
-    t.has_resource_properties("AWS::IAM::Role", Match.object_like({
-        "RoleName": name("role-ci", "demo"),
-        "AssumeRolePolicyDocument": {"Statement": Match.array_with([Match.object_like({
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": Match.object_like({
-                "StringEquals": {"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"},
-                "StringLike": {"token.actions.githubusercontent.com:sub": "repo:owner/repo:*"},
-            }),
-        })])},
-    }))
+    assert "CdkDeploy" not in {st.get("Sid") for st in _statements(t, "role-ci")}
+    assert [st["Sid"] for st in _statements(t, "role-deploy")] == ["CdkDeploy"]
 
 
 def test_oidc_provider_is_native_not_a_custom_resource():
@@ -76,10 +106,10 @@ def test_oidc_provider_is_native_not_a_custom_resource():
 def test_existing_oidc_provider_can_be_imported():
     t = _bootstrap(oidc_provider_arn="arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com")
     t.resource_count_is("AWS::IAM::OIDCProvider", 0)
-    t.resource_count_is("AWS::IAM::Role", 1)
+    t.resource_count_is("AWS::IAM::Role", 2)
 
 
-def test_ci_role_can_assume_cdk_bootstrap_roles():
+def test_deploy_role_can_assume_cdk_bootstrap_roles():
     # The policy the CDK guide prescribes for deployers (best-practices-security): tag-based,
     # so it holds for any bootstrap qualifier.
     t = _bootstrap()
@@ -100,7 +130,8 @@ def test_agent_role_trusts_account_root_and_ci_role_by_arn():
         if r["Type"] == "AWS::IAM::Role" and r["Properties"].get("RoleName") == name("role-agent", "demo")
     )
     statements = role["Properties"]["AssumeRolePolicyDocument"]["Statement"]
-    assert len(statements) == 2
+    assert len(statements) == 3
+    assert statements[2]["Action"] == ["sts:SetSourceIdentity", "sts:TagSession"]  # Roles Anywhere role chaining
     # The CI role lives in the bootstrap stack: trusted by deterministic ARN, never by GetAtt/Export.
     assert name("role-ci", "demo") in json.dumps(statements)
     assert "Fn::GetAtt" not in json.dumps(statements)
@@ -152,8 +183,9 @@ def test_instances_have_no_public_ip_and_no_open_egress():
 
 
 def test_outputs_are_exactly_the_expected_ones():
-    assert set(_demo().to_json()["Outputs"]) == {"DevInstanceId", "ProdInstanceId", "SentinelRoleArn", "LogGroupName"}
-    assert set(_bootstrap().to_json()["Outputs"]) == {"CiRoleArn"}
+    assert set(_demo().to_json()["Outputs"]) == {
+        "DevInstanceId", "ProdInstanceId", "SentinelRoleArn", "LogGroupName", "ApprovalsTableName"}
+    assert set(_bootstrap().to_json()["Outputs"]) == {"CiRoleArn", "DeployRoleArn"}
 
 
 def test_alarm_thresholds_and_breaching_behavior():
@@ -208,3 +240,29 @@ def test_ci_role_can_call_the_mantle_endpoint():
             "Sid": "MantleInference", "Action": "bedrock-mantle:CreateInference",
         })])},
     }))
+
+
+def test_agent_role_may_stop_only_pagos_dev_and_never_prod():
+    """WAR F-04 (SEC03-BP01): no more StopInstances on `*` minus prod; an untagged instance is not fair game."""
+    sts = {st.get("Sid"): st for st in _statements(_demo(), "role-agent")}
+    assert "StopAny" not in sts
+    assert sts["StopPagosDev"]["Effect"] == "Allow" and sts["StopPagosDev"]["Action"] == "ec2:StopInstances"
+    assert sts["StopPagosDev"]["Condition"] == {
+        "StringEquals": {"ec2:ResourceTag/team": "pagos", "ec2:ResourceTag/env": "dev"}}
+    assert sts["NeverProd"]["Effect"] == "Deny"
+
+
+def test_approvals_table_expires_items_and_no_ci_role_can_approve():
+    """WAR L02 (AGENTSEC04-BP02): the agent consumes approvals (DeleteItem) and can never create one."""
+    demo = _demo()
+    demo.has_resource_properties("AWS::DynamoDB::Table", Match.object_like({
+        "TableName": name("approvals", "demo"),
+        "KeySchema": [{"AttributeName": "ticket", "KeyType": "HASH"}],
+        "TimeToLiveSpecification": {"AttributeName": "expires_at", "Enabled": True},
+        "BillingMode": "PAY_PER_REQUEST",
+    }))
+    agent_ddb = [st for st in _statements(demo, "role-agent") if "dynamodb" in json.dumps(st["Action"])]
+    assert [st["Action"] for st in agent_ddb] == ["dynamodb:DeleteItem"]
+    # CI (assumable from pull requests) can never approve a stop: no DynamoDB access at all (re-review finding)
+    for role in ("role-ci", "role-deploy"):
+        assert not [st for st in _statements(_bootstrap(), role) if "dynamodb" in json.dumps(st["Action"])]

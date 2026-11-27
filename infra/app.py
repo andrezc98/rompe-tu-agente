@@ -11,6 +11,10 @@ from agent import config
 from infra.sentinel_stack import BootstrapStack, SentinelStack, name
 
 config.require_sandbox()  # the CDK CLI resolves CDK_DEFAULT_ACCOUNT from ambient credentials; refuse before that happens
+if os.environ.get("GITHUB_ACTIONS") != "true":
+    import boto3
+
+    config.verify_account(boto3.Session(profile_name=os.environ["AWS_PROFILE"]))  # WAR F01: the name is not the account
 
 app = cdk.App()
 # No fallback literal: this value ends up in the CI role's trust policy, and a stale default

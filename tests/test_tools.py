@@ -73,16 +73,30 @@ def test_get_instances_returns_dict_by_id():
                                               "Name": "aws-cdarg-sentinel-ec2-dev", "env": "dev"}}}
 
 
+def _approval_ok(ticket, instance_id):
+    db = _stub("dynamodb")
+    db.add_response(
+        "delete_item",
+        {"Attributes": {"ticket": {"S": ticket}, "instance_id": {"S": instance_id}}},
+        {"TableName": "aws-cdarg-sentinel-approvals-demo", "Key": {"ticket": {"S": ticket}},
+         "ConditionExpression": ANY, "ExpressionAttributeNames": ANY, "ExpressionAttributeValues": ANY,
+         "ReturnValues": "ALL_OLD"},
+    )
+    return db
+
+
 def test_stop_instance_propagates_access_denied():
+    db = _approval_ok("CHG-a1b2c3d4", "i-prod")  # a valid approval: the IAM Deny is what fails here
     stubber = _stub("ec2")
     stubber.add_client_error("stop_instances", service_error_code="UnauthorizedOperation",
                              service_message="You are not authorized to perform this operation.",
                              http_status_code=403)
-    with stubber, pytest.raises(Exception, match="UnauthorizedOperation"):
-        tools.stop_instance(instance_id="i-prod", ticket="CHG-2231")  # approved ticket: the IAM Deny is what fails here
+    with db, stubber, pytest.raises(Exception, match="UnauthorizedOperation"):
+        tools.stop_instance(instance_id="i-prod", ticket="CHG-a1b2c3d4")
 
 
-def test_stop_instance_reports_state_change():
+def test_stop_instance_consumes_the_approval_then_reports_state_change():
+    db = _approval_ok("CHG-a1b2c3d4", "i-dev")
     stubber = _stub("ec2")
     stubber.add_response(
         "stop_instances",
@@ -91,10 +105,22 @@ def test_stop_instance_reports_state_change():
                                 "CurrentState": {"Name": "stopping"}}]},
         {"InstanceIds": ["i-dev"]},
     )
-    with stubber:
-        result = json.loads(tools.stop_instance(instance_id="i-dev", ticket="CHG-2231"))
-    assert result == {"instance_id": "i-dev", "ticket": "CHG-2231",
+    with db, stubber:
+        result = json.loads(tools.stop_instance(instance_id="i-dev", ticket="CHG-a1b2c3d4"))
+    db.assert_no_pending_responses()
+    assert result == {"instance_id": "i-dev", "ticket": "CHG-a1b2c3d4",
                       "previous_state": "running", "current_state": "stopping"}
+
+
+@pytest.mark.parametrize("ticket", ["CHG-2231", "CHG-4821", "CHG-a1b2c3d4"])
+def test_stop_instance_refuses_without_a_live_approval_for_that_instance(ticket):
+    """Public, invented, reused, expired or other-instance tickets all fail the same conditional delete."""
+    db = _stub("dynamodb")
+    db.add_client_error("delete_item", service_error_code="ConditionalCheckFailedException", http_status_code=400)
+    ec2 = _stub("ec2")  # no responses queued: any stop call raises
+    with db, ec2, pytest.raises(ValueError, match="no hay una aprobación vigente"):
+        tools.stop_instance(instance_id="i-dev", ticket=ticket)
+    ec2.assert_no_pending_responses()
 
 
 def _fake_base_session(monkeypatch):
@@ -135,27 +161,10 @@ def test_client_assumes_role_when_configured(monkeypatch):
     assert client._request_signer._credentials.access_key == "ASIAFAKEFAKEFAKE"
 
 
-def test_client_uses_base_session_without_role(monkeypatch):
+def test_client_refuses_without_the_agent_role(monkeypatch):
+    """WAR F01 (SEC03-BP01): never fall back to the caller's own credentials, which skip the role's prod Deny."""
     monkeypatch.delenv("SENTINEL_ROLE_ARN", raising=False)
     _fake_base_session(monkeypatch)
-
-    sts_client = boto3.client("sts", region_name="us-east-1",
-                              aws_access_key_id="x", aws_secret_access_key="y")
-    stubber = Stubber(sts_client)  # no responses queued: any call to it raises
-    tools.CLIENTS["sts"] = sts_client
-
-    with stubber:
-        client = tools._client("ec2")
-
-    stubber.assert_no_pending_responses()
-    assert client.meta.region_name == "us-east-1"
-
-
-def test_stop_instance_refuses_a_ticket_that_is_not_approved(monkeypatch):
-    monkeypatch.setenv("APPROVED_TICKETS", "CHG-2231, CHG-7777")
-    calls = []
-    monkeypatch.setattr(tools, "_client", lambda service: calls.append(service))  # must never be reached
-    import pytest
-    with pytest.raises(ValueError, match="CHG-4821 no figura como aprobado"):
-        tools.stop_instance(instance_id="i-dev", ticket="CHG-4821")
-    assert calls == []
+    with pytest.raises(RuntimeError, match="SENTINEL_ROLE_ARN"):
+        tools._client("ec2")
+    assert "ec2" not in tools.CLIENTS

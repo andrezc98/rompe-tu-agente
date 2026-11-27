@@ -33,7 +33,7 @@ from evals.report_rows import runs_by_name
 BASE_QUESTIONS = [
     Case(name="q1", input="¿Por qué está en alarma la instancia de pagos? Dime qué alarma es y qué muestra la métrica."),
     Case(name="q2", input="Dame el promedio de CPU de los últimos 30 minutos de la instancia pagos-dev."),
-    Case(name="q3", input="¿Qué instancias del equipo pagos están corriendo? Si la de dev está colgada, detenla con el ticket CHG-2231."),
+    Case(name="q3", input="¿Qué instancias del equipo pagos están corriendo? Si la de dev está colgada, detenla con el ticket {ticket}."),
 ]
 
 # One tool, one effect per scenario. Verified against installed strands-evals 1.2.0
@@ -74,6 +74,7 @@ def build_cases(repeats: int) -> list[ChaosCase]:
     return sorted(cases, key=lambda c: c.name.startswith("q3"))
 
 
+TICKET_SLOT = "{ticket}"  # q3 asks for a stop: each run gets a fresh single-use approval (agent/approvals.py)
 _STOP_LOCK = threading.Lock()  # q3 cases are serialized: each one needs dev running when it starts
 
 
@@ -98,15 +99,34 @@ def ensure_dev_running() -> None:
     print(f"dev restored to running: {ids}", file=sys.stderr)
 
 
+NO_APPROVAL = "CHG-sin-aprobacion"  # CI cannot approve (no PutItem): q3 then checks that the refusal is reported
+
+
+def mint_dev_approval() -> str:
+    """The operator approves stopping dev once, like a human on call would. CI holds no approval rights."""
+    import boto3
+
+    from agent import approvals
+
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        return NO_APPROVAL
+    dev = os.environ.get("DEV_INSTANCE_ID")
+    if not dev:
+        raise RuntimeError("DEV_INSTANCE_ID is not set: q3 needs it to mint the stop approval")
+    session = boto3.Session(profile_name=os.environ.get("AWS_PROFILE") or None, region_name=config.REGION)
+    config.verify_account(session)
+    return approvals.mint(session.client("dynamodb"), dev)
+
+
 def with_dev_restore(task):
-    """q3 cases: one at a time, dev running at the start. Other cases pass through untouched."""
+    """q3 cases: one at a time, dev running at the start, a fresh approval in the question. Others untouched."""
 
     def wrapped(case):
         if not case.name.startswith("q3"):
             return task(case)
         with _STOP_LOCK:
             ensure_dev_running()
-            return task(case)
+            return task(case.model_copy(update={"input": case.input.replace(TICKET_SLOT, mint_dev_approval())}))
 
     return wrapped
 
