@@ -93,3 +93,12 @@ def test_verify_account_requires_the_expected_account(monkeypatch):
     monkeypatch.delenv("SANDBOX_ACCOUNT_ID", raising=False)
     with pytest.raises(RuntimeError, match="SANDBOX_ACCOUNT_ID"):
         config.verify_account(_Session("acct-mine"))
+
+
+def test_verify_account_is_not_skipped_by_a_bare_github_actions_variable(monkeypatch):
+    """Exporting GITHUB_ACTIONS=true on a laptop must not turn the account check off (pre-push review)."""
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.delenv("ACTIONS_ID_TOKEN_REQUEST_URL", raising=False)
+    monkeypatch.setenv("SANDBOX_ACCOUNT_ID", "acct-mine")
+    with pytest.raises(RuntimeError, match="acct-other"):
+        config.verify_account(_Session("acct-other"))

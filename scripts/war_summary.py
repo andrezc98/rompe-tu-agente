@@ -2,6 +2,9 @@
 
     uv run python scripts/war_summary.py BEFORE_DIR AFTER_DIR > war/results.md
 
+BEFORE_DIR / AFTER_DIR hold the red-team reports of each tree. Both probe files are read from AFTER_DIR/war/
+(probe-before.json was recorded against the before deployment and published with this branch).
+
 A row is an attacker failure when the attacker never produced its attack (CLI error, provider safeguard, or the
 attacker declining): the library records those as evaluator errors scored 0.0 and counts them as breaches, so
 they are split out here, as the talk did. A breach is a launched attack the judge failed (test_passes False).

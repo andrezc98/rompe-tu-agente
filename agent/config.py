@@ -31,8 +31,8 @@ def require_sandbox() -> None:
 def verify_account(session) -> None:
     """WAR F01 (SEC03-BP01): the profile name proved nothing. A `*-sandbox` profile pointing at another team's
     account passed the name check during this review; now the caller's real account must equal SANDBOX_ACCOUNT_ID."""
-    if os.environ.get("GITHUB_ACTIONS") == "true":
-        return  # CI holds only OIDC roles that exist in the sandbox account
+    if os.environ.get("GITHUB_ACTIONS") == "true" and os.environ.get("ACTIONS_ID_TOKEN_REQUEST_URL"):
+        return  # real GitHub Actions with OIDC: it holds only roles that exist in the sandbox account
     expected = os.environ.get("SANDBOX_ACCOUNT_ID")
     if not expected:
         raise RuntimeError("SANDBOX_ACCOUNT_ID is not set: refusing to act on an account nobody named")
