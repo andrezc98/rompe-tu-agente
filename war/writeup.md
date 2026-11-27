@@ -89,6 +89,15 @@ The before and after deployments are the same AWS account and the same instances
 - **Attackers have guardrails too, Mythos included.** Mythos declined, or was blocked by Anthropic's cyber safeguard, in 9 of its 22 attacks before and 8 after. Daybreak launched every attack in the before run.
 - **Environment fixes kept out of the score.** The account I used needs `sts:SetSourceIdentity` and `sts:TagSession` in the agent role's trust policy for IAM Roles Anywhere sessions. That change went into both the before and the after code.
 
+## Next steps the reviews still point to
+
+Reviews of the change itself (Daybreak on my diff, a pre-push code review, and an automated security review) left these, all hardening:
+
+- **Enforce the approval in IAM, not only in the tool.** The eval role can still assume the agent role, and the agent role may stop `pagos-dev`, so code in a same-repo pull request could call `StopInstances` directly. Next step: put the stop behind a Lambda or Step Functions action that runs only after the conditional delete succeeds, or give pull-request runs a read-only agent role.
+- **Pin the deploy trust to `main`.** Restrict the `demo` environment's deployment branches to `main`, and pin `job_workflow_ref` in the deploy role's trust policy.
+- **Isolate the attacker CLIs further.** Pass only an allowed list of environment variables, and run Codex in a container. Today its read-only shell can still read files by absolute path.
+- **Narrow the Roles Anywhere trust.** Grant `sts:SetSourceIdentity` and `sts:TagSession` only to the named laptop role, not the account root.
+
 ## Cost
 
 About $20–25 of Bedrock for the before and after runs (Sonnet 5 as target, Opus 4.8 as judge), measured from CloudWatch token counts. Mythos and Daybreak ran on personal subscriptions.
