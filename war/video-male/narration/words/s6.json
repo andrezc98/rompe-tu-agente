@@ -1,0 +1,260 @@
+[
+  {
+    "text": "Same",
+    "start": 0.1,
+    "end": 0.34,
+    "id": "w0"
+  },
+  {
+    "text": "instances,",
+    "start": 0.34,
+    "end": 1.28,
+    "id": "w1"
+  },
+  {
+    "text": "same",
+    "start": 1.33,
+    "end": 1.71,
+    "id": "w2"
+  },
+  {
+    "text": "attacks.",
+    "start": 1.75,
+    "end": 2.62,
+    "id": "w3"
+  },
+  {
+    "text": "The",
+    "start": 2.72,
+    "end": 2.84,
+    "id": "w4"
+  },
+  {
+    "text": "public",
+    "start": 2.84,
+    "end": 3.29,
+    "id": "w5"
+  },
+  {
+    "text": "ticket",
+    "start": 3.29,
+    "end": 3.69,
+    "id": "w6"
+  },
+  {
+    "text": "stops",
+    "start": 3.93,
+    "end": 4.11,
+    "id": "w7"
+  },
+  {
+    "text": "nothing.",
+    "start": 4.11,
+    "end": 4.86,
+    "id": "w8"
+  },
+  {
+    "text": "A",
+    "start": 4.93,
+    "end": 4.95,
+    "id": "w9"
+  },
+  {
+    "text": "missing",
+    "start": 4.95,
+    "end": 5.37,
+    "id": "w10"
+  },
+  {
+    "text": "variable",
+    "start": 5.46,
+    "end": 5.95,
+    "id": "w11"
+  },
+  {
+    "text": "stops",
+    "start": 6.2,
+    "end": 6.43,
+    "id": "w12"
+  },
+  {
+    "text": "nothing.",
+    "start": 6.43,
+    "end": 7.13,
+    "id": "w13"
+  },
+  {
+    "text": "A",
+    "start": 7.26,
+    "end": 7.29,
+    "id": "w14"
+  },
+  {
+    "text": "human",
+    "start": 7.29,
+    "end": 7.69,
+    "id": "w15"
+  },
+  {
+    "text": "approval",
+    "start": 7.72,
+    "end": 8.27,
+    "id": "w16"
+  },
+  {
+    "text": "works",
+    "start": 8.52,
+    "end": 8.88,
+    "id": "w17"
+  },
+  {
+    "text": "exactly",
+    "start": 8.88,
+    "end": 9.37,
+    "id": "w18"
+  },
+  {
+    "text": "once.",
+    "start": 9.85,
+    "end": 10.16,
+    "id": "w19"
+  },
+  {
+    "text": "Excessive",
+    "start": 10.23,
+    "end": 10.87,
+    "id": "w20"
+  },
+  {
+    "text": "agency",
+    "start": 10.94,
+    "end": 11.48,
+    "id": "w21"
+  },
+  {
+    "text": "breaches",
+    "start": 11.48,
+    "end": 12.08,
+    "id": "w22"
+  },
+  {
+    "text": "went",
+    "start": 12.23,
+    "end": 12.4,
+    "id": "w23"
+  },
+  {
+    "text": "from",
+    "start": 12.84,
+    "end": 12.88,
+    "id": "w24"
+  },
+  {
+    "text": "four",
+    "start": 12.88,
+    "end": 13.18,
+    "id": "w25"
+  },
+  {
+    "text": "to",
+    "start": 13.28,
+    "end": 13.39,
+    "id": "w26"
+  },
+  {
+    "text": "zero.",
+    "start": 13.44,
+    "end": 13.8,
+    "id": "w27"
+  },
+  {
+    "text": "And",
+    "start": 13.9,
+    "end": 14.01,
+    "id": "w28"
+  },
+  {
+    "text": "the",
+    "start": 14.01,
+    "end": 14.22,
+    "id": "w29"
+  },
+  {
+    "text": "skill",
+    "start": 14.22,
+    "end": 14.51,
+    "id": "w30"
+  },
+  {
+    "text": "agrees.",
+    "start": 14.51,
+    "end": 15.24,
+    "id": "w31"
+  },
+  {
+    "text": "Mythos",
+    "start": 15.34,
+    "end": 15.73,
+    "id": "w32"
+  },
+  {
+    "text": "highs,",
+    "start": 15.82,
+    "end": 16.33,
+    "id": "w33"
+  },
+  {
+    "text": "one",
+    "start": 16.56,
+    "end": 16.75,
+    "id": "w34"
+  },
+  {
+    "text": "to",
+    "start": 16.75,
+    "end": 16.94,
+    "id": "w35"
+  },
+  {
+    "text": "zero.",
+    "start": 16.94,
+    "end": 17.49,
+    "id": "w36"
+  },
+  {
+    "text": "Baybreak",
+    "start": 17.72,
+    "end": 18.11,
+    "id": "w37"
+  },
+  {
+    "text": "security",
+    "start": 18.16,
+    "end": 18.68,
+    "id": "w38"
+  },
+  {
+    "text": "score,",
+    "start": 18.68,
+    "end": 19.15,
+    "id": "w39"
+  },
+  {
+    "text": "two",
+    "start": 19.15,
+    "end": 19.33,
+    "id": "w40"
+  },
+  {
+    "text": "to",
+    "start": 19.38,
+    "end": 19.48,
+    "id": "w41"
+  },
+  {
+    "text": "three.",
+    "start": 19.48,
+    "end": 19.87,
+    "id": "w42"
+  }
+]

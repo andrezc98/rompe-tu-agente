@@ -1,0 +1,1 @@
+At my Community Day talk, I tried to break my own on-call agent with a GPT red team. Nine of its twenty attacks never happened: the attacker refused. So this time, an agent reviewed the build first. Then two frontier attackers tried again.

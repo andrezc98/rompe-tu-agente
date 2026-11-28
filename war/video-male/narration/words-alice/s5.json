@@ -1,0 +1,386 @@
+[
+  {
+    "text": "The",
+    "start": 0.03,
+    "end": 0.42,
+    "id": "w0"
+  },
+  {
+    "text": "fix.",
+    "start": 0.55,
+    "end": 1.25,
+    "id": "w1"
+  },
+  {
+    "text": "A",
+    "start": 1.31,
+    "end": 1.33,
+    "id": "w2"
+  },
+  {
+    "text": "person",
+    "start": 1.33,
+    "end": 1.83,
+    "id": "w3"
+  },
+  {
+    "text": "mints",
+    "start": 1.83,
+    "end": 2.24,
+    "id": "w4"
+  },
+  {
+    "text": "a",
+    "start": 2.24,
+    "end": 2.31,
+    "id": "w5"
+  },
+  {
+    "text": "single",
+    "start": 2.46,
+    "end": 2.81,
+    "id": "w6"
+  },
+  {
+    "text": "use",
+    "start": 2.81,
+    "end": 3.07,
+    "id": "w7"
+  },
+  {
+    "text": "approval",
+    "start": 3.07,
+    "end": 3.64,
+    "id": "w8"
+  },
+  {
+    "text": "for",
+    "start": 3.93,
+    "end": 4,
+    "id": "w9"
+  },
+  {
+    "text": "one",
+    "start": 4,
+    "end": 4.24,
+    "id": "w10"
+  },
+  {
+    "text": "instance",
+    "start": 4.24,
+    "end": 4.72,
+    "id": "w11"
+  },
+  {
+    "text": "and",
+    "start": 4.87,
+    "end": 5.06,
+    "id": "w12"
+  },
+  {
+    "text": "15",
+    "start": 5.2,
+    "end": 5.56,
+    "id": "w13"
+  },
+  {
+    "text": "minutes.",
+    "start": 5.56,
+    "end": 6.72,
+    "id": "w14"
+  },
+  {
+    "text": "The",
+    "start": 6.72,
+    "end": 6.84,
+    "id": "w15"
+  },
+  {
+    "text": "tool",
+    "start": 6.84,
+    "end": 7,
+    "id": "w16"
+  },
+  {
+    "text": "consumes",
+    "start": 7.03,
+    "end": 7.72,
+    "id": "w17"
+  },
+  {
+    "text": "it",
+    "start": 7.72,
+    "end": 7.75,
+    "id": "w18"
+  },
+  {
+    "text": "in",
+    "start": 7.75,
+    "end": 8.13,
+    "id": "w19"
+  },
+  {
+    "text": "one",
+    "start": 8.31,
+    "end": 8.37,
+    "id": "w20"
+  },
+  {
+    "text": "conditional",
+    "start": 8.45,
+    "end": 9.31,
+    "id": "w21"
+  },
+  {
+    "text": "delete.",
+    "start": 9.46,
+    "end": 10.32,
+    "id": "w22"
+  },
+  {
+    "text": "The",
+    "start": 10.32,
+    "end": 10.53,
+    "id": "w23"
+  },
+  {
+    "text": "agent",
+    "start": 10.53,
+    "end": 10.64,
+    "id": "w24"
+  },
+  {
+    "text": "role",
+    "start": 10.94,
+    "end": 11.18,
+    "id": "w25"
+  },
+  {
+    "text": "can",
+    "start": 11.18,
+    "end": 11.39,
+    "id": "w26"
+  },
+  {
+    "text": "delete",
+    "start": 11.39,
+    "end": 11.72,
+    "id": "w27"
+  },
+  {
+    "text": "approvals",
+    "start": 11.87,
+    "end": 12.47,
+    "id": "w28"
+  },
+  {
+    "text": "but",
+    "start": 12.47,
+    "end": 12.72,
+    "id": "w29"
+  },
+  {
+    "text": "never",
+    "start": 12.72,
+    "end": 13.03,
+    "id": "w30"
+  },
+  {
+    "text": "create",
+    "start": 13.07,
+    "end": 13.74,
+    "id": "w31"
+  },
+  {
+    "text": "one.",
+    "start": 13.74,
+    "end": 14.41,
+    "id": "w32"
+  },
+  {
+    "text": "No",
+    "start": 14.49,
+    "end": 14.59,
+    "id": "w33"
+  },
+  {
+    "text": "agent",
+    "start": 14.59,
+    "end": 14.98,
+    "id": "w34"
+  },
+  {
+    "text": "role,",
+    "start": 14.98,
+    "end": 15.43,
+    "id": "w35"
+  },
+  {
+    "text": "no",
+    "start": 15.44,
+    "end": 15.59,
+    "id": "w36"
+  },
+  {
+    "text": "tools",
+    "start": 15.59,
+    "end": 15.98,
+    "id": "w37"
+  },
+  {
+    "text": "and",
+    "start": 15.98,
+    "end": 16.15,
+    "id": "w38"
+  },
+  {
+    "text": "a",
+    "start": 16.25,
+    "end": 16.27,
+    "id": "w39"
+  },
+  {
+    "text": "real",
+    "start": 16.28,
+    "end": 16.59,
+    "id": "w40"
+  },
+  {
+    "text": "account",
+    "start": 16.59,
+    "end": 17.2,
+    "id": "w41"
+  },
+  {
+    "text": "ID",
+    "start": 17.2,
+    "end": 17.46,
+    "id": "w42"
+  },
+  {
+    "text": "is",
+    "start": 17.46,
+    "end": 17.7,
+    "id": "w43"
+  },
+  {
+    "text": "checked.",
+    "start": 17.73,
+    "end": 19.04,
+    "id": "w44"
+  },
+  {
+    "text": "The",
+    "start": 19.04,
+    "end": 19.16,
+    "id": "w45"
+  },
+  {
+    "text": "agent",
+    "start": 19.16,
+    "end": 19.76,
+    "id": "w46"
+  },
+  {
+    "text": "may",
+    "start": 19.76,
+    "end": 19.82,
+    "id": "w47"
+  },
+  {
+    "text": "only",
+    "start": 19.87,
+    "end": 20.26,
+    "id": "w48"
+  },
+  {
+    "text": "stop",
+    "start": 20.38,
+    "end": 20.58,
+    "id": "w49"
+  },
+  {
+    "text": "Pago's",
+    "start": 20.58,
+    "end": 21.66,
+    "id": "w50"
+  },
+  {
+    "text": "dev.",
+    "start": 21.66,
+    "end": 22.47,
+    "id": "w51"
+  },
+  {
+    "text": "And",
+    "start": 22.48,
+    "end": 22.76,
+    "id": "w52"
+  },
+  {
+    "text": "CI",
+    "start": 22.76,
+    "end": 22.94,
+    "id": "w53"
+  },
+  {
+    "text": "is",
+    "start": 22.94,
+    "end": 23.12,
+    "id": "w54"
+  },
+  {
+    "text": "split",
+    "start": 23.12,
+    "end": 23.48,
+    "id": "w55"
+  },
+  {
+    "text": "into",
+    "start": 23.78,
+    "end": 23.95,
+    "id": "w56"
+  },
+  {
+    "text": "an",
+    "start": 23.95,
+    "end": 24.13,
+    "id": "w57"
+  },
+  {
+    "text": "eval",
+    "start": 24.13,
+    "end": 24.5,
+    "id": "w58"
+  },
+  {
+    "text": "role",
+    "start": 24.5,
+    "end": 24.87,
+    "id": "w59"
+  },
+  {
+    "text": "and",
+    "start": 24.87,
+    "end": 25.11,
+    "id": "w60"
+  },
+  {
+    "text": "a",
+    "start": 25.11,
+    "end": 25.26,
+    "id": "w61"
+  },
+  {
+    "text": "deploy",
+    "start": 25.26,
+    "end": 25.84,
+    "id": "w62"
+  },
+  {
+    "text": "role.",
+    "start": 25.84,
+    "end": 26.4,
+    "id": "w63"
+  }
+]

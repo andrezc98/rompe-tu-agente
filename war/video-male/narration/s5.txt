@@ -1,0 +1,1 @@
+The fix. A person mints a single-use approval, for one instance and fifteen minutes. The tool consumes it in one conditional delete. The agent role can delete approvals, but never create one. No agent role, no tools, and the real account ID is checked. The agent may only stop pagos dev. And CI is split into an eval role and a deploy role.

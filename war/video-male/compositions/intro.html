@@ -1,0 +1,38 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #f6f8fb; color: #1f2328; font-family: "Inter"; overflow: hidden; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(1100px 760px at 22% 50%, rgba(240,180,41,.20), transparent 70%), radial-gradient(1000px 760px at 92% 10%, rgba(167,139,250,.20), transparent 70%), #f6f8fb; }
+    .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(31,35,40,.08) 1.5px, transparent 1.5px); background-size: 36px 36px; }
+    .ic { display: inline-block; vertical-align: -0.14em; flex: none; }
+    .pill { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px; border-radius: 999px; background: rgba(240,180,41,.14); border: 1px solid rgba(240,180,41,.45); font: 700 28px "Inter"; letter-spacing: .2em; text-transform: uppercase; color: #9a6700; }
+
+    .i-kicker { position: absolute; left: 900px; top: 220px; }
+    .i-q { position: absolute; left: 900px; top: 320px; width: 880px; font: 800 72px/1.12 "Inter"; letter-spacing: -.02em; }
+    .i-q .acc { color: #9a6700; }
+    .i-sub { position: absolute; left: 900px; top: 780px; width: 880px; font: 500 36px/1.3 "Inter"; color: #57606a; display: flex; align-items: center; gap: 16px; }
+  </style>
+  <div id="root" data-composition-id="intro" data-width="1920" data-height="1080">
+    <div class="bg"></div><div class="dots"></div>
+    <div id="intro-stage" style="position:absolute;inset:0">
+      <div id="i-kicker" class="i-kicker pill"><svg class="ic" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#9a6700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+  <path d="M12 17h.01" /></svg>A question first</div>
+      <div id="i-q" class="i-q"><span id="i-w0" class="w">Can</span> <span id="i-w1" class="w">an</span> <span id="i-w2" class="w">AI</span> <span id="i-w3" class="w">agent</span> <span id="i-w4" class="w">find</span> <span id="i-w5" class="w">the</span> <span id="i-w6" class="w">hole</span> <span id="i-w7" class="w">in</span> <span id="i-w8" class="w">your</span> <span id="i-w9" class="w">agent,</span> <span class="acc"><span id="i-w10" class="w">before</span> <span id="i-w11" class="w">an</span> <span id="i-w12" class="w">attacker</span> <span id="i-w13" class="w">does?</span> </span></div>
+      <div id="i-sub" class="i-sub"><svg class="ic" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#57606a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path d="M10 9H8" />
+  <path d="M16 13H8" />
+  <path d="M16 17H8" /></svg>I tried it on my own talk demo.</div>
+    </div>
+  </div>
+  <script>
+    const C = { q: 0.48, sub: 5.28 };
+    const W = [0.48, 0.65, 0.82, 0.99, 1.4, 1.75, 2.14, 2.36, 2.57, 2.94, 3.54, 3.82, 3.93, 4.4];
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#i-kicker", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 }, 0);
+    W.forEach((t, i) => tl.fromTo("#i-w" + i, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.25, ease: "power3.out" }, t - 0.05));
+    tl.fromTo("#i-sub", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, C.sub);
+    tl.fromTo("#intro-stage", { scale: 1 }, { scale: 1.025, transformOrigin: "50% 40%", duration: 7.82, ease: "none" }, 0); // slow push
+    window.__timelines["intro"] = tl;
+  </script>
+</template>

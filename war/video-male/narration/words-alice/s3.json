@@ -1,0 +1,266 @@
+[
+  {
+    "text": "The",
+    "start": 0.04,
+    "end": 0.17,
+    "id": "w0"
+  },
+  {
+    "text": "approved",
+    "start": 0.17,
+    "end": 0.63,
+    "id": "w1"
+  },
+  {
+    "text": "ticket",
+    "start": 0.63,
+    "end": 0.95,
+    "id": "w2"
+  },
+  {
+    "text": "was",
+    "start": 1.01,
+    "end": 1.12,
+    "id": "w3"
+  },
+  {
+    "text": "printed",
+    "start": 1.25,
+    "end": 1.56,
+    "id": "w4"
+  },
+  {
+    "text": "in",
+    "start": 1.56,
+    "end": 1.78,
+    "id": "w5"
+  },
+  {
+    "text": "my",
+    "start": 1.78,
+    "end": 2,
+    "id": "w6"
+  },
+  {
+    "text": "public",
+    "start": 2,
+    "end": 2.67,
+    "id": "w7"
+  },
+  {
+    "text": "readme.",
+    "start": 2.67,
+    "end": 3.36,
+    "id": "w8"
+  },
+  {
+    "text": "And",
+    "start": 3.4,
+    "end": 3.56,
+    "id": "w9"
+  },
+  {
+    "text": "with",
+    "start": 3.56,
+    "end": 3.83,
+    "id": "w10"
+  },
+  {
+    "text": "one",
+    "start": 3.83,
+    "end": 4.02,
+    "id": "w11"
+  },
+  {
+    "text": "environment",
+    "start": 4.03,
+    "end": 4.77,
+    "id": "w12"
+  },
+  {
+    "text": "variable",
+    "start": 4.78,
+    "end": 5.33,
+    "id": "w13"
+  },
+  {
+    "text": "missing,",
+    "start": 5.33,
+    "end": 5.84,
+    "id": "w14"
+  },
+  {
+    "text": "the",
+    "start": 5.91,
+    "end": 6.04,
+    "id": "w15"
+  },
+  {
+    "text": "tools",
+    "start": 6.15,
+    "end": 6.68,
+    "id": "w16"
+  },
+  {
+    "text": "ran",
+    "start": 6.68,
+    "end": 6.96,
+    "id": "w17"
+  },
+  {
+    "text": "as",
+    "start": 7.09,
+    "end": 7.2,
+    "id": "w18"
+  },
+  {
+    "text": "me,",
+    "start": 7.2,
+    "end": 7.57,
+    "id": "w19"
+  },
+  {
+    "text": "not",
+    "start": 7.57,
+    "end": 7.76,
+    "id": "w20"
+  },
+  {
+    "text": "as",
+    "start": 7.76,
+    "end": 7.9,
+    "id": "w21"
+  },
+  {
+    "text": "the",
+    "start": 7.9,
+    "end": 8.05,
+    "id": "w22"
+  },
+  {
+    "text": "agent",
+    "start": 8.14,
+    "end": 8.48,
+    "id": "w23"
+  },
+  {
+    "text": "role",
+    "start": 8.48,
+    "end": 8.68,
+    "id": "w24"
+  },
+  {
+    "text": "that",
+    "start": 8.68,
+    "end": 9.23,
+    "id": "w25"
+  },
+  {
+    "text": "denies",
+    "start": 9.23,
+    "end": 9.56,
+    "id": "w26"
+  },
+  {
+    "text": "prod.",
+    "start": 9.56,
+    "end": 10.36,
+    "id": "w27"
+  },
+  {
+    "text": "So",
+    "start": 10.4,
+    "end": 10.52,
+    "id": "w28"
+  },
+  {
+    "text": "I",
+    "start": 10.52,
+    "end": 10.56,
+    "id": "w29"
+  },
+  {
+    "text": "called",
+    "start": 10.65,
+    "end": 11.09,
+    "id": "w30"
+  },
+  {
+    "text": "the",
+    "start": 11.09,
+    "end": 11.31,
+    "id": "w31"
+  },
+  {
+    "text": "tool",
+    "start": 11.37,
+    "end": 11.68,
+    "id": "w32"
+  },
+  {
+    "text": "as",
+    "start": 11.68,
+    "end": 11.8,
+    "id": "w33"
+  },
+  {
+    "text": "if",
+    "start": 11.8,
+    "end": 11.92,
+    "id": "w34"
+  },
+  {
+    "text": "the",
+    "start": 11.92,
+    "end": 12.09,
+    "id": "w35"
+  },
+  {
+    "text": "model",
+    "start": 12.09,
+    "end": 12.4,
+    "id": "w36"
+  },
+  {
+    "text": "was",
+    "start": 12.4,
+    "end": 12.71,
+    "id": "w37"
+  },
+  {
+    "text": "already",
+    "start": 12.71,
+    "end": 13.2,
+    "id": "w38"
+  },
+  {
+    "text": "fooled.",
+    "start": 13.75,
+    "end": 14.36,
+    "id": "w39"
+  },
+  {
+    "text": "Dev",
+    "start": 14.43,
+    "end": 14.56,
+    "id": "w40"
+  },
+  {
+    "text": "stopped,",
+    "start": 14.67,
+    "end": 15.48,
+    "id": "w41"
+  },
+  {
+    "text": "prod",
+    "start": 15.61,
+    "end": 15.91,
+    "id": "w42"
+  },
+  {
+    "text": "stopped.",
+    "start": 15.91,
+    "end": 16.7,
+    "id": "w43"
+  }
+]

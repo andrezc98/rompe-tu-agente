@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #f6f8fb;
+        --ink: #1f2328;
+        --font-display: "Inter";
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { width: 100%; height: 100%; font-family: var(--font-display); background: var(--ground); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="152.7" data-width="1920" data-height="1080">
+      <div id="intro" data-composition-id="intro" data-composition-src="compositions/intro.html" data-start="0.0" data-duration="7.82" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="hook" data-composition-id="hook" data-composition-src="compositions/hook.html" data-start="7.82" data-duration="17.08" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="review" data-composition-id="review" data-composition-src="compositions/review.html" data-start="24.9" data-duration="27.48" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="flagged" data-composition-id="flagged" data-composition-src="compositions/flagged.html" data-start="52.38" data-duration="16.4" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="attack" data-composition-id="attack" data-composition-src="compositions/attack.html" data-start="68.78" data-duration="14.76" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="fix" data-composition-id="fix" data-composition-src="compositions/fix.html" data-start="83.54" data-duration="24.52" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="after" data-composition-id="after" data-composition-src="compositions/after.html" data-start="108.06" data-duration="20.68" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="caught" data-composition-id="caught" data-composition-src="compositions/caught.html" data-start="128.74" data-duration="13.48" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="outro" data-composition-id="outro" data-composition-src="compositions/outro.html" data-start="142.22" data-duration="10.48" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <audio id="vo-intro" class="clip" src="assets/voice/s0.wav" data-start="0.4" data-duration="6.72" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-hook" class="clip" src="assets/voice/s1.wav" data-start="8.22" data-duration="16.48" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-review" class="clip" src="assets/voice/s2.wav" data-start="25.3" data-duration="26.88" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-flagged" class="clip" src="assets/voice/s3.wav" data-start="52.78" data-duration="15.2" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-attack" class="clip" src="assets/voice/s4.wav" data-start="69.18" data-duration="13.76" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-fix" class="clip" src="assets/voice/s5.wav" data-start="83.94" data-duration="23.92" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-after" class="clip" src="assets/voice/s6.wav" data-start="108.46" data-duration="20.08" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-caught" class="clip" src="assets/voice/s7.wav" data-start="129.14" data-duration="12.88" data-track-index="2" data-volume="1"></audio>
+      <audio id="vo-outro" class="clip" src="assets/voice/s8.wav" data-start="142.62" data-duration="8.48" data-track-index="2" data-volume="1"></audio>
+      <div id="avatar" data-composition-id="avatar" data-composition-src="compositions/avatar.html" data-start="0" data-duration="152.7" data-track-index="3" data-track-kind="graphics" data-width="1920" data-height="1080" data-layout-allow-overlap style="z-index:10"></div>
+    </div>
+    <script>
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

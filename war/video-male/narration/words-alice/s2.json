@@ -1,0 +1,392 @@
+[
+  {
+    "text": "Same",
+    "start": 0.15,
+    "end": 0.4,
+    "id": "w0"
+  },
+  {
+    "text": "skill,",
+    "start": 0.45,
+    "end": 1.16,
+    "id": "w1"
+  },
+  {
+    "text": "same",
+    "start": 1.16,
+    "end": 1.58,
+    "id": "w2"
+  },
+  {
+    "text": "commit.",
+    "start": 1.58,
+    "end": 2.55,
+    "id": "w3"
+  },
+  {
+    "text": "Two",
+    "start": 2.55,
+    "end": 2.87,
+    "id": "w4"
+  },
+  {
+    "text": "models.",
+    "start": 2.87,
+    "end": 3.52,
+    "id": "w5"
+  },
+  {
+    "text": "Claude",
+    "start": 3.67,
+    "end": 4.09,
+    "id": "w6"
+  },
+  {
+    "text": "Mythos",
+    "start": 4.09,
+    "end": 4.64,
+    "id": "w7"
+  },
+  {
+    "text": "in",
+    "start": 4.67,
+    "end": 4.85,
+    "id": "w8"
+  },
+  {
+    "text": "Claude",
+    "start": 4.85,
+    "end": 5.39,
+    "id": "w9"
+  },
+  {
+    "text": "Code",
+    "start": 5.79,
+    "end": 5.84,
+    "id": "w10"
+  },
+  {
+    "text": "and",
+    "start": 5.84,
+    "end": 6.16,
+    "id": "w11"
+  },
+  {
+    "text": "GPT",
+    "start": 6.16,
+    "end": 6.6,
+    "id": "w12"
+  },
+  {
+    "text": "Daybreak",
+    "start": 6.6,
+    "end": 7.81,
+    "id": "w13"
+  },
+  {
+    "text": "in",
+    "start": 7.81,
+    "end": 8.11,
+    "id": "w14"
+  },
+  {
+    "text": "Codex.",
+    "start": 8.11,
+    "end": 8.88,
+    "id": "w15"
+  },
+  {
+    "text": "Both",
+    "start": 9.03,
+    "end": 9.28,
+    "id": "w16"
+  },
+  {
+    "text": "read",
+    "start": 9.39,
+    "end": 9.71,
+    "id": "w17"
+  },
+  {
+    "text": "all",
+    "start": 9.71,
+    "end": 10.04,
+    "id": "w18"
+  },
+  {
+    "text": "216",
+    "start": 10.04,
+    "end": 10.75,
+    "id": "w19"
+  },
+  {
+    "text": "best",
+    "start": 11.15,
+    "end": 11.41,
+    "id": "w20"
+  },
+  {
+    "text": "practices,",
+    "start": 11.41,
+    "end": 12.7,
+    "id": "w21"
+  },
+  {
+    "text": "live",
+    "start": 12.7,
+    "end": 13.28,
+    "id": "w22"
+  },
+  {
+    "text": "from",
+    "start": 13.3,
+    "end": 13.9,
+    "id": "w23"
+  },
+  {
+    "text": "AWS",
+    "start": 13.9,
+    "end": 14.35,
+    "id": "w24"
+  },
+  {
+    "text": "Docs.",
+    "start": 14.35,
+    "end": 14.96,
+    "id": "w25"
+  },
+  {
+    "text": "And",
+    "start": 15.11,
+    "end": 15.25,
+    "id": "w26"
+  },
+  {
+    "text": "they",
+    "start": 15.25,
+    "end": 15.64,
+    "id": "w27"
+  },
+  {
+    "text": "didn't",
+    "start": 15.64,
+    "end": 16.22,
+    "id": "w28"
+  },
+  {
+    "text": "agree.",
+    "start": 16.22,
+    "end": 16.85,
+    "id": "w29"
+  },
+  {
+    "text": "Mythos",
+    "start": 17.23,
+    "end": 17.41,
+    "id": "w30"
+  },
+  {
+    "text": "found",
+    "start": 17.41,
+    "end": 17.72,
+    "id": "w31"
+  },
+  {
+    "text": "the",
+    "start": 17.72,
+    "end": 17.9,
+    "id": "w32"
+  },
+  {
+    "text": "agent",
+    "start": 17.9,
+    "end": 18.05,
+    "id": "w33"
+  },
+  {
+    "text": "could",
+    "start": 18.31,
+    "end": 18.41,
+    "id": "w34"
+  },
+  {
+    "text": "stop",
+    "start": 18.58,
+    "end": 18.88,
+    "id": "w35"
+  },
+  {
+    "text": "any",
+    "start": 19.03,
+    "end": 19.15,
+    "id": "w36"
+  },
+  {
+    "text": "non-prod",
+    "start": 19.15,
+    "end": 19.87,
+    "id": "w37"
+  },
+  {
+    "text": "instance.",
+    "start": 19.89,
+    "end": 20.76,
+    "id": "w38"
+  },
+  {
+    "text": "Daybreak,",
+    "start": 21.09,
+    "end": 21.56,
+    "id": "w39"
+  },
+  {
+    "text": "through",
+    "start": 21.59,
+    "end": 21.94,
+    "id": "w40"
+  },
+  {
+    "text": "the",
+    "start": 21.94,
+    "end": 22.49,
+    "id": "w41"
+  },
+  {
+    "text": "agentic",
+    "start": 22.49,
+    "end": 22.64,
+    "id": "w42"
+  },
+  {
+    "text": "AI",
+    "start": 22.64,
+    "end": 22.94,
+    "id": "w43"
+  },
+  {
+    "text": "lens,",
+    "start": 23.05,
+    "end": 23.6,
+    "id": "w44"
+  },
+  {
+    "text": "found",
+    "start": 23.75,
+    "end": 23.96,
+    "id": "w45"
+  },
+  {
+    "text": "that",
+    "start": 23.96,
+    "end": 24.25,
+    "id": "w46"
+  },
+  {
+    "text": "my",
+    "start": 24.25,
+    "end": 24.39,
+    "id": "w47"
+  },
+  {
+    "text": "human",
+    "start": 24.39,
+    "end": 24.67,
+    "id": "w48"
+  },
+  {
+    "text": "approval",
+    "start": 24.76,
+    "end": 25.32,
+    "id": "w49"
+  },
+  {
+    "text": "was",
+    "start": 25.32,
+    "end": 25.49,
+    "id": "w50"
+  },
+  {
+    "text": "a",
+    "start": 25.49,
+    "end": 25.87,
+    "id": "w51"
+  },
+  {
+    "text": "static",
+    "start": 25.87,
+    "end": 26.08,
+    "id": "w52"
+  },
+  {
+    "text": "ticket",
+    "start": 26.08,
+    "end": 26.64,
+    "id": "w53"
+  },
+  {
+    "text": "list",
+    "start": 26.64,
+    "end": 27,
+    "id": "w54"
+  },
+  {
+    "text": "and",
+    "start": 27.19,
+    "end": 27.23,
+    "id": "w55"
+  },
+  {
+    "text": "that",
+    "start": 27.23,
+    "end": 27.42,
+    "id": "w56"
+  },
+  {
+    "text": "the",
+    "start": 27.55,
+    "end": 27.67,
+    "id": "w57"
+  },
+  {
+    "text": "tools",
+    "start": 27.67,
+    "end": 27.87,
+    "id": "w58"
+  },
+  {
+    "text": "fall",
+    "start": 28.05,
+    "end": 28.24,
+    "id": "w59"
+  },
+  {
+    "text": "back",
+    "start": 28.24,
+    "end": 28.49,
+    "id": "w60"
+  },
+  {
+    "text": "to",
+    "start": 28.49,
+    "end": 28.61,
+    "id": "w61"
+  },
+  {
+    "text": "the",
+    "start": 28.61,
+    "end": 28.76,
+    "id": "w62"
+  },
+  {
+    "text": "coolest",
+    "start": 28.84,
+    "end": 28.94,
+    "id": "w63"
+  },
+  {
+    "text": "credentials.",
+    "start": 29.31,
+    "end": 30,
+    "id": "w64"
+  }
+]

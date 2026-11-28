@@ -1,0 +1,260 @@
+[
+  {
+    "text": "At",
+    "start": 0.08,
+    "end": 0.14,
+    "id": "w0"
+  },
+  {
+    "text": "my",
+    "start": 0.14,
+    "end": 0.3,
+    "id": "w1"
+  },
+  {
+    "text": "community",
+    "start": 0.3,
+    "end": 0.96,
+    "id": "w2"
+  },
+  {
+    "text": "day",
+    "start": 1.03,
+    "end": 1.2,
+    "id": "w3"
+  },
+  {
+    "text": "talk,",
+    "start": 1.2,
+    "end": 1.55,
+    "id": "w4"
+  },
+  {
+    "text": "I",
+    "start": 1.55,
+    "end": 1.65,
+    "id": "w5"
+  },
+  {
+    "text": "tried",
+    "start": 1.65,
+    "end": 1.98,
+    "id": "w6"
+  },
+  {
+    "text": "to",
+    "start": 2,
+    "end": 2.07,
+    "id": "w7"
+  },
+  {
+    "text": "break",
+    "start": 2.08,
+    "end": 2.25,
+    "id": "w8"
+  },
+  {
+    "text": "my",
+    "start": 2.32,
+    "end": 2.46,
+    "id": "w9"
+  },
+  {
+    "text": "own",
+    "start": 2.59,
+    "end": 2.87,
+    "id": "w10"
+  },
+  {
+    "text": "on-call",
+    "start": 2.88,
+    "end": 3.4,
+    "id": "w11"
+  },
+  {
+    "text": "agent",
+    "start": 3.4,
+    "end": 3.72,
+    "id": "w12"
+  },
+  {
+    "text": "with",
+    "start": 3.79,
+    "end": 4,
+    "id": "w13"
+  },
+  {
+    "text": "a",
+    "start": 4,
+    "end": 4.16,
+    "id": "w14"
+  },
+  {
+    "text": "GPT",
+    "start": 4.16,
+    "end": 4.64,
+    "id": "w15"
+  },
+  {
+    "text": "red",
+    "start": 4.64,
+    "end": 4.9,
+    "id": "w16"
+  },
+  {
+    "text": "team.",
+    "start": 4.9,
+    "end": 5.17,
+    "id": "w17"
+  },
+  {
+    "text": "Nine",
+    "start": 5.17,
+    "end": 5.505,
+    "id": "w18"
+  },
+  {
+    "text": "of",
+    "start": 5.505,
+    "end": 5.84,
+    "id": "w19"
+  },
+  {
+    "text": "its",
+    "start": 5.84,
+    "end": 6.01,
+    "id": "w20"
+  },
+  {
+    "text": "20",
+    "start": 6.01,
+    "end": 6.55,
+    "id": "w21"
+  },
+  {
+    "text": "attacks",
+    "start": 6.55,
+    "end": 7.09,
+    "id": "w22"
+  },
+  {
+    "text": "never",
+    "start": 7.41,
+    "end": 7.63,
+    "id": "w23"
+  },
+  {
+    "text": "happened.",
+    "start": 7.63,
+    "end": 8.63,
+    "id": "w24"
+  },
+  {
+    "text": "The",
+    "start": 8.64,
+    "end": 8.85,
+    "id": "w25"
+  },
+  {
+    "text": "attacker",
+    "start": 8.89,
+    "end": 9.56,
+    "id": "w26"
+  },
+  {
+    "text": "refused.",
+    "start": 9.56,
+    "end": 10.4,
+    "id": "w27"
+  },
+  {
+    "text": "So",
+    "start": 10.48,
+    "end": 10.54,
+    "id": "w28"
+  },
+  {
+    "text": "this",
+    "start": 10.57,
+    "end": 10.86,
+    "id": "w29"
+  },
+  {
+    "text": "time,",
+    "start": 10.86,
+    "end": 11.32,
+    "id": "w30"
+  },
+  {
+    "text": "an",
+    "start": 11.32,
+    "end": 11.45,
+    "id": "w31"
+  },
+  {
+    "text": "agent",
+    "start": 11.46,
+    "end": 11.73,
+    "id": "w32"
+  },
+  {
+    "text": "reviewed",
+    "start": 12.05,
+    "end": 12.48,
+    "id": "w33"
+  },
+  {
+    "text": "the",
+    "start": 12.48,
+    "end": 12.65,
+    "id": "w34"
+  },
+  {
+    "text": "build",
+    "start": 12.72,
+    "end": 13.1,
+    "id": "w35"
+  },
+  {
+    "text": "first.",
+    "start": 13.1,
+    "end": 13.76,
+    "id": "w36"
+  },
+  {
+    "text": "Then",
+    "start": 13.76,
+    "end": 14.05,
+    "id": "w37"
+  },
+  {
+    "text": "two",
+    "start": 14.05,
+    "end": 14.26,
+    "id": "w38"
+  },
+  {
+    "text": "frontier",
+    "start": 14.34,
+    "end": 14.83,
+    "id": "w39"
+  },
+  {
+    "text": "attackers",
+    "start": 14.86,
+    "end": 15.46,
+    "id": "w40"
+  },
+  {
+    "text": "tried",
+    "start": 15.46,
+    "end": 15.64,
+    "id": "w41"
+  },
+  {
+    "text": "again.",
+    "start": 16.21,
+    "end": 16.24,
+    "id": "w42"
+  }
+]

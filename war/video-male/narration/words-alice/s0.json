@@ -1,0 +1,134 @@
+[
+  {
+    "text": "Can",
+    "start": 0.06,
+    "end": 0.3,
+    "id": "w0"
+  },
+  {
+    "text": "an",
+    "start": 0.3,
+    "end": 0.5,
+    "id": "w1"
+  },
+  {
+    "text": "AI",
+    "start": 0.5,
+    "end": 0.66,
+    "id": "w2"
+  },
+  {
+    "text": "agent",
+    "start": 0.7,
+    "end": 1.21,
+    "id": "w3"
+  },
+  {
+    "text": "find",
+    "start": 1.21,
+    "end": 1.61,
+    "id": "w4"
+  },
+  {
+    "text": "the",
+    "start": 1.61,
+    "end": 1.86,
+    "id": "w5"
+  },
+  {
+    "text": "hole",
+    "start": 1.97,
+    "end": 2.31,
+    "id": "w6"
+  },
+  {
+    "text": "in",
+    "start": 2.31,
+    "end": 2.45,
+    "id": "w7"
+  },
+  {
+    "text": "your",
+    "start": 2.51,
+    "end": 2.91,
+    "id": "w8"
+  },
+  {
+    "text": "agent",
+    "start": 2.91,
+    "end": 3.32,
+    "id": "w9"
+  },
+  {
+    "text": "before",
+    "start": 3.57,
+    "end": 3.93,
+    "id": "w10"
+  },
+  {
+    "text": "an",
+    "start": 3.93,
+    "end": 4.03,
+    "id": "w11"
+  },
+  {
+    "text": "attacker",
+    "start": 4.11,
+    "end": 4.69,
+    "id": "w12"
+  },
+  {
+    "text": "does?",
+    "start": 4.69,
+    "end": 5.24,
+    "id": "w13"
+  },
+  {
+    "text": "I",
+    "start": 5.3,
+    "end": 5.33,
+    "id": "w14"
+  },
+  {
+    "text": "tried",
+    "start": 5.33,
+    "end": 5.79,
+    "id": "w15"
+  },
+  {
+    "text": "it",
+    "start": 5.79,
+    "end": 5.97,
+    "id": "w16"
+  },
+  {
+    "text": "on",
+    "start": 5.97,
+    "end": 6.15,
+    "id": "w17"
+  },
+  {
+    "text": "my",
+    "start": 6.15,
+    "end": 6.33,
+    "id": "w18"
+  },
+  {
+    "text": "own",
+    "start": 6.33,
+    "end": 6.61,
+    "id": "w19"
+  },
+  {
+    "text": "talk",
+    "start": 6.61,
+    "end": 6.96,
+    "id": "w20"
+  },
+  {
+    "text": "demo.",
+    "start": 7.01,
+    "end": 7.4,
+    "id": "w21"
+  }
+]

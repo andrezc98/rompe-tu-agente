@@ -1,0 +1,49 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #f6f8fb; color: #1f2328; font-family: "Inter"; overflow: hidden; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(1100px 760px at 22% 50%, rgba(240,180,41,.20), transparent 70%), radial-gradient(1000px 760px at 92% 10%, rgba(167,139,250,.20), transparent 70%), #f6f8fb; }
+    .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(31,35,40,.08) 1.5px, transparent 1.5px); background-size: 36px 36px; }
+    .ic { display: inline-block; vertical-align: -0.14em; flex: none; }
+    .pill { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px; border-radius: 999px; background: rgba(240,180,41,.14); border: 1px solid rgba(240,180,41,.45); font: 700 28px "Inter"; letter-spacing: .2em; text-transform: uppercase; color: #9a6700; }
+
+    .o-title { position: absolute; left: 860px; top: 200px; width: 1000px; font: 900 76px/1.05 "Inter"; letter-spacing: -.03em; background: linear-gradient(90deg, #1f2328 0%, #9a6700 60%, #1a7f37 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .o-item { position: absolute; left: 900px; width: 880px; font: 600 40px "Inter"; display: flex; align-items: center; gap: 18px; }
+    #o-i1 { top: 430px; } #o-i2 { top: 510px; }
+    .o-link { position: absolute; left: 900px; top: 620px; width: 880px; background: #ffffff; border: 1px solid #d0d7de; border-radius: 16px; padding: 22px 28px; }
+    .o-link .l { font: 600 28px "Inter"; color: #57606a; display: flex; align-items: center; gap: 12px; }
+    .o-link .u { font: 500 28px "JetBrains Mono"; color: #1f2328; margin-top: 8px; }
+    .o-built { position: absolute; left: 900px; top: 820px; display: flex; align-items: center; gap: 18px; font: 500 28px "Inter"; color: #57606a; }
+    .o-thanks { position: absolute; left: 900px; top: 900px; font: 800 48px "Inter"; color: #9a6700; display: flex; align-items: center; gap: 16px; }
+  </style>
+  <div id="root" data-composition-id="outro" data-width="1920" data-height="1080">
+    <div class="bg"></div><div class="dots"></div>
+    <div id="outro-stage" style="position:absolute;inset:0">
+      <div id="o-title" class="o-title">Let the agent review you.</div>
+      <div id="o-i1" class="o-item"><svg class="ic" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#9a6700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2" />
+  <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+  <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+  <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+  <circle cx="12" cy="12" r="3" />
+  <path d="m16 16-1.9-1.9" /></svg>It found my mistakes</div>
+      <div id="o-i2" class="o-item"><svg class="ic" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+  <path d="m9 12 2 2 4-4" /></svg>Then it checked my fix</div>
+      <div id="o-link" class="o-link"><div class="l"><svg class="ic" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#57606a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15" />
+  <circle cx="18" cy="6" r="3" />
+  <circle cx="6" cy="18" r="3" />
+  <path d="M18 9a9 9 0 0 1-9 9" /></svg>Code + write-up · branch war-review</div><div class="u">github.com/andrezc98/rompe-tu-agente</div></div>
+      <div id="o-built" class="o-built">Built with <img class="aws" src="assets/aws/wa.svg" width="40" height="40" alt="" style="border-radius:6px;flex:none"> Agent Toolkit · <img class="aws" src="assets/aws/bedrock.svg" width="40" height="40" alt="" style="border-radius:6px;flex:none"> Amazon Bedrock · Strands Evals</div>
+      <div id="o-thanks" class="o-thanks"><svg class="ic" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#9a6700" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>Thanks for watching!</div>
+    </div>
+  </div>
+  <script>
+    const C = { title: 0.3, i1: 2.8, i2: 3.84, link: 5.6, thanks: 8.0 };
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#o-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, C.title);
+    tl.fromTo("#o-i1", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, C.i1);
+    tl.fromTo("#o-i2", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, C.i2);
+    tl.fromTo(["#o-link", "#o-built"], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.3, ease: "power3.out" }, C.link);
+    tl.fromTo("#o-thanks", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, C.thanks);
+    tl.fromTo("#outro-stage", { scale: 1 }, { scale: 1.025, transformOrigin: "50% 40%", duration: 10.48, ease: "none" }, 0); // slow push
+    window.__timelines["outro"] = tl;
+  </script>
+</template>

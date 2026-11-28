@@ -1,0 +1,78 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #ffffff; color: #1f2328; font-family: "Inter"; overflow: hidden; }
+    .x-kicker { position: absolute; left: 160px; top: 60px; font: 700 28px "Inter"; letter-spacing: .2em; text-transform: uppercase; color: #1a7f37; }
+    .x-node { position: absolute; top: 200px; width: 340px; height: 150px; border-radius: 16px; background: #ffffff; border: 2px solid #c4ccd6; display: flex; flex-direction: column; justify-content: center; padding: 0 26px; }
+    .x-node b { font: 800 36px "Inter"; display: flex; align-items: center; gap: 12px; } .x-node span { font: 400 28px "JetBrains Mono"; color: #57606a; margin-top: 6px; }
+    #x-n1 { left: 160px; border-color: #0e7490; background: rgba(34,211,238,.10); } #x-n2 { left: 580px; border-color: #9a6700; background: rgba(240,180,41,.10); } #x-n3 { left: 1000px; border-color: #8250df; background: rgba(167,139,250,.12); } #x-n4 { left: 1420px; border-color: #1a7f37; background: rgba(63,185,80,.12); }
+    .x-arrow { position: absolute; top: 272px; height: 6px; width: 80px; background: #6e7781; transform-origin: left center; }
+    .x-arrow::after { content: ""; position: absolute; right: -4px; top: -9px; border-left: 18px solid #6e7781; border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+    #x-a1 { left: 500px; } #x-a2 { left: 920px; } #x-a3 { left: 1340px; }
+    .x-alab { position: absolute; top: 150px; font: 600 28px "Inter"; color: #9a6700; }
+    .x-lab { position: absolute; top: 380px; width: 340px; font: 400 28px/1.35 "Inter"; color: #32383f; border-top: 2px solid #c4ccd6; padding-top: 14px; }
+    .x-lab code { font: 400 28px "JetBrains Mono"; color: #1a7f37; }
+    #x-l2 { left: 580px; } #x-l3 { left: 1000px; } #x-l4 { left: 1420px; }
+    .x-code { position: absolute; left: 160px; top: 640px; width: 1020px; background: #ffffff; border: 1px solid #d0d7de; border-radius: 16px; padding: 22px 28px; font: 400 28px/1.5 "JetBrains Mono"; color: #32383f; }
+    .x-code .path { color: #6e7781; } .x-code .k { color: #9a6700; }
+    .x-ci { position: absolute; left: 1240px; top: 640px; width: 520px; background: #ffffff; border: 1px solid #d0d7de; border-radius: 16px; padding: 22px 28px; font: 400 28px/1.45 "Inter"; }
+    .x-ci .t { font: 700 30px "Inter"; margin-bottom: 10px; display: block; }
+    .x-ci .old { color: #6e7781; text-decoration: line-through; display: block; }
+    .x-ci .new { color: #1f2328; display: block; } .x-ci .new b { color: #1a7f37; }
+
+    .bg { position: absolute; inset: 0; background: radial-gradient(1100px 700px at 12% 8%, rgba(63,185,80,.20), transparent 70%), radial-gradient(1000px 760px at 92% 95%, rgba(34,211,238,.18), transparent 70%), #f6f8fb; }
+    .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(31,35,40,.08) 1.5px, transparent 1.5px); background-size: 36px 36px; }
+    .ic { display: inline-block; vertical-align: -0.14em; flex: none; }
+    .pill { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px; border-radius: 999px; background: rgba(63,185,80,.14); border: 1px solid rgba(63,185,80,.45); }
+    .aws-iam { display: inline-block; width: 30px; height: 30px; margin-right: 10px; vertical-align: -0.2em; border-radius: 4px; background: url(assets/aws/iam.svg) center/contain no-repeat; }
+  </style>
+  <div id="root" data-composition-id="fix" data-width="1920" data-height="1080">
+    <div class="bg"></div><div class="dots"></div>
+    <div id="fix-stage" style="position:absolute;inset:0">
+    <div id="x-kicker" class="x-kicker pill"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>The fix · single-use human approval</div>
+    <div id="x-n1" class="x-node"><b><svg class="ic"  width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg>A person</b><span>approvals mint</span></div>
+    <div id="x-a1" class="x-arrow"></div><div id="x-al1" class="x-alab" style="left:470px">1 instance · 15 min</div>
+    <div id="x-n2" class="x-node"><b><img class="aws" src="assets/aws/dynamodb.svg" width="40" height="40" alt="" style="border-radius:5px;vertical-align:-0.2em;flex:none">Approval</b><span>DynamoDB item</span></div>
+    <div id="x-a2" class="x-arrow"></div><div id="x-al2" class="x-alab" style="left:860px">consumed once</div>
+    <div id="x-n3" class="x-node"><b><svg class="ic"  width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#8250df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>stop_instance</b><span>agent role</span></div>
+    <div id="x-a3" class="x-arrow"></div>
+    <div id="x-n4" class="x-node"><b><img class="aws" src="assets/aws/ec2.svg" width="40" height="40" alt="" style="border-radius:5px;vertical-align:-0.2em;flex:none">pagos-dev</b><span>EC2</span></div>
+    <div id="x-l2" class="x-lab"><span id="x-iam1" class="aws-iam"></span>Agent role: <code>dynamodb:DeleteItem</code> only. It can never create an approval.</div>
+    <div id="x-l3" class="x-lab"><span id="x-iam2" class="aws-iam"></span>No <code>SENTINEL_ROLE_ARN</code> → no tools. Real account ID checked first.</div>
+    <div id="x-l4" class="x-lab"><span id="x-iam3" class="aws-iam"></span><code>StopPagosDev</code>: team=pagos AND env=dev. Prod deny kept.</div>
+    <div id="x-code" class="x-code">
+      <div class="path"><svg class="ic"  width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6e7781" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3" /> <path d="M3 5V19A9 3 0 0 0 21 19V5" /> <path d="M3 12A9 3 0 0 0 21 12" /></svg> agent/approvals.py · consume()</div>
+      <div>ddb.delete_item(TableName=TABLE, Key={"ticket": ...},</div>
+      <div>&nbsp;&nbsp;<span class="k">ConditionExpression</span>="instance_id = :i AND #a = :a</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND expires_at &gt; :now")</div>
+      <div style="color:#6e7781"># missing, reused, expired, other instance: refused</div>
+    </div>
+    <div id="x-ci" class="x-ci">
+      <span class="t"><svg class="ic"  width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15" /> <circle cx="18" cy="6" r="3" /> <circle cx="6" cy="18" r="3" /> <path d="M18 9a9 9 0 0 1-9 9" /></svg> CI, split in two</span>
+      <span class="old">one role, any branch</span>
+      <span class="new"><b>eval role</b>: PRs + main, can't deploy</span>
+      <span class="new"><b>deploy role</b>: demo env + reviewer</span>
+    </div>
+    </div>
+  </div>
+  <script>
+    const C = { n1: 1.59, n2: 2.65, n3: 6.7, code: 8.01, l2: 9.74, l3: 13.36, l4: 17.89, ci: 20.72 };
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#x-kicker", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+    tl.fromTo("#x-n1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, C.n1);
+    tl.fromTo("#x-a1", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, C.n2 - 0.3);
+    tl.fromTo("#x-al1", { opacity: 0 }, { opacity: 1, duration: 0.3 }, C.n2);
+    tl.fromTo("#x-n2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, C.n2);
+    tl.fromTo("#x-a2", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, C.n3 - 0.3);
+    tl.fromTo("#x-al2", { opacity: 0 }, { opacity: 1, duration: 0.3 }, C.n3);
+    tl.fromTo("#x-n3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, C.n3);
+    tl.fromTo("#x-a3", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, C.n3 + 0.6);
+    tl.fromTo("#x-n4", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, C.n3 + 0.9);
+    tl.fromTo("#x-code", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.code);
+    tl.fromTo("#x-l2", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 }, C.l2);
+    tl.fromTo("#x-l3", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 }, C.l3);
+    tl.fromTo("#x-l4", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 }, C.l4);
+    tl.fromTo("#x-ci", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.ci);
+    tl.fromTo("#fix-stage", { scale: 1 }, { scale: 1.025, transformOrigin: "50% 40%", duration: 24.52, ease: "none" }, 0); // slow push: no frozen holds under the voice
+    window.__timelines["fix"] = tl;
+  </script>
+</template>

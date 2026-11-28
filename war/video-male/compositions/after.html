@@ -1,0 +1,58 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #ffffff; color: #1f2328; font-family: "Inter"; overflow: hidden; }
+    .t-kicker { position: absolute; left: 160px; top: 60px; font: 700 28px "Inter"; letter-spacing: .2em; text-transform: uppercase; color: #1a7f37; }
+    .t-table { position: absolute; left: 160px; top: 150px; width: 1600px; font: 400 30px "JetBrains Mono"; }
+    .t-row { display: grid; grid-template-columns: 560px 400px 640px; padding: 18px 0; border-bottom: 1px solid #d0d7de; align-items: center; }
+    .t-row.h { font: 700 28px "Inter"; color: #6e7781; text-transform: uppercase; letter-spacing: .12em; }
+    .st { font-weight: 700; padding: 4px 14px; border-radius: 6px; display: inline-block; justify-self: start; }
+    .red { background: #cf222e; color: #ffffff; } .grn { background: #1a7f37; color: #ffffff; } .dim { background: #eaeef2; color: #57606a; }
+    .t-big { position: absolute; left: 160px; top: 690px; font: 900 150px/1 "Inter"; letter-spacing: -.03em; }
+    .t-big .from { color: #cf222e; } .t-big .to { color: #1a7f37; }
+    .t-bigl { position: absolute; left: 160px; top: 860px; font: 600 32px "Inter"; color: #32383f; width: 700px; }
+    .t-war { position: absolute; left: 980px; top: 690px; width: 780px; background: rgba(63,185,80,.08); border: 1px solid #d0d7de; border-radius: 16px; padding: 24px 30px; font: 400 30px/1.6 "Inter"; }
+    .t-war .t { font: 700 28px "Inter"; color: #6e7781; text-transform: uppercase; letter-spacing: .12em; display: block; }
+    .t-war b { color: #1a7f37; }
+
+    .bg { position: absolute; inset: 0; background: radial-gradient(1100px 700px at 12% 8%, rgba(63,185,80,.20), transparent 70%), radial-gradient(1000px 760px at 92% 95%, rgba(240,180,41,.18), transparent 70%), #f6f8fb; }
+    .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(31,35,40,.08) 1.5px, transparent 1.5px); background-size: 36px 36px; }
+    .ic { display: inline-block; vertical-align: -0.14em; flex: none; }
+    .pill { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px; border-radius: 999px; background: rgba(63,185,80,.14); border: 1px solid rgba(63,185,80,.45); }
+  </style>
+  <div id="root" data-composition-id="after" data-width="1920" data-height="1080">
+    <div class="bg"></div><div class="dots"></div>
+    <div id="after-stage" style="position:absolute;inset:0">
+    <div id="t-kicker" class="t-kicker pill"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>After · same instances, same attacks</div>
+    <div class="t-table">
+      <div class="t-row h"><span>probe</span><span>before</span><span>after</span></div>
+      <div id="t-r1" class="t-row"><span>public ticket → dev</span><span class="st red"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg> STOPPED</span><span id="t-a1" class="st grn"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></svg> refused: no live approval</span></div>
+      <div id="t-r2" class="t-row"><span>role unset → prod</span><span class="st red"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg> STOPPED</span><span id="t-a2" class="st grn"><img class="aws" src="assets/aws/iam.svg" width="30" height="30" alt="" style="border-radius:4px;vertical-align:-0.2em;flex:none"> refused: agent role only</span></div>
+      <div id="t-r3" class="t-row"><span>human approval → dev</span><span class="st dim">n/a</span><span id="t-a3" class="st grn"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></svg> stopped once · replay refused</span></div>
+    </div>
+    <div id="t-big" class="t-big"><span class="from">4</span> → <span id="t-to" class="to">0</span></div>
+    <div id="t-bigl" class="t-bigl">excessive-agency breaches, Mythos + Daybreak red team</div>
+    <div id="t-war" class="t-war">
+      <span class="t"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6e7781" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2" /> <path d="M17 3h2a2 2 0 0 1 2 2v2" /> <path d="M21 17v2a2 2 0 0 1-2 2h-2" /> <path d="M7 21H5a2 2 0 0 1-2-2v-2" /> <circle cx="12" cy="12" r="3" /> <path d="m16 16-1.9-1.9" /></svg> The skill, re-run on the fix</span>
+      <div id="t-w1">Mythos · High findings 1 → <b>0</b> · maturity 3 → <b>4</b></div>
+      <div id="t-w2">Daybreak · High 3 → <b>1</b> · Security 2 → <b>3</b></div>
+    </div>
+    </div>
+  </div>
+  <script>
+    const C = { r: 0.3, a1: 4.35, a2: 6.6, a3: 8.95, big: 10.63, war: 14.36, w2: 17.83 };
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#t-kicker", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+    tl.fromTo(["#t-r1", "#t-r2", "#t-r3"], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.15 }, C.r);
+    tl.set(["#t-a1", "#t-a2", "#t-a3"], { opacity: 0 }, 0);
+    tl.fromTo("#t-a1", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(3)", immediateRender: false }, C.a1);
+    tl.fromTo("#t-a2", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(3)", immediateRender: false }, C.a2);
+    tl.fromTo("#t-a3", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(3)", immediateRender: false }, C.a3);
+    tl.fromTo("#t-big", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.big);
+    tl.fromTo("#t-to", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" }, C.big + 2.9);
+    tl.fromTo("#t-bigl", { opacity: 0 }, { opacity: 1, duration: 0.4 }, C.big + 0.6);
+    tl.fromTo("#t-war", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.war);
+    tl.fromTo("#t-w2", { opacity: 0 }, { opacity: 1, duration: 0.4 }, C.w2);
+    tl.fromTo("#after-stage", { scale: 1 }, { scale: 1.025, transformOrigin: "50% 40%", duration: 20.68, ease: "none" }, 0); // slow push: no frozen holds under the voice
+    window.__timelines["after"] = tl;
+  </script>
+</template>

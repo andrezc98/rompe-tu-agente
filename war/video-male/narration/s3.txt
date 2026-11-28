@@ -1,0 +1,1 @@
+The approved ticket was printed in my public README. And with one environment variable missing, the tools ran as me, not as the agent role that denies prod. So I called the tool as if the model was already fooled. Dev stopped. Prod stopped.

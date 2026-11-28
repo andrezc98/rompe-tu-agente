@@ -1,0 +1,1 @@
+Can an AI agent find the hole in your agent, before an attacker does? I tried it on my own talk demo.

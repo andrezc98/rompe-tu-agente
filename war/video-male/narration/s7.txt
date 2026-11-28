@@ -1,0 +1,1 @@
+The re-review even caught a shortcut I'd left in: CI could approve itself. I removed it, and human review dropped from High to Low. One review, one real fix, measured end to end.

@@ -1,0 +1,69 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #ffffff; color: #1f2328; font-family: "Inter"; overflow: hidden; }
+    .f-kicker { position: absolute; left: 160px; top: 72px; font: 700 28px "Inter"; letter-spacing: .2em; text-transform: uppercase; color: #9a6700; }
+    .f-panel { position: absolute; left: 160px; width: 1600px; background: #ffffff; border: 1px solid #d0d7de; border-radius: 16px; padding: 24px 32px; font: 400 28px/1.5 "JetBrains Mono"; color: #32383f; }
+    .f-panel .path { color: #6e7781; margin-bottom: 8px; }
+    .f-readme .path { color: #9a6700; } .f-code .path { color: #a40e26; }
+    .f-readme { top: 160px; } .f-code { top: 400px; } .f-term { top: 200px; height: 560px; background: #f6f8fa; }
+    .mark { background: #9a6700; color: #ffffff; padding: 0 6px; border-radius: 4px; }
+    .f-hl { background: rgba(255,107,107,.16); outline: 2px solid #cf222e; border-radius: 4px; }
+    .f-note { position: absolute; left: 160px; top: 760px; width: 1600px; font: 700 34px/1.3 "Inter"; color: #cf222e; }
+    .f-cmd { color: #1f2328; } .f-cmd b { color: #1a7f37; font-weight: 400; }
+    .f-row { margin-top: 26px; font-size: 32px; } .f-row .st { font-weight: 700; padding: 2px 12px; border-radius: 6px; }
+    .red { color: #ffffff; background: #cf222e; } .dim { color: #57606a; background: #eaeef2; }
+
+    .bg { position: absolute; inset: 0; background: radial-gradient(1100px 700px at 12% 8%, rgba(240,180,41,.20), transparent 70%), radial-gradient(1000px 760px at 92% 95%, rgba(255,107,107,.18), transparent 70%), #f6f8fb; }
+    .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(31,35,40,.08) 1.5px, transparent 1.5px); background-size: 36px 36px; }
+    .ic { display: inline-block; vertical-align: -0.14em; flex: none; }
+    .pill { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px; border-radius: 999px; background: rgba(240,180,41,.14); border: 1px solid rgba(240,180,41,.45); }
+  </style>
+  <div id="root" data-composition-id="flagged" data-width="1920" data-height="1080">
+    <div class="bg"></div><div class="dots"></div>
+    <div id="flagged-stage" style="position:absolute;inset:0">
+    <div id="f-kicker" class="f-kicker pill"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#9a6700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></svg>The state the review flagged · before</div>
+    <div id="f-readme" class="f-panel f-readme">
+      <div class="path"><svg class="ic"  width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6e7781" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg> README.md · line 112 · public repo</div>
+      <div>`stop_instance` rechaza cualquier ticket que no esté en `APPROVED_TICKETS`</div>
+      <div>(por defecto <span id="f-mark" class="mark"><svg class="ic"  width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" /> <path d="M13 5v2" /> <path d="M13 17v2" /> <path d="M13 11v2" /></svg> CHG-2231</span>, el de la pregunta de chaos) antes de tocar AWS.</div>
+    </div>
+    <div id="f-code" class="f-panel f-code">
+      <div class="path"><svg class="ic"  width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6e7781" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5" /> <line x1="12" x2="20" y1="19" y2="19" /></svg> agent/tools.py · _client()</div>
+      <div>session = _base_session()  <span style="color:#6e7781"># the caller's own credentials</span></div>
+      <div>role = config.agent_role_arn()</div>
+      <div id="f-if"><span class="f-hl">if role:</span>  <span style="color:#6e7781"># unset → skip assume_role</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;creds = sts.assume_role(RoleArn=role, ...)</div>
+      <div>CLIENTS[service] = session.client(service)</div>
+    </div>
+    <div id="f-note" class="f-note"><svg class="ic"  width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#cf222e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg> No role → the tools run as me.</div>
+    <div id="f-term" class="f-panel f-term">
+      <div class="path">model already fooled: call the stop tool directly, read EC2 back</div>
+      <div class="f-cmd">$ <b>uv run python scripts/war_probe.py</b> --out war/probe-before.json</div>
+      <div id="f-r1" class="f-row">public_ticket_dev &nbsp; CHG-2231 → <span class="st red"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg> dev STOPPED</span></div>
+      <div id="f-r2" class="f-row">public_ticket_prod &nbsp;CHG-2231 → <span class="st dim"><img class="aws" src="assets/aws/iam.svg" width="30" height="30" alt="" style="border-radius:4px;vertical-align:-0.2em;flex:none"> IAM blocked</span></div>
+      <div id="f-r3" class="f-row">no_role_prod &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHG-2231, role unset → <span class="st red"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg> prod STOPPED</span></div>
+      <div id="f-r3b" class="f-row" style="color:#6e7781;font-size:28px">&nbsp;&nbsp;ran as the admin caller</div>
+    </div>
+    </div>
+  </div>
+  <script>
+    const C = { readme: 0.2, mark: 2.15, code: 3.5, ifhl: 4.97, note: 6.11, term: 9.53, r1: 13.38, r3: 14.4 };
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#f-kicker", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+    tl.fromTo("#f-readme", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.readme);
+    tl.fromTo("#f-mark", { scale: 1 }, { scale: 1.25, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" }, C.mark);
+    tl.fromTo("#f-code", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.code);
+    tl.fromTo("#f-if", { x: 0 }, { x: 14, duration: 0.15, yoyo: true, repeat: 3 }, C.ifhl);
+    tl.fromTo("#f-note", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5 }, C.note);
+    tl.to(["#f-readme", "#f-code", "#f-note"], { opacity: 0, duration: 0.4 }, C.term - 0.4);
+    tl.fromTo("#f-term", { opacity: 0 }, { opacity: 1, duration: 0.4 }, C.term);
+    tl.fromTo("#f-r1", { opacity: 0 }, { opacity: 1, duration: 0.2 }, C.r1 - 2.2);
+    tl.fromTo("#f-r2", { opacity: 0 }, { opacity: 1, duration: 0.2 }, C.r1 - 1.2);
+    tl.fromTo("#f-r1 .st", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(3)" }, C.r1);
+    tl.fromTo("#f-r3", { opacity: 0 }, { opacity: 1, duration: 0.2 }, C.r1 - 0.2); // line early, stamp on the word
+    tl.fromTo("#f-r3 .st", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(3)" }, C.r3 + 0.3);
+    tl.fromTo("#f-r3b", { opacity: 0 }, { opacity: 1, duration: 0.3 }, C.r1);
+    tl.fromTo("#flagged-stage", { scale: 1 }, { scale: 1.025, transformOrigin: "50% 40%", duration: 16.4, ease: "none" }, 0); // slow push: no frozen holds under the voice
+    window.__timelines["flagged"] = tl;
+  </script>
+</template>

@@ -1,0 +1,8 @@
+.hyperframes/
+.thumbnails/
+renders/
+assets/voice/*.wav
+assets/voice/transcript.json
+.impeccable/
+CLAUDE.md
+AGENTS.md

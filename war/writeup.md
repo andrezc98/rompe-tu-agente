@@ -1,6 +1,7 @@
 # Two agents reviewed my agent, then I let two more try to break it
 
 **Hackathon:** Let the Agent Review You (AWS Builder Center, Nov 2026)
+**Video:** [youtu.be/Z4oUGpGqVA0](https://youtu.be/Z4oUGpGqVA0) (2:33)
 **Code:** [`andrezc98/rompe-tu-agente`, branch `war-review`](https://github.com/andrezc98/rompe-tu-agente/tree/war-review) (the "before" is `main` at `2615493`)
 
 ## What I built

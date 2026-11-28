@@ -1,0 +1,50 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #ffffff; color: #1f2328; font-family: "Inter"; overflow: hidden; }
+    .c-kicker { position: absolute; left: 160px; top: 72px; font: 700 28px "Inter"; letter-spacing: .2em; text-transform: uppercase; color: #9a6700; }
+    .c-find { position: absolute; left: 160px; top: 180px; width: 1600px; background: #ffffff; border: 1px solid #f3b7bd; border-radius: 12px; padding: 26px 34px; }
+    .c-find .id { font: 700 28px "JetBrains Mono"; color: #cf222e; }
+    .c-find .tt { font: 700 48px "Inter"; margin-top: 8px; position: relative; display: inline-block; }
+    .c-strike { position: absolute; left: 0; top: 52%; height: 6px; width: 100%; background: #1a7f37; transform-origin: left center; }
+    .c-fix { font: 400 30px "Inter"; color: #57606a; margin-top: 12px; }
+    .c-bp { position: absolute; left: 160px; top: 470px; font: 700 40px "JetBrains Mono"; color: #32383f; }
+    .c-bp .h { color: #cf222e; } .c-bp .l { color: #1a7f37; }
+    .c-end { position: absolute; left: 160px; top: 650px; font: 900 96px/1.05 "Inter"; letter-spacing: -.03em; width: 1600px; background: linear-gradient(90deg, #1f2328 0%, #9a6700 55%, #1a7f37 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .c-url { position: absolute; left: 160px; top: 900px; font: 400 30px "JetBrains Mono"; color: #6e7781; }
+
+    .bg { position: absolute; inset: 0; background: radial-gradient(1100px 700px at 12% 8%, rgba(240,180,41,.20), transparent 70%), radial-gradient(1000px 760px at 92% 95%, rgba(63,185,80,.18), transparent 70%), #f6f8fb; }
+    .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(31,35,40,.08) 1.5px, transparent 1.5px); background-size: 36px 36px; }
+    .ic { display: inline-block; vertical-align: -0.14em; flex: none; }
+    .pill { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px; border-radius: 999px; background: rgba(240,180,41,.14); border: 1px solid rgba(240,180,41,.45); }
+  </style>
+  <div id="root" data-composition-id="caught" data-width="1920" data-height="1080">
+    <div class="bg"></div><div class="dots"></div>
+    <div id="caught-stage" style="position:absolute;inset:0">
+    <div id="c-kicker" class="c-kicker pill"><img class="aws" src="assets/aws/wa.svg" width="32" height="32" alt="" style="border-radius:4px;vertical-align:-0.2em;flex:none">The re-review caught me too · Agentic AI Lens</div>
+    <div id="c-find" class="c-find">
+      <div class="id"><svg class="ic"  width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cf222e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="M12 8v4" /> <path d="M12 16h.01" /></svg> F01 · High · after-fix review</div>
+      <div class="tt">CI can self-approve the dev stop path<div id="c-strike" class="c-strike"></div></div>
+      <div id="c-fix" class="c-fix"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></svg> Removed: the CI role has no DynamoDB access at all.</div>
+    </div>
+    <div id="c-bp" class="c-bp">AGENTSEC04-BP02 human review: <span id="c-h" class="h">High</span> <span id="c-arrow">→</span> <span id="c-l" class="l">Low</span></div>
+    <div id="c-end" class="c-end">One review. One real fix. Measured end to end.</div>
+    <div id="c-url" class="c-url"><svg class="ic"  width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6e7781" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15" /> <circle cx="18" cy="6" r="3" /> <circle cx="6" cy="18" r="3" /> <path d="M18 9a9 9 0 0 1-9 9" /></svg> github.com/andrezc98/rompe-tu-agente · branch war-review</div>
+    </div>
+  </div>
+  <script>
+    const C = { find: 0.3, strike: 5.88, bp: 6.93, low: 8.9, end: 9.65 };
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#c-kicker", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+    tl.fromTo("#c-find", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.find);
+    tl.fromTo("#c-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, C.strike);
+    tl.fromTo("#c-fix", { opacity: 0 }, { opacity: 1, duration: 0.4 }, C.strike + 0.4);
+    tl.fromTo("#c-bp", { opacity: 0 }, { opacity: 1, duration: 0.4 }, C.bp);
+    tl.set(["#c-arrow", "#c-l"], { opacity: 0 }, 0);
+    tl.to("#c-arrow", { opacity: 1, duration: 0.2 }, C.low - 0.3);
+    tl.fromTo("#c-l", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out", immediateRender: false }, C.low);
+    tl.fromTo("#c-end", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, C.end);
+    tl.fromTo("#c-url", { opacity: 0 }, { opacity: 1, duration: 0.5 }, C.end + 1.0);
+    tl.fromTo("#caught-stage", { scale: 1 }, { scale: 1.025, transformOrigin: "50% 40%", duration: 13.48, ease: "none" }, 0); // slow push: no frozen holds under the voice
+    window.__timelines["caught"] = tl;
+  </script>
+</template>
